@@ -13,4 +13,9 @@ fn main() {
     println!("{:?}", m);
     println!("{}", format!("'{:>width$}'", "abc", width = 10));
     m.show(true);
+
+    // try put() method
+    let mut m = DoubleMatrix::ones(3, 2);
+    m.put(0, 1, 5.0);
+    m.show(true);
 }

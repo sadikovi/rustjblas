@@ -33,6 +33,14 @@ impl DoubleMatrix {
         DoubleMatrix { rows, cols, data: data }
     }
 
+    pub fn zeros(rows: usize, cols: usize) -> DoubleMatrix {
+        DoubleMatrix::new(rows, cols, vec![0.0; rows * cols])
+    }
+
+    pub fn ones(rows: usize, cols: usize) -> DoubleMatrix {
+        DoubleMatrix::new(rows, cols, vec![1.0; rows * cols])
+    }
+
     fn index(&self, i: usize, j: usize) -> usize {
         i + self.rows * j
     }
