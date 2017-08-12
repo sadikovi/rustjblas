@@ -23,4 +23,4 @@ COMPILED_CLASSES="com.github.sadikovi.DoubleMatrix"
 CPP_OUTPUT="$ROOT_DIR/cpp"
 
 cd $ROOT_DIR/target/scala-2.11/classes
-$JAVAH_BIN -stubs -d $CPP_OUTPUT $COMPILED_CLASSES
+$JAVAH_BIN -d $CPP_OUTPUT $COMPILED_CLASSES
