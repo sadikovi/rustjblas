@@ -3,6 +3,3 @@ name = "rustjblas"
 version = "0.1.0"
 
 [dependencies]
-
-[lib]
-path = "rust/src/lib.rs"
