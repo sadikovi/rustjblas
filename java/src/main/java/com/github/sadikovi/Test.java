@@ -1,6 +1,5 @@
 package com.github.sadikovi;
 
 public class Test {
-  public void main(String[] args) {
-  }
+  public native Test debug(String str);
 }
