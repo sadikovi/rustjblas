@@ -1,10 +1,19 @@
 package com.github.sadikovi;
 
 public class DoubleMatrix {
-  private final long pointer;
+  private static long INVALID_PTR = -1L;
+
+  private volatile long pointer;
 
   private DoubleMatrix(long pointer) {
     this.pointer = pointer;
+    assert_pointer();
+  }
+
+  private synchronized void assert_pointer() {
+    if (pointer == INVALID_PTR) {
+      throw new IllegalStateException("Invalid state of double matrix, ptr=" + pointer);
+    }
   }
 
   public static DoubleMatrix anew(int rows, int cols, double[] arr) {
@@ -28,14 +37,17 @@ public class DoubleMatrix {
   }
 
   public int rows() {
+    assert_pointer();
     return matrix_rows(pointer);
   }
 
   public int cols() {
+    assert_pointer();
     return matrix_cols(pointer);
   }
 
   public void show(boolean truncate) {
+    assert_pointer();
     matrix_show(pointer, truncate);
   }
 
@@ -44,15 +56,23 @@ public class DoubleMatrix {
     show(true);
   }
 
+  public void dealloc() {
+    assert_pointer();
+    matrix_dealloc(pointer);
+    pointer = INVALID_PTR;
+  }
+
   @Override
   public String toString() {
+    assert_pointer();
     return matrix_tostring(pointer);
   }
 
   @Override
- protected void finalize() throws Throwable {
-   matrix_dealloc(pointer);
- }
+  protected void finalize() throws Throwable {
+    // might not be ideal to call dealloc in finalize because of some unpredictability of GC
+    dealloc();
+  }
 
   // native methods
 
