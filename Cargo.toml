@@ -6,7 +6,7 @@ version = "0.1.0"
 rand = "0.3"
 
 [lib]
-crate-type = ["rlib", "dylib"]
+crate-type = ["rlib", "dylib", "staticlib"]
 name = "rustjblas"
 path = "rust/src/lib.rs"
 

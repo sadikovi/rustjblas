@@ -1,6 +1,11 @@
 package com.github.sadikovi;
 
 public class DoubleMatrix {
+  static {
+    System.out.println(System.getProperty("java.library.path"));
+    System.loadLibrary("test");
+  }
+
   private static long INVALID_PTR = -1L;
 
   private volatile long pointer;
@@ -14,26 +19,6 @@ public class DoubleMatrix {
     if (pointer == INVALID_PTR) {
       throw new IllegalStateException("Invalid state of double matrix, ptr=" + pointer);
     }
-  }
-
-  public static DoubleMatrix anew(int rows, int cols, double[] arr) {
-    long pointer = alloc_new(rows, cols, arr);
-    return new DoubleMatrix(pointer);
-  }
-
-  public static DoubleMatrix rand(int rows, int cols) {
-    long pointer = alloc_rand(rows, cols);
-    return new DoubleMatrix(pointer);
-  }
-
-  public static DoubleMatrix zeros(int rows, int cols) {
-    long pointer = alloc_zeros(rows, cols);
-    return new DoubleMatrix(pointer);
-  }
-
-  public static DoubleMatrix ones(int rows, int cols) {
-    long pointer = alloc_ones(rows, cols);
-    return new DoubleMatrix(pointer);
   }
 
   public int rows() {
@@ -72,6 +57,28 @@ public class DoubleMatrix {
   protected void finalize() throws Throwable {
     // might not be ideal to call dealloc in finalize because of some unpredictability of GC
     dealloc();
+  }
+
+  // static methods
+
+  public static DoubleMatrix anew(int rows, int cols, double[] arr) {
+    long pointer = alloc_new(rows, cols, arr);
+    return new DoubleMatrix(pointer);
+  }
+
+  public static DoubleMatrix rand(int rows, int cols) {
+    long pointer = alloc_rand(rows, cols);
+    return new DoubleMatrix(pointer);
+  }
+
+  public static DoubleMatrix zeros(int rows, int cols) {
+    long pointer = alloc_zeros(rows, cols);
+    return new DoubleMatrix(pointer);
+  }
+
+  public static DoubleMatrix ones(int rows, int cols) {
+    long pointer = alloc_ones(rows, cols);
+    return new DoubleMatrix(pointer);
   }
 
   // native methods
