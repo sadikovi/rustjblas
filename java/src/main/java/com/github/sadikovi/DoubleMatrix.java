@@ -2,8 +2,7 @@ package com.github.sadikovi;
 
 public class DoubleMatrix {
   static {
-    System.out.println(System.getProperty("java.library.path"));
-    System.loadLibrary("test");
+    loadLibrary();
   }
 
   private static long INVALID_PTR = -1L;
@@ -23,17 +22,17 @@ public class DoubleMatrix {
 
   public int rows() {
     assert_pointer();
-    return matrix_rows(pointer);
+    return matrix_rows();
   }
 
   public int cols() {
     assert_pointer();
-    return matrix_cols(pointer);
+    return matrix_cols();
   }
 
   public void show(boolean truncate) {
     assert_pointer();
-    matrix_show(pointer, truncate);
+    matrix_show(truncate);
   }
 
   // truncate output for large matrix
@@ -43,14 +42,19 @@ public class DoubleMatrix {
 
   public void dealloc() {
     assert_pointer();
-    matrix_dealloc(pointer);
+    matrix_dealloc();
     pointer = INVALID_PTR;
+  }
+
+  // get current pointer value
+  public long ptr() {
+    return pointer;
   }
 
   @Override
   public String toString() {
     assert_pointer();
-    return matrix_tostring(pointer);
+    return matrix_tostring();
   }
 
   @Override
@@ -81,6 +85,24 @@ public class DoubleMatrix {
     return new DoubleMatrix(pointer);
   }
 
+  private static void loadLibrary() {
+    // first check LD_LIBRARY_PATH, then DYLD_LIBRARY_PATH
+    String linuxPath = System.getenv("LD_LIBRARY_PATH");
+    String osxPath = System.getenv("DYLD_LIBRARY_PATH");
+    // actual value for library path, append env variables if set
+    String value = System.getProperty("java.library.path");
+    value = (value == null) ? "." : value;
+    if (linuxPath != null) {
+      value = value + ":" + linuxPath;
+    }
+    if (osxPath != null) {
+      value = value + ":" + osxPath;
+    }
+    System.setProperty("java.library.path", value);
+    System.out.println("Library path: " + System.getProperty("java.library.path"));
+    System.loadLibrary("rustjblas");
+  }
+
   // native methods
 
   private static native long alloc_new(int rows, int cols, double[] arr);
@@ -91,13 +113,13 @@ public class DoubleMatrix {
 
   private static native long alloc_ones(int rows, int cols);
 
-  private static native int matrix_rows(long pointer);
+  private native int matrix_rows();
 
-  private static native int matrix_cols(long pointer);
+  private native int matrix_cols();
 
-  private static native void matrix_show(long pointer, boolean truncate);
+  private native void matrix_show(boolean truncate);
 
-  private static native String matrix_tostring(long pointer);
+  private native String matrix_tostring();
 
-  private static native void matrix_dealloc(long pointer);
+  private native void matrix_dealloc();
 }

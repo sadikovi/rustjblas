@@ -42,42 +42,42 @@ JNIEXPORT jlong JNICALL Java_com_github_sadikovi_DoubleMatrix_alloc_1ones
 /*
  * Class:     com_github_sadikovi_DoubleMatrix
  * Method:    matrix_rows
- * Signature: (J)I
+ * Signature: ()I
  */
 JNIEXPORT jint JNICALL Java_com_github_sadikovi_DoubleMatrix_matrix_1rows
-  (JNIEnv *, jclass, jlong);
+  (JNIEnv *, jobject);
 
 /*
  * Class:     com_github_sadikovi_DoubleMatrix
  * Method:    matrix_cols
- * Signature: (J)I
+ * Signature: ()I
  */
 JNIEXPORT jint JNICALL Java_com_github_sadikovi_DoubleMatrix_matrix_1cols
-  (JNIEnv *, jclass, jlong);
+  (JNIEnv *, jobject);
 
 /*
  * Class:     com_github_sadikovi_DoubleMatrix
  * Method:    matrix_show
- * Signature: (JZ)V
+ * Signature: (Z)V
  */
 JNIEXPORT void JNICALL Java_com_github_sadikovi_DoubleMatrix_matrix_1show
-  (JNIEnv *, jclass, jlong, jboolean);
+  (JNIEnv *, jobject, jboolean);
 
 /*
  * Class:     com_github_sadikovi_DoubleMatrix
  * Method:    matrix_tostring
- * Signature: (J)Ljava/lang/String;
+ * Signature: ()Ljava/lang/String;
  */
 JNIEXPORT jstring JNICALL Java_com_github_sadikovi_DoubleMatrix_matrix_1tostring
-  (JNIEnv *, jclass, jlong);
+  (JNIEnv *, jobject);
 
 /*
  * Class:     com_github_sadikovi_DoubleMatrix
  * Method:    matrix_dealloc
- * Signature: (J)V
+ * Signature: ()V
  */
 JNIEXPORT void JNICALL Java_com_github_sadikovi_DoubleMatrix_matrix_1dealloc
-  (JNIEnv *, jclass, jlong);
+  (JNIEnv *, jobject);
 
 #ifdef __cplusplus
 }
