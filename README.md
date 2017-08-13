@@ -18,9 +18,10 @@ Package java source files
 sbt package
 ```
 
-Now you can run scala shell with following options:
+Now you can run scala shell with following options (use DYLD_LIBRARY_PATH on OS X):
 ```
-JAVA_OPTS="-Djava.library.path=target/cpp" scala -cp target/scala-2.11/rustjblas_2.11-0.1.0-SNAPSHOT.jar
+LD_LIBRARY_PATH=target/debug JAVA_OPTS="-Djava.library.path=target/cpp" \
+scala -cp target/scala-2.11/rustjblas_2.11-0.1.0-SNAPSHOT.jar
 ```
 
 ... and try creating instances in shell:
@@ -34,7 +35,8 @@ val t = com.github.sadikovi.DoubleMatrix.rand(20, 10)
 t.show()
 ```
 
-Or you can run java main class that performs example init and method calls:
+Or you can run java main class that performs example init and method calls (use DYLD_LIBRARY_PATH on OS X):
 ```
+LD_LIBRARY_PATH=target/debug \
 java -Djava.library.path=target/cpp -cp target/scala-2.11/rustjblas_2.11-0.1.0-SNAPSHOT.jar com.github.sadikovi.Main
 ```

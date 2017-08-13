@@ -11,7 +11,7 @@ extern "C" {
   /* instance methods */
   int double_matrix_instance_rows(void*);
   int double_matrix_instance_cols(void*);
-  void double_matrix_instance_show(void*, bool);
+  void double_matrix_instance_show(void*, int);
   const char* double_matrix_instance_tostring(void*);
   void double_matrix_instance_dealloc(void*);
 
@@ -94,7 +94,7 @@ extern "C" {
     jclass clazz = env->GetObjectClass(obj);
     jfieldID fid = env->GetFieldID(clazz, "pointer", "J");
     jlong ptr = env->GetLongField(obj, fid);
-    double_matrix_instance_show((void*) ptr, truncate);
+    double_matrix_instance_show((void*) ptr, (int) truncate);
   }
 
   /*

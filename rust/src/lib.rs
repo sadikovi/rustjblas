@@ -4,7 +4,7 @@ pub mod matrix;
 
 use std::mem;
 use std::ffi::CString;
-use libc::{boolean_t, int32_t, c_double, c_char, size_t};
+use libc::{int32_t, c_double, c_char, size_t};
 use matrix::DoubleMatrix;
 
 #[no_mangle]
@@ -52,7 +52,7 @@ pub extern "C" fn double_matrix_instance_cols(ptr: *const DoubleMatrix) -> int32
 }
 
 #[no_mangle]
-pub extern "C" fn double_matrix_instance_show(ptr: *const DoubleMatrix, truncate: boolean_t) {
+pub extern "C" fn double_matrix_instance_show(ptr: *const DoubleMatrix, truncate: int32_t) {
     let truncate = truncate == 1;
     unsafe {
         (*ptr).show(truncate);
