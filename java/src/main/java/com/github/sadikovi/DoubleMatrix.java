@@ -51,9 +51,14 @@ public class DoubleMatrix {
     return pointer;
   }
 
+  // whether or not matrix is valid (not deallocated)
+  public boolean memoryValid() {
+    return pointer != INVALID_PTR;
+  }
+
   @Override
   public String toString() {
-    assert_pointer();
+    if (pointer == INVALID_PTR) return "<matrix dealloc, pointer " + pointer + ">";
     return matrix_tostring();
   }
 

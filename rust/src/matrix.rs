@@ -3,6 +3,7 @@ extern crate rand;
 use std::fmt::{Display, Error, Formatter};
 use self::rand::Rng;
 
+#[repr(C)]
 #[derive(Debug)]
 pub struct DoubleMatrix {
     rows: usize,

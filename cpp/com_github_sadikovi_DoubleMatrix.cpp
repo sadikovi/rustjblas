@@ -2,14 +2,30 @@
 
 extern "C" {
   /*
+   * Define methods to link from rust static library
+   */
+  long double_matrix_alloc_new(int, int, size_t, const double*);
+  long double_matrix_alloc_rand(int, int);
+  long double_matrix_alloc_zeros(int, int);
+  long double_matrix_alloc_ones(int, int);
+  /* instance methods */
+  int double_matrix_instance_rows(void*);
+  int double_matrix_instance_cols(void*);
+  void double_matrix_instance_show(void*, bool);
+  const char* double_matrix_instance_tostring(void*);
+  void double_matrix_instance_dealloc(void*);
+
+  /*
    * Class:     com_github_sadikovi_DoubleMatrix
    * Method:    alloc_new
    * Signature: (II[D)J
    */
   JNIEXPORT jlong JNICALL Java_com_github_sadikovi_DoubleMatrix_alloc_1new(
       JNIEnv *env, jclass type, jint rows, jint cols, jdoubleArray data) {
-    jlong ptr = 1L;
-    return ptr;
+    jsize len = env->GetArrayLength(data);
+    // always copy elements from java heap
+    jdouble *body = env->GetDoubleArrayElements(data, 0);
+    return double_matrix_alloc_new(rows, cols, len, body);
   }
 
   /*
@@ -19,8 +35,7 @@ extern "C" {
    */
   JNIEXPORT jlong JNICALL Java_com_github_sadikovi_DoubleMatrix_alloc_1rand(
       JNIEnv *env, jclass type, jint rows, jint cols) {
-    jlong ptr = 1L;
-    return ptr;
+    return double_matrix_alloc_rand(rows, cols);
   }
 
   /*
@@ -30,8 +45,7 @@ extern "C" {
    */
   JNIEXPORT jlong JNICALL Java_com_github_sadikovi_DoubleMatrix_alloc_1zeros(
       JNIEnv *env, jclass type, jint rows, jint cols) {
-    jlong ptr = 1L;
-    return ptr;
+    return double_matrix_alloc_zeros(rows, cols);
   }
 
   /*
@@ -41,8 +55,7 @@ extern "C" {
    */
   JNIEXPORT jlong JNICALL Java_com_github_sadikovi_DoubleMatrix_alloc_1ones(
       JNIEnv *env, jclass type, jint rows, jint cols) {
-    jlong ptr = 1L;
-    return ptr;
+    return double_matrix_alloc_ones(rows, cols);
   }
 
   /*
@@ -52,8 +65,10 @@ extern "C" {
    */
   JNIEXPORT jint JNICALL Java_com_github_sadikovi_DoubleMatrix_matrix_1rows(
       JNIEnv *env, jobject obj) {
-    jint rows = 123;
-    return rows;
+    jclass clazz = env->GetObjectClass(obj);
+    jfieldID fid = env->GetFieldID(clazz, "pointer", "J");
+    jlong ptr = env->GetLongField(obj, fid);
+    return double_matrix_instance_rows((void*) ptr);
   }
 
   /*
@@ -62,9 +77,11 @@ extern "C" {
    * Signature: ()I
    */
   JNIEXPORT jint JNICALL Java_com_github_sadikovi_DoubleMatrix_matrix_1cols(
-      JNIEnv *env, jobject obj);
-    jint cols = 123;
-    return cols;
+      JNIEnv *env, jobject obj) {
+    jclass clazz = env->GetObjectClass(obj);
+    jfieldID fid = env->GetFieldID(clazz, "pointer", "J");
+    jlong ptr = env->GetLongField(obj, fid);
+    return double_matrix_instance_cols((void*) ptr);
   }
 
   /*
@@ -74,6 +91,10 @@ extern "C" {
    */
   JNIEXPORT void JNICALL Java_com_github_sadikovi_DoubleMatrix_matrix_1show(
       JNIEnv *env, jobject obj, jboolean truncate) {
+    jclass clazz = env->GetObjectClass(obj);
+    jfieldID fid = env->GetFieldID(clazz, "pointer", "J");
+    jlong ptr = env->GetLongField(obj, fid);
+    double_matrix_instance_show((void*) ptr, truncate);
   }
 
   /*
@@ -83,8 +104,11 @@ extern "C" {
    */
   JNIEXPORT jstring JNICALL Java_com_github_sadikovi_DoubleMatrix_matrix_1tostring(
       JNIEnv *env, jobject obj) {
-    char str[32] = "Hello, World!";
-    jstring result = env->NewStringUTF(str);
+    jclass clazz = env->GetObjectClass(obj);
+    jfieldID fid = env->GetFieldID(clazz, "pointer", "J");
+    jlong ptr = env->GetLongField(obj, fid);
+    const char *cstr = double_matrix_instance_tostring((void*) ptr);
+    jstring result = env->NewStringUTF(cstr);
     return result;
   }
 
@@ -95,5 +119,9 @@ extern "C" {
    */
   JNIEXPORT void JNICALL Java_com_github_sadikovi_DoubleMatrix_matrix_1dealloc(
       JNIEnv *env, jobject obj) {
+    jclass clazz = env->GetObjectClass(obj);
+    jfieldID fid = env->GetFieldID(clazz, "pointer", "J");
+    jlong ptr = env->GetLongField(obj, fid);
+    double_matrix_instance_dealloc((void*) ptr);
   }
 }
