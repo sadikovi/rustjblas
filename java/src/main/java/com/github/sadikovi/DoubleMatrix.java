@@ -105,7 +105,7 @@ public class DoubleMatrix {
     }
     System.setProperty("java.library.path", value);
     System.out.println("Library path: " + System.getProperty("java.library.path"));
-    System.loadLibrary("rustjblas");
+    System.loadLibrary("cjblas");
   }
 
   // native methods

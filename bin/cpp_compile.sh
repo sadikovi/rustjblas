@@ -5,9 +5,9 @@ ROOT_DIR="`cd "$bin/../"; pwd`"
 
 COMPILED_FILES="$ROOT_DIR/cpp/com_github_sadikovi_DoubleMatrix.cpp"
 
-TARGET_DIR="$ROOT_DIR/target/cpp"
+TARGET_DIR="$ROOT_DIR/cpp/target"
 
-LIB_NAME="librustjblas"
+LIB_NAME="libcjblas"
 
 if [ "$(uname)" == "Darwin" ]; then
   LIB_NAME="$LIB_NAME.dylib"
@@ -29,9 +29,15 @@ if [[ -d "$TARGET_DIR" ]]; then
 fi
 mkdir -p "$TARGET_DIR"
 
+# check that rust library has been compiled
+if [[ ! -d "$ROOT_DIR/rust/target/release" ]]; then
+  echo "Error: cannot find rust library, build lib using 'cargo build --release' from 'rust' dir"
+  exit 1
+fi
+
 cd $TARGET_DIR
-gcc -Wall -c -fPIC $COMPILED_FILES \
+gcc -Wall -shared -o $LIB_NAME \
   -I$JAVA_HOME/include \
-  -I$JAVA_HOME/include/linux &&
-gcc -o $LIB_NAME $TARGET_DIR/*.o -shared -L$ROOT_DIR/target/debug -lrustjblas &&
+  -I$JAVA_HOME/include/linux \
+  -L$ROOT_DIR/rust/target/release -lrsjblas $COMPILED_FILES &&
 echo "Compiled $TARGET_DIR/$LIB_NAME"

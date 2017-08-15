@@ -23,6 +23,3 @@ testOptions in Test += Tests.Argument("-oF")
 testOptions in Test += Tests.Argument(TestFrameworks.JUnit, "-a", "-v", "+q")
 
 parallelExecution in Test := false
-
-scalaSource in Compile := baseDirectory.value / "java"
-scalaSource in Test := baseDirectory.value / "java"

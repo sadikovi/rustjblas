@@ -2,26 +2,47 @@
 
 Library to load Rust code through JNI and use in Java. Matrix is allocated off-heap.
 
-## Build and run
-First, compile rust static library
+## Build instructions
+Required:
+- JDK 7+
+- Rust 1.19+
+- sbt, gcc, cargo
+
+Clone repository and cd to the project directory
 ```
-cargo build
+git clone https://github.com/sadikovi/rustjblas.git
+cd rustjblas
 ```
 
-Then compile C++ source files, assuming that JNI header has been generated and unchanged (default)
+Compile Java classes from projectDir/java
 ```
-./bin/cpp_compile
-```
-
-Package java source files
-```
+cd java
 sbt package
 ```
+This compiles classes and creates jar that we will use later
 
-Now you can run scala shell with following options (use DYLD_LIBRARY_PATH on OS X):
+Compile rust shared library from projectDir/rust
 ```
-LD_LIBRARY_PATH=target/debug JAVA_OPTS="-Djava.library.path=target/cpp" \
-scala -cp target/scala-2.11/rustjblas_2.11-0.1.0-SNAPSHOT.jar
+cd rust
+cargo build --release
+```
+
+Compile C++ source files, assuming that JNI header has been generated and unchanged (default).
+See **bin** folder in project directory.
+```
+./bin/cpp_compile.sh
+```
+> `bin` folder also contains script to generate .h files for native methods in Java classes.
+> Use this when adding new methods to the class, otherwise, no JNI generation is necessary.
+
+At this point you will have 2 libraries `librsjblas.so` and `libcjblas.so` (or .dylib on OSX) and
+jar file. You can run code in scala shell (if available) or run Main class.
+
+## Run code
+Run scala shell with following options (use DYLD_LIBRARY_PATH on OS X):
+```
+LD_LIBRARY_PATH=rust/target/release JAVA_OPTS="-Djava.library.path=cpp/target" \
+scala -cp java/target/scala-2.11/rustjblas_2.11-0.1.0-SNAPSHOT.jar
 ```
 
 ... and try creating instances in shell:
@@ -37,6 +58,6 @@ t.show()
 
 Or you can run java main class that performs example init and method calls (use DYLD_LIBRARY_PATH on OS X):
 ```
-LD_LIBRARY_PATH=target/debug \
-java -Djava.library.path=target/cpp -cp target/scala-2.11/rustjblas_2.11-0.1.0-SNAPSHOT.jar com.github.sadikovi.Main
+LD_LIBRARY_PATH=rust/target/release \
+java -Djava.library.path=cpp/target -cp java/target/scala-2.11/rustjblas_2.11-0.1.0-SNAPSHOT.jar com.github.sadikovi.Main
 ```

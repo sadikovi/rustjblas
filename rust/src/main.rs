@@ -1,6 +1,6 @@
-extern crate rustjblas;
+extern crate rsjblas;
 
-use rustjblas::matrix::DoubleMatrix;
+use rsjblas::matrix::DoubleMatrix;
 
 fn main() {
     let m = DoubleMatrix::rand(6, 3);
