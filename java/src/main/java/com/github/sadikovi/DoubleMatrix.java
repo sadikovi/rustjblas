@@ -40,6 +40,21 @@ public class DoubleMatrix {
     show(true);
   }
 
+  // add scalar in place
+  public DoubleMatrix addi(double scalar) {
+    assert_pointer();
+    matrix_add_scalar(scalar);
+    return this;
+  }
+
+  // add scalar in place
+  public DoubleMatrix addi(DoubleMatrix that) {
+    assert_pointer();
+    that.assert_pointer();
+    matrix_add_matrix(that.ptr());
+    return this;
+  }
+
   public void dealloc() {
     assert_pointer();
     matrix_dealloc();
@@ -123,6 +138,10 @@ public class DoubleMatrix {
   private native int matrix_cols();
 
   private native void matrix_show(boolean truncate);
+
+  private native void matrix_add_scalar(double scalar);
+
+  private native void matrix_add_matrix(long ptr);
 
   private native String matrix_tostring();
 

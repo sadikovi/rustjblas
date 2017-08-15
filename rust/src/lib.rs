@@ -60,6 +60,21 @@ pub extern "C" fn double_matrix_instance_show(ptr: *const DoubleMatrix, truncate
 }
 
 #[no_mangle]
+pub extern "C" fn double_matrix_instance_add_scalar(ptr: *mut DoubleMatrix, value: f64) {
+    unsafe {
+        (*ptr).add_scalar(value);
+    }
+}
+
+#[no_mangle]
+pub extern "C" fn double_matrix_instance_add_matrix(ptr: *mut DoubleMatrix, aptr: *const DoubleMatrix) {
+    unsafe {
+        let another = &(*aptr);
+        (*ptr).add_matrix(another);
+    }
+}
+
+#[no_mangle]
 pub extern "C" fn double_matrix_instance_tostring(ptr: *const DoubleMatrix) -> *const c_char {
     let matrix_str = unsafe { (*ptr).to_string() };
     let res = CString::new(matrix_str).unwrap();

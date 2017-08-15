@@ -65,6 +65,22 @@ JNIEXPORT void JNICALL Java_com_github_sadikovi_DoubleMatrix_matrix_1show
 
 /*
  * Class:     com_github_sadikovi_DoubleMatrix
+ * Method:    matrix_add_scalar
+ * Signature: (D)V
+ */
+JNIEXPORT void JNICALL Java_com_github_sadikovi_DoubleMatrix_matrix_1add_1scalar
+  (JNIEnv *, jobject, jdouble);
+
+/*
+ * Class:     com_github_sadikovi_DoubleMatrix
+ * Method:    matrix_add_matrix
+ * Signature: (J)V
+ */
+JNIEXPORT void JNICALL Java_com_github_sadikovi_DoubleMatrix_matrix_1add_1matrix
+  (JNIEnv *, jobject, jlong);
+
+/*
+ * Class:     com_github_sadikovi_DoubleMatrix
  * Method:    matrix_tostring
  * Signature: ()Ljava/lang/String;
  */

@@ -12,6 +12,8 @@ extern "C" {
   int double_matrix_instance_rows(void*);
   int double_matrix_instance_cols(void*);
   void double_matrix_instance_show(void*, int);
+  void double_matrix_instance_add_scalar(void*, double);
+  void double_matrix_instance_add_matrix(void*, void*);
   const char* double_matrix_instance_tostring(void*);
   void double_matrix_instance_dealloc(void*);
 
@@ -95,6 +97,32 @@ extern "C" {
     jfieldID fid = env->GetFieldID(clazz, "pointer", "J");
     jlong ptr = env->GetLongField(obj, fid);
     double_matrix_instance_show((void*) ptr, (int) truncate);
+  }
+
+  /*
+   * Class:     com_github_sadikovi_DoubleMatrix
+   * Method:    matrix_add_scalar
+   * Signature: (D)V
+   */
+  JNIEXPORT void JNICALL Java_com_github_sadikovi_DoubleMatrix_matrix_1add_1scalar(
+      JNIEnv *env, jobject obj, jdouble value) {
+    jclass clazz = env->GetObjectClass(obj);
+    jfieldID fid = env->GetFieldID(clazz, "pointer", "J");
+    jlong ptr = env->GetLongField(obj, fid);
+    double_matrix_instance_add_scalar((void*) ptr, (double) value);
+  }
+
+  /*
+   * Class:     com_github_sadikovi_DoubleMatrix
+   * Method:    matrix_add_matrix
+   * Signature: (J)V
+   */
+  JNIEXPORT void JNICALL Java_com_github_sadikovi_DoubleMatrix_matrix_1add_1matrix(
+      JNIEnv *env, jobject obj, jlong aptr) {
+    jclass clazz = env->GetObjectClass(obj);
+    jfieldID fid = env->GetFieldID(clazz, "pointer", "J");
+    jlong ptr = env->GetLongField(obj, fid);
+    double_matrix_instance_add_matrix((void*) ptr, (void*) aptr);
   }
 
   /*

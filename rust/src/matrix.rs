@@ -42,6 +42,7 @@ impl DoubleMatrix {
         DoubleMatrix::new(rows, cols, vec![1.0; rows * cols])
     }
 
+    #[inline]
     fn index(&self, i: usize, j: usize) -> usize {
         i + self.rows * j
     }
@@ -54,10 +55,12 @@ impl DoubleMatrix {
         self.cols
     }
 
+    #[inline]
     pub fn get(&self, i: usize, j: usize) -> f64 {
         self.data[self.index(i, j)]
     }
 
+    #[inline]
     pub fn put(&mut self, i: usize, j: usize, value: f64) {
         let ind = self.index(i, j);
         self.data[ind] = value;
