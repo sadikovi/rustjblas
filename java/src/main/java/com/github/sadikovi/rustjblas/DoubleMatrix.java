@@ -101,43 +101,196 @@ public class DoubleMatrix {
 
   // == Matrix operations ==
 
-  /**
-   * Add scalar value to the matrix.
-   * Returns new matrix with added value.
-   */
+  /** Add scalar value to this matrix */
   public DoubleMatrix add(double scalar) {
     assert_pointer();
-    long newPointer = matrix_add_scalar(scalar);
-    return new DoubleMatrix(newPointer);
+    long res = matrix_add_scalar(scalar);
+    return new DoubleMatrix(res);
   }
 
-  /**
-   * Add DoubleMatrix to the matrix.
-   * Returns new matrix with added values.
-   */
+  /** Add matrix to this matrix */
   public DoubleMatrix add(DoubleMatrix that) {
     assert_pointer();
     that.assert_pointer();
-    long newPointer = matrix_add_matrix(that.ptr());
-    return new DoubleMatrix(newPointer);
+    long res = matrix_add_matrix(that.ptr());
+    return new DoubleMatrix(res);
   }
 
-  /** Add scalar value to the matrix (in-place) */
+  /** Add scalar value to this matrix (in-place) */
   public DoubleMatrix addi(double scalar) {
     assert_pointer();
     matrix_add_in_place_scalar(scalar);
     return this;
   }
 
-  /**
-   * Add DoubleMatrix to the matrix (in-place).
-   * Only this matrix is changed.
-   */
+  /** Add matrix to this matrix (in-place) */
   public DoubleMatrix addi(DoubleMatrix that) {
     assert_pointer();
     that.assert_pointer();
     matrix_add_in_place_matrix(that.ptr());
     return this;
+  }
+
+  /** Subtract a scalar from this matrix */
+  public DoubleMatrix sub(double scalar) {
+    assert_pointer();
+    long res = matrix_sub_scalar(scalar);
+    return new DoubleMatrix(res);
+  }
+
+  /** Subtract a matrix */
+  public DoubleMatrix sub(DoubleMatrix that) {
+    assert_pointer();
+    that.assert_pointer();
+    long res = matrix_sub_matrix(that.ptr());
+    return new DoubleMatrix(res);
+  }
+
+  /** Subtract a scalar from this matrix (in-place) */
+  public DoubleMatrix subi(double scalar) {
+    assert_pointer();
+    matrix_sub_in_place_scalar(scalar);
+    return this;
+  }
+
+  /** Subtract a matrix (in-place) */
+  public DoubleMatrix subi(DoubleMatrix that) {
+    assert_pointer();
+    that.assert_pointer();
+    matrix_sub_in_place_matrix(that.ptr());
+    return this;
+  }
+
+  /** Elementwise multiply by a scalar */
+  public DoubleMatrix mul(double scalar) {
+    assert_pointer();
+    long res = matrix_mul_scalar(scalar);
+    return new DoubleMatrix(res);
+  }
+
+  /** Elementwise multiply by a matrix */
+  public DoubleMatrix mul(DoubleMatrix that) {
+    assert_pointer();
+    that.assert_pointer();
+    long res = matrix_mul_matrix(that.ptr());
+    return new DoubleMatrix(res);
+  }
+
+  /** Elementwise multiply by a scalar (in-place) */
+  public DoubleMatrix muli(double scalar) {
+    assert_pointer();
+    matrix_mul_in_place_scalar(scalar);
+    return this;
+  }
+
+  /** Elementwise multiply by a matrix (in-place) */
+  public DoubleMatrix muli(DoubleMatrix that) {
+    assert_pointer();
+    that.assert_pointer();
+    matrix_mul_in_place_matrix(that.ptr());
+    return this;
+  }
+
+  /** Elementwise divide by a scalar */
+  public DoubleMatrix div(double scalar) {
+    assert_pointer();
+    long res = matrix_div_scalar(scalar);
+    return new DoubleMatrix(res);
+  }
+
+  /** Elementwise divide by a matrix */
+  public DoubleMatrix div(DoubleMatrix that) {
+    assert_pointer();
+    that.assert_pointer();
+    long res = matrix_div_matrix(that.ptr());
+    return new DoubleMatrix(res);
+  }
+
+  /** Elementwise divide by a scalar (in-place) */
+  public DoubleMatrix divi(double scalar) {
+    assert_pointer();
+    matrix_div_in_place_scalar(scalar);
+    return this;
+  }
+
+  /** Elementwise divide by a matrix (in place). */
+  public DoubleMatrix divi(DoubleMatrix that) {
+    assert_pointer();
+    that.assert_pointer();
+    matrix_div_in_place_matrix(that.ptr());
+    return this;
+  }
+
+  /** Return column-wise minimums */
+  public DoubleMatrix columnMins() {
+    assert_pointer();
+    long res = matrix_column_mins();
+    return new DoubleMatrix(res);
+  }
+
+  /** Return column-wise maximums */
+  public DoubleMatrix columnMaxs() {
+    assert_pointer();
+    long res = matrix_column_maxs();
+    return new DoubleMatrix(res);
+  }
+
+  /** Return a vector containing the means of all columns */
+  public DoubleMatrix columnMeans() {
+    assert_pointer();
+    long res = matrix_column_means();
+    return new DoubleMatrix(res);
+  }
+
+  /** Return a vector containing the sums of the columns */
+  public DoubleMatrix columnSums() {
+    assert_pointer();
+    long res = matrix_column_sums();
+    return new DoubleMatrix(res);
+  }
+
+  /** Return the minimal element of this matrix */
+  public double min() {
+    assert_pointer();
+    return matrix_min();
+  }
+
+  /** Return the maximal element of this matrix */
+  public double max() {
+    assert_pointer();
+    return matrix_max();
+  }
+
+  /** Compute the sum of all elements of this matrix */
+  public double sum() {
+    assert_pointer();
+    return matrix_sum();
+  }
+
+  /** The 1-norm of the matrix as vector (sum of absolute values of elements) */
+  public double norm1() {
+    assert_pointer();
+    return matrix_norm1();
+  }
+
+  /** The Euclidean norm of the matrix as vector, also the Frobenius norm of the matrix */
+  public double norm2() {
+    assert_pointer();
+    return matrix_norm2();
+  }
+
+  /** Return transposed copy of this matrix */
+  public DoubleMatrix transpose() {
+    assert_pointer();
+    long res = matrix_transpose();
+    return new DoubleMatrix(res);
+  }
+
+  /** Return the diagonal of the matrix */
+  public DoubleMatrix diag() {
+    assert_pointer();
+    long res = matrix_diag();
+    return new DoubleMatrix(res);
   }
 
   // == static methods ==
@@ -209,4 +362,33 @@ public class DoubleMatrix {
   private native long matrix_add_matrix(long ptr);
   private native void matrix_add_in_place_scalar(double scalar);
   private native void matrix_add_in_place_matrix(long ptr);
+
+  private native long matrix_sub_scalar(double scalar);
+  private native long matrix_sub_matrix(long ptr);
+  private native void matrix_sub_in_place_scalar(double scalar);
+  private native void matrix_sub_in_place_matrix(long ptr);
+
+  private native long matrix_mul_scalar(double scalar);
+  private native long matrix_mul_matrix(long ptr);
+  private native void matrix_mul_in_place_scalar(double scalar);
+  private native void matrix_mul_in_place_matrix(long ptr);
+
+  private native long matrix_div_scalar(double scalar);
+  private native long matrix_div_matrix(long ptr);
+  private native void matrix_div_in_place_scalar(double scalar);
+  private native void matrix_div_in_place_matrix(long ptr);
+
+  private native long matrix_column_mins();
+  private native long matrix_column_maxs();
+  private native long matrix_column_means();
+  private native long matrix_column_sums();
+
+  private native double matrix_min();
+  private native double matrix_max();
+  private native double matrix_sum();
+  private native double matrix_norm1();
+  private native double matrix_norm2();
+
+  private native long matrix_transpose();
+  private native long matrix_diag();
 }
