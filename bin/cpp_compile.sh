@@ -3,7 +3,7 @@
 bin="`dirname "$0"`"
 ROOT_DIR="`cd "$bin/../"; pwd`"
 
-COMPILED_FILES="$ROOT_DIR/cpp/com_github_sadikovi_DoubleMatrix.cpp"
+COMPILED_FILES="$ROOT_DIR/cpp/com_github_sadikovi_rustjblas_DoubleMatrix.cpp"
 
 TARGET_DIR="$ROOT_DIR/cpp/target"
 
