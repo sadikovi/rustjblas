@@ -10,7 +10,7 @@ if [[ -z "$JAVAH_BIN" ]]; then
     echo "Error: failed to locate java binaries, please set JAVA_HOME env or explicitly make 'javah' available"
     exit 1
   fi
-  JAVAH_BIN="$JAVA_HOME}/bin/javah"
+  JAVAH_BIN="$JAVA_HOME/bin/javah"
 fi
 
 if [[ ! -d "$ROOT_DIR/java/target/scala-2.11/classes" ]]; then
@@ -19,7 +19,7 @@ if [[ ! -d "$ROOT_DIR/java/target/scala-2.11/classes" ]]; then
 fi
 
 # space separated list of classes
-COMPILED_CLASSES="com.github.sadikovi.DoubleMatrix"
+COMPILED_CLASSES="com.github.sadikovi.rustjblas.DoubleMatrix"
 CPP_OUTPUT="$ROOT_DIR/cpp"
 
 cd $ROOT_DIR/java/target/scala-2.11/classes
