@@ -1,6 +1,9 @@
 # rustjblas
 
-Library to load Rust code through JNI and use in Java. Matrix is allocated off-heap.
+Library for using JBLAS `DoubleMatrix` with off-heap allocation.
+
+Native implementation is loaded from Rust code through JNI and use in Java. As mentioned, all
+operations are performed off-heap, including matrix allocation.
 
 ## Build instructions
 Required:

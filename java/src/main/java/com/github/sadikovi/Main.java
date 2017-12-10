@@ -1,5 +1,7 @@
 package com.github.sadikovi;
 
+import com.github.sadikovi.rustjblas.DoubleMatrix;
+
 public class Main {
   public static void main(String[] arr) {
     System.out.println("== Start ==");
@@ -7,7 +9,7 @@ public class Main {
     System.out.println("\n== Matrix 1 ==\n");
 
     // Show matrix 1 that is constructed from provided array
-    DoubleMatrix m1 = DoubleMatrix.anew(2, 2, new double[]{1.0, 2.0, 3.0, 4.0});
+    DoubleMatrix m1 = DoubleMatrix.fromArray(2, 2, new double[]{1.0, 2.0, 3.0, 4.0});
     System.out.println("Matrix: " + m1);
     System.out.println("Rows: " + m1.rows());
     System.out.println("Cols: " + m1.cols());
