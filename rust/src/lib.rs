@@ -1,6 +1,9 @@
 extern crate libc;
+extern crate nalgebra;
+extern crate rand;
 
 pub mod matrix;
+pub mod dmatrix;
 
 use std::mem;
 use std::ffi::CString;

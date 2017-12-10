@@ -1,7 +1,6 @@
-extern crate rand;
-
 use std::fmt::{Display, Error, Formatter};
-use self::rand::Rng;
+use rand;
+use rand::Rng;
 
 #[repr(C)]
 #[derive(Debug)]

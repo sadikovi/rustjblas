@@ -5,6 +5,7 @@ version = "0.1.0"
 [dependencies]
 libc = "0.2"
 rand = "0.3"
+nalgebra = "0.13"
 
 [lib]
 crate-type = ["rlib", "dylib"]
