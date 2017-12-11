@@ -2,6 +2,8 @@
 
 extern "C" {
 
+  /* == Library methods == */
+
   /* static methods */
   void* alloc_from_array(int, int, size_t, const double*);
   void* alloc_rand(int, int);
@@ -47,6 +49,8 @@ extern "C" {
 
   void* matrix_transpose(void*);
   void* matrix_diag(void*);
+
+  /* == Bindings == */
 
   // Get matrix pointer for the current instance
   void* get_matrix_pointer(JNIEnv *env, jobject obj) {
