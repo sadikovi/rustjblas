@@ -48,12 +48,21 @@ public class DoubleMatrix {
   }
 
   /**
+   * Return pretty string for a matrix.
+   * When truncate is `true`, output will be truncated for large matrices.
+   */
+  public String prettyString(boolean truncate) {
+    assert_pointer();
+    return matrix_pretty_string(truncate);
+  }
+
+  /**
    * Display current matrix in stdout.
    * If truncate is true, only part of the values is displayed.
    */
   public void show(boolean truncate) {
     assert_pointer();
-    matrix_show(truncate);
+    System.out.println(prettyString(truncate));
   }
 
   /**
@@ -355,7 +364,7 @@ public class DoubleMatrix {
 
   private native int matrix_rows();
   private native int matrix_cols();
-  private native void matrix_show(boolean truncate);
+  private native String matrix_pretty_string(boolean truncate);
   private native void matrix_dealloc();
 
   private native long matrix_add_scalar(double scalar);
