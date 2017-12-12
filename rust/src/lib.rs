@@ -6,12 +6,18 @@ pub mod dmatrix;
 
 use std::ffi::CString;
 use std::mem;
-use std::ops::{AddAssign, SubAssign};
+use std::ops::{AddAssign, DivAssign, MulAssign, SubAssign};
 use libc::{int32_t, c_double, c_char, size_t};
 use dmatrix::DoubleMatrix;
 
 #[no_mangle]
-pub extern "C" fn alloc_from_array(rows: int32_t, cols: int32_t, len: size_t, ptr: *mut c_double) -> *const DoubleMatrix {
+pub extern "C" fn alloc_from_array(
+    rows: int32_t,
+    cols: int32_t,
+    len: size_t,
+    ptr: *mut c_double
+) -> *const DoubleMatrix
+{
     let vec = unsafe { Vec::from_raw_parts(ptr, len, len) };
     let matrix = Box::new(DoubleMatrix::from_column_slice(rows as usize, cols as usize, &vec));
     Box::into_raw(matrix)
@@ -60,13 +66,21 @@ pub extern "C" fn matrix_dealloc(ptr: *mut DoubleMatrix) {
 }
 
 #[no_mangle]
-pub extern "C" fn matrix_add_scalar(ptr: *const DoubleMatrix, scalar: c_double) -> *const DoubleMatrix {
+pub extern "C" fn matrix_add_scalar(
+    ptr: *const DoubleMatrix,
+    scalar: c_double
+) -> *const DoubleMatrix
+{
     let matrix = Box::new(unsafe { (*ptr).add_scalar(scalar) });
     Box::into_raw(matrix)
 }
 
 #[no_mangle]
-pub extern "C" fn matrix_add_matrix(ptr: *const DoubleMatrix, aptr: *const DoubleMatrix) -> *const DoubleMatrix {
+pub extern "C" fn matrix_add_matrix(
+    ptr: *const DoubleMatrix,
+    aptr: *const DoubleMatrix
+) -> *const DoubleMatrix
+{
     let this = unsafe { &(*ptr) };
     let that = unsafe { &(*aptr) };
     let matrix = Box::new(this + that);
@@ -86,14 +100,22 @@ pub extern "C" fn matrix_add_in_place_matrix(ptr: *mut DoubleMatrix, aptr: *cons
 }
 
 #[no_mangle]
-pub extern "C" fn matrix_sub_scalar(ptr: *const DoubleMatrix, scalar: c_double) -> *const DoubleMatrix {
+pub extern "C" fn matrix_sub_scalar(
+    ptr: *const DoubleMatrix,
+    scalar: c_double
+) -> *const DoubleMatrix
+{
     // TODO: check that negation is correct for scalar
     let matrix = Box::new(unsafe { (*ptr).add_scalar(-scalar) });
     Box::into_raw(matrix)
 }
 
 #[no_mangle]
-pub extern "C" fn matrix_sub_matrix(ptr: *const DoubleMatrix, aptr: *const DoubleMatrix) -> *const DoubleMatrix {
+pub extern "C" fn matrix_sub_matrix(
+    ptr: *const DoubleMatrix,
+    aptr: *const DoubleMatrix
+) -> *const DoubleMatrix
+{
     let this = unsafe { &(*ptr) };
     let that = unsafe { &(*aptr) };
     let matrix = Box::new(this - that);
@@ -111,6 +133,76 @@ pub extern "C" fn matrix_sub_in_place_matrix(ptr: *mut DoubleMatrix, aptr: *cons
     let this = unsafe { &mut (*ptr) };
     let that = unsafe { &(*aptr) };
     this.sub_assign(that);
+}
+
+#[no_mangle]
+pub extern "C" fn matrix_mul_scalar(
+    ptr: *const DoubleMatrix,
+    scalar: c_double
+) -> *const DoubleMatrix
+{
+    let this = unsafe { &(*ptr) };
+    let matrix = Box::new(this * scalar);
+    Box::into_raw(matrix)
+}
+
+#[no_mangle]
+pub extern "C" fn matrix_mul_matrix(
+    ptr: *const DoubleMatrix,
+    aptr: *const DoubleMatrix
+) -> *const DoubleMatrix
+{
+    let this = unsafe { &(*ptr) };
+    let that = unsafe { &(*aptr) };
+    let matrix = Box::new(this.component_mul(that));
+    Box::into_raw(matrix)
+}
+
+#[no_mangle]
+pub extern "C" fn matrix_mul_in_place_scalar(ptr: *mut DoubleMatrix, scalar: c_double) {
+    unsafe { (*ptr).mul_assign(scalar) };
+}
+
+#[no_mangle]
+pub extern "C" fn matrix_mul_in_place_matrix(ptr: *mut DoubleMatrix, aptr: *const DoubleMatrix) {
+    let this = unsafe { &mut (*ptr) };
+    let that = unsafe { &(*aptr) };
+    this.component_mul_assign(that);
+}
+
+#[no_mangle]
+pub extern "C" fn matrix_div_scalar(
+    ptr: *const DoubleMatrix,
+    scalar: c_double
+) -> *const DoubleMatrix
+{
+    let this = unsafe { &(*ptr) };
+    let matrix = Box::new(this / scalar);
+    Box::into_raw(matrix)
+}
+
+#[no_mangle]
+pub extern "C" fn matrix_div_matrix(
+    ptr: *const DoubleMatrix,
+    aptr: *const DoubleMatrix
+) -> *const DoubleMatrix
+{
+    let this = unsafe { &(*ptr) };
+    let that = unsafe { &(*aptr) };
+    let matrix = Box::new(this.component_div(that));
+    Box::into_raw(matrix)
+}
+
+#[no_mangle]
+pub extern "C" fn matrix_div_in_place_scalar(ptr: *mut DoubleMatrix, scalar: c_double) {
+    unsafe { (*ptr).div_assign(scalar) };
+}
+
+#[no_mangle]
+pub extern "C" fn matrix_div_in_place_matrix(ptr: *mut DoubleMatrix, aptr: *const DoubleMatrix) {
+    let this = unsafe { &mut (*ptr) };
+    let that = unsafe { &(*aptr) };
+    this.component_div_assign(that);
 }
 
 #[no_mangle]
