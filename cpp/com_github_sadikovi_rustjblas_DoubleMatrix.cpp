@@ -130,7 +130,7 @@ extern "C" {
    */
   JNIEXPORT jstring JNICALL Java_com_github_sadikovi_rustjblas_DoubleMatrix_matrix_1pretty_1string(
       JNIEnv *env, jobject obj, jboolean truncate) {
-    const char *cstr = matrix_pretty_string(get_matrix_pointer(env, obj));
+    const char *cstr = matrix_pretty_string(get_matrix_pointer(env, obj), truncate);
     jstring result = env->NewStringUTF(cstr);
     return result;
   }

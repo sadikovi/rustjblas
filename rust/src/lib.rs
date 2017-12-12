@@ -206,6 +206,34 @@ pub extern "C" fn matrix_div_in_place_matrix(ptr: *mut DoubleMatrix, aptr: *cons
 }
 
 #[no_mangle]
+pub extern "C" fn matrix_column_mins(ptr: *const DoubleMatrix) -> *const DoubleMatrix {
+    let this = unsafe { &(*ptr) };
+    let matrix = Box::new(dmatrix::column_mins(this));
+    Box::into_raw(matrix)
+}
+
+#[no_mangle]
+pub extern "C" fn matrix_column_maxs(ptr: *const DoubleMatrix) -> *const DoubleMatrix {
+    let this = unsafe { &(*ptr) };
+    let matrix = Box::new(dmatrix::column_maxs(this));
+    Box::into_raw(matrix)
+}
+
+#[no_mangle]
+pub extern "C" fn matrix_column_means(ptr: *const DoubleMatrix) -> *const DoubleMatrix {
+    let this = unsafe { &(*ptr) };
+    let matrix = Box::new(dmatrix::column_means(this));
+    Box::into_raw(matrix)
+}
+
+#[no_mangle]
+pub extern "C" fn matrix_column_sums(ptr: *const DoubleMatrix) -> *const DoubleMatrix {
+    let this = unsafe { &(*ptr) };
+    let matrix = Box::new(dmatrix::column_sums(this));
+    Box::into_raw(matrix)
+}
+
+#[no_mangle]
 pub extern "C" fn matrix_min(ptr: *const DoubleMatrix) -> c_double {
     let iter = unsafe { (*ptr).iter() };
     iter.fold(std::f64::NAN, |left, right| left.min(*right))
