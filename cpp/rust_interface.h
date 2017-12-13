@@ -41,6 +41,11 @@ void* matrix_column_maxs(void*);
 void* matrix_column_means(void*);
 void* matrix_column_sums(void*);
 
+void* matrix_row_mins(void*);
+void* matrix_row_maxs(void*);
+void* matrix_row_means(void*);
+void* matrix_row_sums(void*);
+
 double matrix_min(void*);
 double matrix_max(void*);
 double matrix_sum(void*);

@@ -233,6 +233,35 @@ pub extern "C" fn matrix_column_sums(ptr: *const DoubleMatrix) -> *const DoubleM
     Box::into_raw(matrix)
 }
 
+
+#[no_mangle]
+pub extern "C" fn matrix_row_mins(ptr: *const DoubleMatrix) -> *const DoubleMatrix {
+    let this = unsafe { &(*ptr) };
+    let matrix = Box::new(matrix::row_mins(this));
+    Box::into_raw(matrix)
+}
+
+#[no_mangle]
+pub extern "C" fn matrix_row_maxs(ptr: *const DoubleMatrix) -> *const DoubleMatrix {
+    let this = unsafe { &(*ptr) };
+    let matrix = Box::new(matrix::row_maxs(this));
+    Box::into_raw(matrix)
+}
+
+#[no_mangle]
+pub extern "C" fn matrix_row_means(ptr: *const DoubleMatrix) -> *const DoubleMatrix {
+    let this = unsafe { &(*ptr) };
+    let matrix = Box::new(matrix::row_means(this));
+    Box::into_raw(matrix)
+}
+
+#[no_mangle]
+pub extern "C" fn matrix_row_sums(ptr: *const DoubleMatrix) -> *const DoubleMatrix {
+    let this = unsafe { &(*ptr) };
+    let matrix = Box::new(matrix::row_sums(this));
+    Box::into_raw(matrix)
+}
+
 #[no_mangle]
 pub extern "C" fn matrix_min(ptr: *const DoubleMatrix) -> c_double {
     let iter = unsafe { (*ptr).iter() };

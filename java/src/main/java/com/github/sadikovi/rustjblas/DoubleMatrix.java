@@ -16,6 +16,46 @@ public class DoubleMatrix {
   private volatile long pointer;
 
   /**
+   * Create matrix from rows, and columns and on-heap array.
+   * New matrix has column-major order.
+   */
+  public static DoubleMatrix fromArray(int rows, int cols, double[] arr) {
+    long pointer = alloc_from_array(rows, cols, arr);
+    return new DoubleMatrix(pointer);
+  }
+
+  /**
+   * Create random matrix for specified dimensions.
+   */
+  public static DoubleMatrix rand(int rows, int cols) {
+    long pointer = alloc_rand(rows, cols);
+    return new DoubleMatrix(pointer);
+  }
+
+  /**
+   * Create matrix of zeros for specified dimensions.
+   */
+  public static DoubleMatrix zeros(int rows, int cols) {
+    long pointer = alloc_zeros(rows, cols);
+    return new DoubleMatrix(pointer);
+  }
+
+  /**
+   * Create matrix of ones for specified dimensions.
+   */
+  public static DoubleMatrix ones(int rows, int cols) {
+    long pointer = alloc_ones(rows, cols);
+    return new DoubleMatrix(pointer);
+  }
+
+  private static void loadLibrary() {
+    String libname = "rustjblas";
+    System.out.println("-- Loading library " + libname + ", libpath: " +
+      System.getProperty("java.library.path"));
+    System.loadLibrary(libname);
+  }
+
+  /**
    * Create double matrix from off-heap pointer.
    * Pointer should be a valid unsigned int32 value.
    */
@@ -31,20 +71,6 @@ public class DoubleMatrix {
     if (pointer == INVALID_PTR) {
       throw new IllegalStateException("Invalid state of double matrix, ptr=" + pointer);
     }
-  }
-
-  // == matrix properties ==
-
-  /** Return number of rows in the matrix */
-  public int rows() {
-    assert_pointer();
-    return matrix_rows();
-  }
-
-  /** Return number of columns in the matrix */
-  public int cols() {
-    assert_pointer();
-    return matrix_cols();
   }
 
   /**
@@ -96,10 +122,28 @@ public class DoubleMatrix {
   @Override
   protected void finalize() throws Throwable {
     // might not be ideal to call dealloc in finalize because of some unpredictability of GC
-    dealloc();
+    try {
+      if (memoryValid()) {
+        dealloc();
+      }
+    } finally {
+      super.finalize();
+    }
   }
 
   // == Matrix operations ==
+
+  /** Return number of rows in the matrix */
+  public int rows() {
+    assert_pointer();
+    return matrix_rows();
+  }
+
+  /** Return number of columns in the matrix */
+  public int cols() {
+    assert_pointer();
+    return matrix_cols();
+  }
 
   /** Add scalar value to this matrix */
   public DoubleMatrix add(double scalar) {
@@ -235,7 +279,7 @@ public class DoubleMatrix {
     return new DoubleMatrix(res);
   }
 
-  /** Return a vector containing the means of all columns */
+  /** Return a vector containing the means of the columns */
   public DoubleMatrix columnMeans() {
     assert_pointer();
     long res = matrix_column_means();
@@ -246,6 +290,34 @@ public class DoubleMatrix {
   public DoubleMatrix columnSums() {
     assert_pointer();
     long res = matrix_column_sums();
+    return new DoubleMatrix(res);
+  }
+
+  /** Return row-wise minimums */
+  public DoubleMatrix rowMins() {
+    assert_pointer();
+    long res = matrix_row_mins();
+    return new DoubleMatrix(res);
+  }
+
+  /** Return row-wise maximums */
+  public DoubleMatrix rowMaxs() {
+    assert_pointer();
+    long res = matrix_row_maxs();
+    return new DoubleMatrix(res);
+  }
+
+  /** Return a vector containing the means of the rows */
+  public DoubleMatrix rowMeans() {
+    assert_pointer();
+    long res = matrix_row_means();
+    return new DoubleMatrix(res);
+  }
+
+  /** Return a vector containing the sums of the rows */
+  public DoubleMatrix rowSums() {
+    assert_pointer();
+    long res = matrix_row_sums();
     return new DoubleMatrix(res);
   }
 
@@ -293,59 +365,6 @@ public class DoubleMatrix {
     return new DoubleMatrix(res);
   }
 
-  // == static methods ==
-
-  /**
-   * Create matrix from rows, and columns and on-heap array.
-   * New matrix has column-major order.
-   */
-  public static DoubleMatrix fromArray(int rows, int cols, double[] arr) {
-    long pointer = alloc_from_array(rows, cols, arr);
-    return new DoubleMatrix(pointer);
-  }
-
-  /**
-   * Create random matrix for specified dimensions.
-   */
-  public static DoubleMatrix rand(int rows, int cols) {
-    long pointer = alloc_rand(rows, cols);
-    return new DoubleMatrix(pointer);
-  }
-
-  /**
-   * Create matrix of zeros for specified dimensions.
-   */
-  public static DoubleMatrix zeros(int rows, int cols) {
-    long pointer = alloc_zeros(rows, cols);
-    return new DoubleMatrix(pointer);
-  }
-
-  /**
-   * Create matrix of ones for specified dimensions.
-   */
-  public static DoubleMatrix ones(int rows, int cols) {
-    long pointer = alloc_ones(rows, cols);
-    return new DoubleMatrix(pointer);
-  }
-
-  private static void loadLibrary() {
-    // first check LD_LIBRARY_PATH, then DYLD_LIBRARY_PATH
-    String linuxPath = System.getenv("LD_LIBRARY_PATH");
-    String osxPath = System.getenv("DYLD_LIBRARY_PATH");
-    // actual value for library path, append env variables if set
-    String value = System.getProperty("java.library.path");
-    value = (value == null) ? "." : value;
-    if (linuxPath != null) {
-      value = value + ":" + linuxPath;
-    }
-    if (osxPath != null) {
-      value = value + ":" + osxPath;
-    }
-    System.setProperty("java.library.path", value);
-    System.out.println("Library path: " + System.getProperty("java.library.path"));
-    System.loadLibrary("rustjblas");
-  }
-
   // == native methods ==
 
   private static native long alloc_from_array(int rows, int cols, double[] arr);
@@ -382,6 +401,11 @@ public class DoubleMatrix {
   private native long matrix_column_maxs();
   private native long matrix_column_means();
   private native long matrix_column_sums();
+
+  private native long matrix_row_mins();
+  private native long matrix_row_maxs();
+  private native long matrix_row_means();
+  private native long matrix_row_sums();
 
   private native double matrix_min();
   private native double matrix_max();

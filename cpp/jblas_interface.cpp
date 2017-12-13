@@ -300,6 +300,46 @@ extern "C" {
 
   /*
    * Class:     com_github_sadikovi_rustjblas_DoubleMatrix
+   * Method:    matrix_row_mins
+   * Signature: ()J
+   */
+  JNIEXPORT jlong JNICALL Java_com_github_sadikovi_rustjblas_DoubleMatrix_matrix_1row_1mins(
+      JNIEnv *env, jobject obj) {
+    return (long) matrix_row_mins(get_matrix_pointer(env, obj));
+  }
+
+  /*
+   * Class:     com_github_sadikovi_rustjblas_DoubleMatrix
+   * Method:    matrix_row_maxs
+   * Signature: ()J
+   */
+  JNIEXPORT jlong JNICALL Java_com_github_sadikovi_rustjblas_DoubleMatrix_matrix_1row_1maxs(
+      JNIEnv *env, jobject obj) {
+    return (long) matrix_row_maxs(get_matrix_pointer(env, obj));
+  }
+
+  /*
+   * Class:     com_github_sadikovi_rustjblas_DoubleMatrix
+   * Method:    matrix_row_means
+   * Signature: ()J
+   */
+  JNIEXPORT jlong JNICALL Java_com_github_sadikovi_rustjblas_DoubleMatrix_matrix_1row_1means(
+      JNIEnv *env, jobject obj) {
+    return (long) matrix_row_means(get_matrix_pointer(env, obj));
+  }
+
+  /*
+   * Class:     com_github_sadikovi_rustjblas_DoubleMatrix
+   * Method:    matrix_row_sums
+   * Signature: ()J
+   */
+  JNIEXPORT jlong JNICALL Java_com_github_sadikovi_rustjblas_DoubleMatrix_matrix_1row_1sums(
+      JNIEnv *env, jobject obj) {
+    return (long) matrix_row_sums(get_matrix_pointer(env, obj));
+  }
+
+  /*
+   * Class:     com_github_sadikovi_rustjblas_DoubleMatrix
    * Method:    matrix_min
    * Signature: ()D
    */
