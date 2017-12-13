@@ -49,27 +49,18 @@ public class DoubleMatrix {
 
   /**
    * Return pretty string for a matrix.
-   * When truncate is `true`, output will be truncated for large matrices.
    */
-  public String prettyString(boolean truncate) {
+  public String prettyString() {
     assert_pointer();
-    return matrix_pretty_string(truncate);
+    return matrix_pretty_string();
   }
 
   /**
    * Display current matrix in stdout.
-   * If truncate is true, only part of the values is displayed.
-   */
-  public void show(boolean truncate) {
-    assert_pointer();
-    System.out.println(prettyString(truncate));
-  }
-
-  /**
-   * Show matrix (truncate output if matrix is large).
    */
   public void show() {
-    show(true);
+    assert_pointer();
+    System.out.println(prettyString());
   }
 
   /**
@@ -352,7 +343,7 @@ public class DoubleMatrix {
     }
     System.setProperty("java.library.path", value);
     System.out.println("Library path: " + System.getProperty("java.library.path"));
-    System.loadLibrary("cjblas");
+    System.loadLibrary("rustjblas");
   }
 
   // == native methods ==
@@ -364,7 +355,7 @@ public class DoubleMatrix {
 
   private native int matrix_rows();
   private native int matrix_cols();
-  private native String matrix_pretty_string(boolean truncate);
+  private native String matrix_pretty_string();
   private native void matrix_dealloc();
 
   private native long matrix_add_scalar(double scalar);

@@ -5,9 +5,9 @@ ROOT_DIR="`cd "$bin/../"; pwd`"
 
 CPP_FILE="$ROOT_DIR/cpp/jblas_interface.cpp"
 TARGET_DIR="$ROOT_DIR/cpp/target"
-SHARED_LIB="libntvjblas"
+SHARED_LIB="librustjblas"
 RUST_OUTPUT="$ROOT_DIR/rust/target/debug"
-RUST_STATIC_LIB="ntvjblas"
+RUST_STATIC_LIB="rustjblas"
 
 if [[ -z "$JAVA_HOME" ]]; then
   echo "Error: cannot find JAVA_HOME"

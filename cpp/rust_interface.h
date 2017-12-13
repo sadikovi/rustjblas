@@ -13,7 +13,7 @@ void* alloc_ones(int, int);
 /* instance methods */
 int matrix_rows(void*);
 int matrix_cols(void*);
-const char* matrix_pretty_string(void*, bool);
+const char* matrix_pretty_string(void*);
 void matrix_dealloc(void*);
 
 void* matrix_add_scalar(void*, double);

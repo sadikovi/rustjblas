@@ -60,10 +60,10 @@ JNIEXPORT jint JNICALL Java_com_github_sadikovi_rustjblas_DoubleMatrix_matrix_1c
 /*
  * Class:     com_github_sadikovi_rustjblas_DoubleMatrix
  * Method:    matrix_pretty_string
- * Signature: (Z)Ljava/lang/String;
+ * Signature: ()Ljava/lang/String;
  */
 JNIEXPORT jstring JNICALL Java_com_github_sadikovi_rustjblas_DoubleMatrix_matrix_1pretty_1string
-  (JNIEnv *, jobject, jboolean);
+  (JNIEnv *, jobject);
 
 /*
  * Class:     com_github_sadikovi_rustjblas_DoubleMatrix

@@ -25,7 +25,6 @@ public class Main {
     System.out.println("Rows: " + m2.rows());
     System.out.println("Cols: " + m2.cols());
     m2.show();
-    m2.show(false);
     m2.dealloc();
     System.out.println("Matrix: " + m2);
   }

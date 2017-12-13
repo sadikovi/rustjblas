@@ -1,5 +1,5 @@
 [package]
-name = "ntvjblas"
+name = "rustjblas"
 version = "0.1.0"
 
 [dependencies]
@@ -9,4 +9,4 @@ nalgebra = "0.13"
 
 [lib]
 crate-type = ["staticlib"]
-name = "ntvjblas"
+name = "rustjblas"

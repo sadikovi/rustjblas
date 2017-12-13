@@ -82,8 +82,8 @@ extern "C" {
    * Signature: (Z)Ljava/lang/String;
    */
   JNIEXPORT jstring JNICALL Java_com_github_sadikovi_rustjblas_DoubleMatrix_matrix_1pretty_1string(
-      JNIEnv *env, jobject obj, jboolean truncate) {
-    const char *cstr = matrix_pretty_string(get_matrix_pointer(env, obj), truncate);
+      JNIEnv *env, jobject obj) {
+    const char *cstr = matrix_pretty_string(get_matrix_pointer(env, obj));
     jstring result = env->NewStringUTF(cstr);
     return result;
   }
