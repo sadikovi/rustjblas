@@ -18,27 +18,27 @@ git clone https://github.com/sadikovi/rustjblas.git
 cd rustjblas
 ```
 
-Run `make` or `make build` from project directory to build all (Java, Rust, C++). Or use separate
-commands, e.g. `make build_java` or `make build_rust` to build individual subprojects.
+Run `make` or `make build` from the project directory to build all (Java, Rust, C++). Or use
+separate commands, e.g. `make build_java` or `make build_rust` to build individual subprojects.
 
-Each subproject can also be built without makefile from its folder with `sbt` or `cargo`.
+Each subproject can also be built from its own folder with `sbt` or `cargo`.
 
-After build is finished, all necessary artefacts will be copied into `target` folder in project
+After build is finished, all necessary artifacts will be copied into `target` folder in project
 directory, and should contain shared `.so`/`.dylib` library and jar.
 
-## Test
-Run `make test` from project directory to run all tests. Subproject tests, e.g. Java, can be run
-either with `make test_java` or using `sbt` from subproject folder; similar for Rust.
+## Run test
+Run `make test` from the project directory to run all tests. Subproject tests, e.g. Java, can be run
+either with `make test_java` or using `sbt` from a subproject folder; similar for Rust.
 
-## Clean
-Run `make clean` to remove temporary files and generated artefacts.
+## Run clean
+Run `make clean` to remove temporary files and generated artifacts.
 
 ## Compile JNI
 Run `make jni` (runs as part of build command) to generate fresh JNI files (for development only).
 
 ## Run sample code
-Run scala shell with following options from project directory, `target` folder should contain both
-shared library and jar:
+Run scala-shell with following options from the project directory, `target` folder should contain
+both shared library and jar:
 ```
 JAVA_OPTS="-Djava.library.path=target" scala -cp target/rustjblas_2.11-0.1.0-SNAPSHOT.jar
 ```

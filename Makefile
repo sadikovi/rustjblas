@@ -16,15 +16,15 @@ all: build
 # == clean ==
 
 clean_java:
-	# clean java artefacts
+	# clean java artifacts
 	cd $(JAVA_DIR) && sbt clean
 
 clean_rust:
-	# clean rust artefacts
+	# clean rust artifacts
 	cd $(RUST_DIR) && cargo clean
 
 clean_cpp:
-	# clean cpp and lib artefacts
+	# clean cpp and lib artifacts
 	cd $(CPP_DIR) && rm -rf target
 
 clean: clean_java clean_rust clean_cpp
@@ -57,7 +57,7 @@ build_cpp:
 	bin/cpp_compile.sh
 
 build: build_java jni build_rust build_cpp
-	# copy artefacts into target folder
+	# copy artifacts into target folder
 	mkdir -p target && cp $(JAVA_DIR)/target/scala-2.11/*.jar target && cp $(CPP_DIR)/target/* target
 
 # == jni ==
