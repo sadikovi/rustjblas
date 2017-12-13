@@ -33,10 +33,23 @@ if [ "$(uname)" == "Darwin" ]; then
     -I$JAVA_HOME/include/darwin \
     -L$RUST_OUTPUT -l$RUST_STATIC_LIB $CPP_FILE
 elif [ "$(expr substr $(uname -s) 1 5)" == "Linux" ]; then
-  g++ -shared -Wall -lresolv -o $SHARED_LIB.so \
+  # check if execstack is installed
+  if [[ -z "$(which execstack)" ]]; then
+    echo "Error: 'execstack' is not installed, run 'apt-get install execstack' to fix this"
+    exit 1
+  fi
+
+  g++ -Wall -fPIC -c $CPP_FILE \
+    -I$JAVA_HOME/include \
+    -I$JAVA_HOME/include/linux
+  g++ -Wall -shared -o $SHARED_LIB.so *.o \
     -I$JAVA_HOME/include \
     -I$JAVA_HOME/include/linux \
-    -LRUST_OUTPUT -l$RUST_STATIC_LIB $CPP_FILE
+    -L$RUST_OUTPUT -l$RUST_STATIC_LIB
+  # remove all object files
+  rm -f *.o
+  # also apply execstack in linux
+  execstack -c $SHARED_LIB.so
 else
   echo "Error: unsupported os"
   exit 1
