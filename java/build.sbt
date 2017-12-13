@@ -1,4 +1,4 @@
-name := "rustjblas"
+name := "ntvjblas"
 
 organization := "com.github.sadikovi"
 

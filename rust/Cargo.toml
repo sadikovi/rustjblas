@@ -1,5 +1,5 @@
 [package]
-name = "rsjblas"
+name = "ntvjblas"
 version = "0.1.0"
 
 [dependencies]
@@ -8,5 +8,5 @@ rand = "0.3"
 nalgebra = "0.13"
 
 [lib]
-crate-type = ["rlib", "dylib"]
-name = "rsjblas"
+crate-type = ["staticlib"]
+name = "ntvjblas"

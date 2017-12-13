@@ -2,13 +2,13 @@ extern crate libc;
 extern crate nalgebra;
 extern crate rand;
 
-pub mod dmatrix;
+pub mod matrix;
 
 use std::ffi::CString;
 use std::mem;
 use std::ops::{AddAssign, DivAssign, MulAssign, SubAssign};
 use libc::{int32_t, c_double, c_char, size_t};
-use dmatrix::DoubleMatrix;
+use matrix::DoubleMatrix;
 
 #[no_mangle]
 pub extern "C" fn alloc_from_array(
@@ -208,28 +208,28 @@ pub extern "C" fn matrix_div_in_place_matrix(ptr: *mut DoubleMatrix, aptr: *cons
 #[no_mangle]
 pub extern "C" fn matrix_column_mins(ptr: *const DoubleMatrix) -> *const DoubleMatrix {
     let this = unsafe { &(*ptr) };
-    let matrix = Box::new(dmatrix::column_mins(this));
+    let matrix = Box::new(matrix::column_mins(this));
     Box::into_raw(matrix)
 }
 
 #[no_mangle]
 pub extern "C" fn matrix_column_maxs(ptr: *const DoubleMatrix) -> *const DoubleMatrix {
     let this = unsafe { &(*ptr) };
-    let matrix = Box::new(dmatrix::column_maxs(this));
+    let matrix = Box::new(matrix::column_maxs(this));
     Box::into_raw(matrix)
 }
 
 #[no_mangle]
 pub extern "C" fn matrix_column_means(ptr: *const DoubleMatrix) -> *const DoubleMatrix {
     let this = unsafe { &(*ptr) };
-    let matrix = Box::new(dmatrix::column_means(this));
+    let matrix = Box::new(matrix::column_means(this));
     Box::into_raw(matrix)
 }
 
 #[no_mangle]
 pub extern "C" fn matrix_column_sums(ptr: *const DoubleMatrix) -> *const DoubleMatrix {
     let this = unsafe { &(*ptr) };
-    let matrix = Box::new(dmatrix::column_sums(this));
+    let matrix = Box::new(matrix::column_sums(this));
     Box::into_raw(matrix)
 }
 
@@ -259,4 +259,18 @@ pub extern "C" fn matrix_norm1(ptr: *const DoubleMatrix) -> c_double {
 #[no_mangle]
 pub extern "C" fn matrix_norm2(ptr: *const DoubleMatrix) -> c_double {
     unsafe { (*ptr).norm() }
+}
+
+#[no_mangle]
+pub extern "C" fn matrix_transpose(ptr: *const DoubleMatrix) -> *const DoubleMatrix {
+    let this = unsafe { &(*ptr) };
+    let matrix = Box::new(this.transpose());
+    Box::into_raw(matrix)
+}
+
+#[no_mangle]
+pub extern "C" fn matrix_diag(ptr: *const DoubleMatrix) -> *const DoubleMatrix {
+    let this = unsafe { &(*ptr) };
+    let matrix = Box::new(DoubleMatrix::from_diagonal(&this.diagonal()));
+    Box::into_raw(matrix)
 }

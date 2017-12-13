@@ -3,20 +3,11 @@
 bin="`dirname "$0"`"
 ROOT_DIR="`cd "$bin/../"; pwd`"
 
-COMPILED_FILES="$ROOT_DIR/cpp/com_github_sadikovi_rustjblas_DoubleMatrix.cpp"
-
+CPP_FILE="$ROOT_DIR/cpp/jblas_interface.cpp"
 TARGET_DIR="$ROOT_DIR/cpp/target"
-
-LIB_NAME="libcjblas"
-
-if [ "$(uname)" == "Darwin" ]; then
-  LIB_NAME="$LIB_NAME.dylib"
-elif [ "$(expr substr $(uname -s) 1 5)" == "Linux" ]; then
-  LIB_NAME="$LIB_NAME.so"
-else
-  echo "Error: unsupported os"
-  exit 1
-fi
+SHARED_LIB="libntvjblas"
+RUST_OUTPUT="$ROOT_DIR/rust/target/debug"
+RUST_STATIC_LIB="ntvjblas"
 
 if [[ -z "$JAVA_HOME" ]]; then
   echo "Error: cannot find JAVA_HOME"
@@ -30,14 +21,23 @@ fi
 mkdir -p "$TARGET_DIR"
 
 # check that rust library has been compiled
-if [[ ! -d "$ROOT_DIR/rust/target/release" ]]; then
+if [[ ! -d "$ROOT_DIR/rust/target/debug" ]]; then
   echo "Error: cannot find rust library, build lib using 'cargo build --release' from 'rust' dir"
   exit 1
 fi
 
 cd $TARGET_DIR
-gcc -Wall -shared -o $LIB_NAME \
-  -I$JAVA_HOME/include \
-  -I$JAVA_HOME/include/linux \
-  -L$ROOT_DIR/rust/target/release -lrsjblas $COMPILED_FILES &&
-echo "Compiled $TARGET_DIR/$LIB_NAME"
+if [ "$(uname)" == "Darwin" ]; then
+  g++ -dynamiclib -Wall -lresolv -o $SHARED_LIB.dylib \
+    -I$JAVA_HOME/include \
+    -I$JAVA_HOME/include/darwin \
+    -L$RUST_OUTPUT -l$RUST_STATIC_LIB $CPP_FILE
+elif [ "$(expr substr $(uname -s) 1 5)" == "Linux" ]; then
+  g++ -shared -Wall -lresolv -o $SHARED_LIB.so \
+    -I$JAVA_HOME/include \
+    -I$JAVA_HOME/include/linux \
+    -LRUST_OUTPUT -l$RUST_STATIC_LIB $CPP_FILE
+else
+  echo "Error: unsupported os"
+  exit 1
+fi
