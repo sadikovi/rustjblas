@@ -20,7 +20,7 @@ public class Main {
     System.out.println("\n== Matrix 2 ==\n");
 
     // Show matrix 2 that is randomly generated
-    DoubleMatrix m2 = DoubleMatrix.rand(20, 10);
+    DoubleMatrix m2 = DoubleMatrix.rand(5, 6);
     System.out.println("Matrix: " + m2);
     System.out.println("Rows: " + m2.rows());
     System.out.println("Cols: " + m2.cols());
