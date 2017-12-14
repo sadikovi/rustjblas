@@ -92,151 +92,15 @@ pub fn row_means(matrix: &DoubleMatrix) -> DoubleMatrix {
 mod tests {
     use super::*;
 
-    #[test]
-    fn test_column_sums() {
-        let matrix = DoubleMatrix::from_row_slice(4, 3, &[
-            1.0, 2.0, 3.0,
-            4.0, 5.0, 6.0,
-            7.0, 8.0, 9.0,
-            10.0, 11.0, 12.0
-        ]);
-        let exp = DoubleMatrix::from_row_slice(1, 3, &[22.0, 26.0, 30.0]);
-        assert_eq!(column_sums(&matrix), exp);
-    }
-
-    #[test]
-    fn test_column_sums_single_row() {
-        let matrix = DoubleMatrix::from_row_slice(1, 3, &[1.0, 2.0, 3.0]);
-        let exp = DoubleMatrix::from_row_slice(1, 3, &[1.0, 2.0, 3.0]);
-        let res = column_sums(&matrix);
-        assert_eq!(res, exp);
-    }
-
-    #[test]
-    fn test_column_sums_single_column() {
-        let matrix = DoubleMatrix::from_row_slice(3, 1, &[1.0, 2.0, 3.0]);
-        let exp = DoubleMatrix::from_row_slice(1, 1, &[6.0]);
-        let res = column_sums(&matrix);
-        assert_eq!(res, exp);
-    }
-
-    #[test]
-    fn test_column_sums_single_element() {
-        let matrix = DoubleMatrix::from_row_slice(1, 1, &[3.0]);
-        let exp = DoubleMatrix::from_row_slice(1, 1, &[3.0]);
-        let res = column_sums(&matrix);
-        assert_eq!(res, exp);
-    }
-
-    #[test]
-    fn test_column_mins() {
-        let matrix = DoubleMatrix::from_row_slice(4, 3, &[
-            1.0, 2.0, 3.0,
-            10.0, 11.0, 12.0,
-            4.0, 5.0, 6.0,
-            7.0, 8.0, 9.0
-        ]);
-        let exp = DoubleMatrix::from_row_slice(1, 3, &[1.0, 2.0, 3.0]);
-        let res = column_mins(&matrix);
-        assert_eq!(res, exp);
-    }
-
-    #[test]
-    fn test_column_mins_single_row() {
-        let matrix = DoubleMatrix::from_row_slice(1, 3, &[1.0, 2.0, 3.0]);
-        let exp = DoubleMatrix::from_row_slice(1, 3, &[1.0, 2.0, 3.0]);
-        let res = column_mins(&matrix);
-        assert_eq!(res, exp);
-    }
-
-    #[test]
-    fn test_column_mins_single_column() {
-        let matrix = DoubleMatrix::from_row_slice(3, 1, &[2.0, 1.0, 3.0]);
-        let exp = DoubleMatrix::from_row_slice(1, 1, &[1.0]);
-        let res = column_mins(&matrix);
-        assert_eq!(res, exp);
-    }
-
-    #[test]
-    fn test_column_mins_single_element() {
-        let matrix = DoubleMatrix::from_row_slice(1, 1, &[3.0]);
-        let exp = DoubleMatrix::from_row_slice(1, 1, &[3.0]);
-        let res = column_mins(&matrix);
-        assert_eq!(res, exp);
-    }
-
-    #[test]
-    fn test_column_maxs() {
-        let matrix = DoubleMatrix::from_row_slice(4, 3, &[
-            1.0, 2.0, 3.0,
-            10.0, 11.0, 12.0,
-            4.0, 5.0, 6.0,
-            7.0, 8.0, 9.0
-        ]);
-        let exp = DoubleMatrix::from_row_slice(1, 3, &[10.0, 11.0, 12.0]);
-        let res = column_maxs(&matrix);
-        assert_eq!(res, exp);
-    }
-
-    #[test]
-    fn test_column_maxs_single_row() {
-        let matrix = DoubleMatrix::from_row_slice(1, 3, &[1.0, 2.0, 3.0]);
-        let exp = DoubleMatrix::from_row_slice(1, 3, &[1.0, 2.0, 3.0]);
-        let res = column_mins(&matrix);
-        assert_eq!(res, exp);
-    }
-
-    #[test]
-    fn test_column_maxs_single_column() {
-        let matrix = DoubleMatrix::from_row_slice(3, 1, &[2.0, 1.0, 3.0]);
-        let exp = DoubleMatrix::from_row_slice(1, 1, &[3.0]);
-        let res = column_maxs(&matrix);
-        assert_eq!(res, exp);
-    }
-
-    #[test]
-    fn test_column_maxs_single_element() {
-        let matrix = DoubleMatrix::from_row_slice(1, 1, &[3.0]);
-        let exp = DoubleMatrix::from_row_slice(1, 1, &[3.0]);
-        let res = column_maxs(&matrix);
-        assert_eq!(res, exp);
-    }
-
-    #[test]
-    fn test_column_means() {
-        let matrix = DoubleMatrix::from_row_slice(4, 3, &[
-            1.0, 2.0, 3.0,
-            10.0, 11.0, 12.0,
-            4.0, 5.0, 6.0,
-            7.0, 8.0, 9.0
-        ]);
-        let exp = DoubleMatrix::from_row_slice(1, 3, &[5.5, 6.5, 7.5]);
-        let res = column_means(&matrix);
-        assert_eq!(res, exp);
-    }
-
-    #[test]
-    fn test_column_means_single_row() {
-        let matrix = DoubleMatrix::from_row_slice(1, 3, &[1.0, 2.0, 3.0]);
-        let exp = DoubleMatrix::from_row_slice(1, 3, &[1.0, 2.0, 3.0]);
-        let res = column_mins(&matrix);
-        assert_eq!(res, exp);
-    }
-
-    #[test]
-    fn test_column_means_single_column() {
-        let matrix = DoubleMatrix::from_row_slice(3, 1, &[21.0, 12.0, 36.0]);
-        let exp = DoubleMatrix::from_row_slice(1, 1, &[23.0]);
-        let res = column_means(&matrix);
-        assert_eq!(res, exp);
-    }
-
-    #[test]
-    fn test_column_means_single_element() {
-        let matrix = DoubleMatrix::from_row_slice(1, 1, &[3.0]);
-        let exp = DoubleMatrix::from_row_slice(1, 1, &[3.0]);
-        let res = column_means(&matrix);
-        assert_eq!(res, exp);
+    fn assert_matrix(a: &DoubleMatrix, b: &DoubleMatrix) {
+        let epsilon: f64 = 1e-8;
+        assert_eq!(a.shape(), b.shape(), "Shape mismatch: {:?} != {:?}", a, b);
+        let vec1 = a.data.data();
+        let vec2 = b.data.data();
+        for i in 0..vec1.len() {
+            assert!((vec1[i] - vec2[i]).abs() <= epsilon,
+                "Element mismatch {} != {}; a: {:?}, b: {:?}", vec1[i], vec2[i], a, b);
+        }
     }
 
     fn test_matrix_1() -> DoubleMatrix {
@@ -248,24 +112,108 @@ mod tests {
     }
 
     #[test]
+    fn test_column_sums() {
+        // full matrix
+        let matrix = test_matrix_1();
+        let exp = DoubleMatrix::from_row_slice(1, 4, &[1.38, 1.43, 0.92, 1.08]);
+        assert_matrix(&column_sums(&matrix), &exp);
+
+        // row vector
+        let matrix = DoubleMatrix::from_row_slice(1, 3, &[1.0, 2.0, 3.0]);
+        assert_matrix(&column_sums(&matrix), &matrix);
+
+        // column vector
+        let matrix = DoubleMatrix::from_row_slice(3, 1, &[1.0, 2.0, 3.0]);
+        let exp = DoubleMatrix::from_row_slice(1, 1, &[6.0]);
+        assert_matrix(&column_sums(&matrix), &exp);
+
+        // single element
+        let matrix = DoubleMatrix::from_row_slice(1, 1, &[3.0]);
+        assert_matrix(&column_sums(&matrix), &matrix);
+    }
+
+    #[test]
+    fn test_column_mins() {
+        // full matrix
+        let matrix = test_matrix_1();
+        let exp = DoubleMatrix::from_row_slice(1, 4, &[0.25, 0.16, 0.03, 0.23]);
+        assert_matrix(&column_mins(&matrix), &exp);
+
+        // row vector
+        let matrix = DoubleMatrix::from_row_slice(1, 3, &[1.0, 2.0, 3.0]);
+        assert_matrix(&column_mins(&matrix), &matrix);
+
+        // column vector
+        let matrix = DoubleMatrix::from_row_slice(3, 1, &[2.0, 1.0, 3.0]);
+        let exp = DoubleMatrix::from_row_slice(1, 1, &[1.0]);
+        assert_matrix(&column_mins(&matrix), &exp);
+
+        // single element
+        let matrix = DoubleMatrix::from_row_slice(1, 1, &[3.0]);
+        assert_matrix(&column_mins(&matrix), &matrix);
+    }
+
+    #[test]
+    fn test_column_maxs() {
+        // full matrix
+        let matrix = test_matrix_1();
+        let exp = DoubleMatrix::from_row_slice(1, 4, &[0.71, 0.94, 0.52, 0.58]);
+        assert_matrix(&column_maxs(&matrix), &exp);
+
+        // row vector
+        let matrix = DoubleMatrix::from_row_slice(1, 3, &[1.0, 2.0, 3.0]);
+        assert_matrix(&column_mins(&matrix), &matrix);
+
+        // column vector
+        let matrix = DoubleMatrix::from_row_slice(3, 1, &[2.0, 1.0, 3.0]);
+        let exp = DoubleMatrix::from_row_slice(1, 1, &[3.0]);
+        assert_matrix(&column_maxs(&matrix), &exp);
+
+        // single element
+        let matrix = DoubleMatrix::from_row_slice(1, 1, &[3.0]);
+        assert_matrix(&column_maxs(&matrix), &matrix);
+    }
+
+    #[test]
+    fn test_column_means() {
+        // full matrix
+        let matrix = test_matrix_1();
+        let exp = DoubleMatrix::from_row_slice(1, 4, &[0.46, 0.47666667, 0.30666667, 0.36]);
+        assert_matrix(&column_means(&matrix), &exp);
+
+        // row vector
+        let matrix = DoubleMatrix::from_row_slice(1, 3, &[1.0, 2.0, 3.0]);
+        assert_matrix(&column_means(&matrix), &matrix);
+
+        // column vector
+        let matrix = DoubleMatrix::from_row_slice(3, 1, &[21.0, 12.0, 36.0]);
+        let exp = DoubleMatrix::from_row_slice(1, 1, &[23.0]);
+        assert_matrix(&column_means(&matrix), &exp);
+
+        // single element
+        let matrix = DoubleMatrix::from_row_slice(1, 1, &[3.0]);
+        assert_matrix(&column_means(&matrix), &matrix);
+    }
+
+    #[test]
     fn test_row_sums() {
         // full matrix
         let matrix = test_matrix_1();
         let exp = DoubleMatrix::from_row_slice(3, 1, &[0.67, 1.54, 2.6]);
-        assert_eq!(row_sums(&matrix), exp);
-
-        // single element
-        let matrix = DoubleMatrix::from_row_slice(1, 1, &[0.43]);
-        assert_eq!(row_sums(&matrix), matrix);
+        assert_matrix(&row_sums(&matrix), &exp);
 
         // row vector
         let matrix = DoubleMatrix::from_row_slice(1, 4, &[0.25, 0.16, 0.03, 0.23]);
         let exp = DoubleMatrix::from_row_slice(1, 1, &[0.67]);
-        assert_eq!(row_sums(&matrix), exp);
+        assert_matrix(&row_sums(&matrix), &exp);
 
         // column vector
         let matrix = DoubleMatrix::from_row_slice(3, 1, &[0.1, 0.2, 0.3]);
-        assert_eq!(row_sums(&matrix), matrix);
+        assert_matrix(&row_sums(&matrix), &matrix);
+
+        // single element
+        let matrix = DoubleMatrix::from_row_slice(1, 1, &[0.43]);
+        assert_matrix(&row_sums(&matrix), &matrix);
     }
 
     #[test]
@@ -273,20 +221,20 @@ mod tests {
         // full matrix
         let matrix = test_matrix_1();
         let exp = DoubleMatrix::from_row_slice(3, 1, &[0.03, 0.27, 0.37]);
-        assert_eq!(row_mins(&matrix), exp);
-
-        // single element
-        let matrix = DoubleMatrix::from_row_slice(1, 1, &[0.43]);
-        assert_eq!(row_mins(&matrix), matrix);
+        assert_matrix(&row_mins(&matrix), &exp);
 
         // row vector
         let matrix = DoubleMatrix::from_row_slice(1, 3, &[0.1, 0.2, 0.3]);
         let exp = DoubleMatrix::from_row_slice(1, 1, &[0.1]);
-        assert_eq!(row_mins(&matrix), exp);
+        assert_matrix(&row_mins(&matrix), &exp);
 
         // column vector
         let matrix = DoubleMatrix::from_row_slice(3, 1, &[0.1, 0.2, 0.3]);
-        assert_eq!(row_mins(&matrix), matrix);
+        assert_matrix(&row_mins(&matrix), &matrix);
+
+        // single element
+        let matrix = DoubleMatrix::from_row_slice(1, 1, &[0.43]);
+        assert_matrix(&row_mins(&matrix), &matrix);
     }
 
     #[test]
@@ -294,39 +242,39 @@ mod tests {
         // full matrix
         let matrix = test_matrix_1();
         let exp = DoubleMatrix::from_row_slice(3, 1, &[0.25, 0.52, 0.94]);
-        assert_eq!(row_maxs(&matrix), exp);
-
-        // single element
-        let matrix = DoubleMatrix::from_row_slice(1, 1, &[0.43]);
-        assert_eq!(row_maxs(&matrix), matrix);
+        assert_matrix(&row_maxs(&matrix), &exp);
 
         // row vector
         let matrix = DoubleMatrix::from_row_slice(1, 3, &[0.1, 0.2, 0.3]);
         let exp = DoubleMatrix::from_row_slice(1, 1, &[0.3]);
-        assert_eq!(row_maxs(&matrix), exp);
+        assert_matrix(&row_maxs(&matrix), &exp);
 
         // column vector
         let matrix = DoubleMatrix::from_row_slice(3, 1, &[0.1, 0.2, 0.3]);
-        assert_eq!(row_maxs(&matrix), matrix);
+        assert_matrix(&row_maxs(&matrix), &matrix);
+
+        // single element
+        let matrix = DoubleMatrix::from_row_slice(1, 1, &[0.43]);
+        assert_matrix(&row_maxs(&matrix), &matrix);
     }
 
     #[test]
     fn test_row_means() {
         let matrix = test_matrix_1();
         let exp = DoubleMatrix::from_row_slice(3, 1, &[0.1675, 0.385, 0.65]);
-        assert_eq!(row_means(&matrix), exp);
-
-        // single element
-        let matrix = DoubleMatrix::from_row_slice(1, 1, &[0.43]);
-        assert_eq!(row_means(&matrix), matrix);
+        assert_matrix(&row_means(&matrix), &exp);
 
         // row vector
         let matrix = DoubleMatrix::from_row_slice(1, 4, &[0.71, 0.94, 0.37, 0.58]);
         let exp = DoubleMatrix::from_row_slice(1, 1, &[0.65]);
-        assert_eq!(row_means(&matrix), exp);
+        assert_matrix(&row_means(&matrix), &exp);
 
         // column vector
         let matrix = DoubleMatrix::from_row_slice(3, 1, &[0.1, 0.2, 0.3]);
-        assert_eq!(row_means(&matrix), matrix);
+        assert_matrix(&row_means(&matrix), &matrix);
+
+        // single element
+        let matrix = DoubleMatrix::from_row_slice(1, 1, &[0.43]);
+        assert_matrix(&row_means(&matrix), &matrix);
     }
 }
