@@ -78,6 +78,21 @@ extern "C" {
 
   /*
    * Class:     com_github_sadikovi_rustjblas_DoubleMatrix
+   * Method:    matrix_data_array
+   * Signature: ()[D
+   */
+  JNIEXPORT jdoubleArray JNICALL Java_com_github_sadikovi_rustjblas_DoubleMatrix_matrix_1data_1array(
+      JNIEnv *env, jobject obj) {
+    void *ptr = get_matrix_pointer(env, obj);
+    jsize len = matrix_data_len(ptr);
+    const double *arr  = matrix_data_array(ptr);
+    jdoubleArray result = env->NewDoubleArray(len);
+    env->SetDoubleArrayRegion(result, 0, len, arr);
+    return result;
+  }
+
+  /*
+   * Class:     com_github_sadikovi_rustjblas_DoubleMatrix
    * Method:    matrix_pretty_string
    * Signature: (Z)Ljava/lang/String;
    */

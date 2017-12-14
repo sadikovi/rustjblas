@@ -59,6 +59,14 @@ JNIEXPORT jint JNICALL Java_com_github_sadikovi_rustjblas_DoubleMatrix_matrix_1c
 
 /*
  * Class:     com_github_sadikovi_rustjblas_DoubleMatrix
+ * Method:    matrix_data_array
+ * Signature: ()[D
+ */
+JNIEXPORT jdoubleArray JNICALL Java_com_github_sadikovi_rustjblas_DoubleMatrix_matrix_1data_1array
+  (JNIEnv *, jobject);
+
+/*
+ * Class:     com_github_sadikovi_rustjblas_DoubleMatrix
  * Method:    matrix_pretty_string
  * Signature: ()Ljava/lang/String;
  */

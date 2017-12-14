@@ -52,6 +52,17 @@ pub extern "C" fn matrix_cols(ptr: *const DoubleMatrix) -> int32_t {
 }
 
 #[no_mangle]
+pub extern "C" fn matrix_data_len(ptr: *const DoubleMatrix) -> int32_t {
+    unsafe { (*ptr).data.len() as int32_t }
+}
+
+#[no_mangle]
+pub extern "C" fn matrix_data_array(ptr: *const DoubleMatrix) -> *const c_double {
+    let arr = unsafe { (*ptr).data.as_slice() };
+    arr.as_ptr()
+}
+
+#[no_mangle]
 pub extern "C" fn matrix_pretty_string(ptr: *const DoubleMatrix) -> *const c_char {
     let matrix_str = unsafe { (*ptr).to_string() };
     let res = CString::new(matrix_str).unwrap();

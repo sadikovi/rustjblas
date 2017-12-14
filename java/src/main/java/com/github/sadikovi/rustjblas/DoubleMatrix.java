@@ -17,37 +17,35 @@ public class DoubleMatrix {
 
   /**
    * Create matrix from rows, and columns and on-heap array.
-   * New matrix has column-major order.
+   * New matrix has column-major order, thus array is expected to be in column-major order.
    */
   public static DoubleMatrix fromArray(int rows, int cols, double[] arr) {
+    if (arr == null || arr.length != rows * cols) {
+      throw new IllegalArgumentException("Invalid data array: " + arr);
+    }
     long pointer = alloc_from_array(rows, cols, arr);
     return new DoubleMatrix(pointer);
   }
 
-  /**
-   * Create random matrix for specified dimensions.
-   */
+  /** Create random matrix for specified dimensions */
   public static DoubleMatrix rand(int rows, int cols) {
     long pointer = alloc_rand(rows, cols);
     return new DoubleMatrix(pointer);
   }
 
-  /**
-   * Create matrix of zeros for specified dimensions.
-   */
+  /** Create matrix of zeros for specified dimensions */
   public static DoubleMatrix zeros(int rows, int cols) {
     long pointer = alloc_zeros(rows, cols);
     return new DoubleMatrix(pointer);
   }
 
-  /**
-   * Create matrix of ones for specified dimensions.
-   */
+  /** Create matrix of ones for specified dimensions */
   public static DoubleMatrix ones(int rows, int cols) {
     long pointer = alloc_ones(rows, cols);
     return new DoubleMatrix(pointer);
   }
 
+  /** Load implementation library */
   private static void loadLibrary() {
     String libname = "rustjblas";
     System.out.println("-- Loading library " + libname + ", libpath: " +
@@ -64,41 +62,31 @@ public class DoubleMatrix {
     assert_pointer();
   }
 
-  /**
-   * Check if current pointer is valid.
-   */
+  /** Check if current pointer is valid */
   private synchronized void assert_pointer() {
     if (pointer == INVALID_PTR) {
       throw new IllegalStateException("Invalid state of double matrix, ptr=" + pointer);
     }
   }
 
-  /**
-   * Return pretty string for a matrix.
-   */
+  /** Return pretty string for a matrix */
   public String prettyString() {
     assert_pointer();
     return matrix_pretty_string();
   }
 
-  /**
-   * Display current matrix in stdout.
-   */
+  /** Display current matrix in stdout */
   public void show() {
     assert_pointer();
     System.out.println(prettyString());
   }
 
-  /**
-   * Get current pointer value (read-only).
-   */
+  /** Get current pointer value (read-only) */
   public long ptr() {
     return pointer;
   }
 
-  /**
-   * True if matrix is backed by non-invalid pointer, false otherwise.
-   */
+  /** True if matrix is backed by a valid pointer, false otherwise */
   public boolean memoryValid() {
     return pointer != INVALID_PTR;
   }
@@ -143,6 +131,16 @@ public class DoubleMatrix {
   public int cols() {
     assert_pointer();
     return matrix_cols();
+  }
+
+  /** Return a copy of matrix data array in column-major order */
+  public double[] toArray() {
+    long rows = rows(), cols = cols();
+    if (rows * cols >= Integer.MAX_VALUE) {
+      throw new IllegalStateException("Cannot convert matrix " +
+        rows + "x" + cols + " to array, too large");
+    }
+    return matrix_data_array();
   }
 
   /** Add scalar value to this matrix */
@@ -374,6 +372,7 @@ public class DoubleMatrix {
 
   private native int matrix_rows();
   private native int matrix_cols();
+  private native double[] matrix_data_array();
   private native String matrix_pretty_string();
   private native void matrix_dealloc();
 

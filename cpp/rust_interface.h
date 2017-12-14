@@ -13,6 +13,8 @@ void* alloc_ones(int, int);
 /* instance methods */
 int matrix_rows(void*);
 int matrix_cols(void*);
+int matrix_data_len(void*); // return length of data array
+const double* matrix_data_array(void*); // return pointer to data array
 const char* matrix_pretty_string(void*);
 void matrix_dealloc(void*);
 
