@@ -135,6 +135,7 @@ public class DoubleMatrix {
 
   /** Return a copy of matrix data array in column-major order */
   public double[] toArray() {
+    assert_pointer();
     long rows = rows(), cols = cols();
     if (rows * cols >= Integer.MAX_VALUE) {
       throw new IllegalStateException("Cannot convert matrix " +
