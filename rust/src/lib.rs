@@ -379,7 +379,9 @@ pub extern "C" fn matrix_sum(ptr: *const DoubleMatrix) -> c_double {
 
 #[no_mangle]
 pub extern "C" fn matrix_norm1(ptr: *const DoubleMatrix) -> c_double {
-    unsafe { (*ptr).norm_squared() }
+    // TODO: replace with built-in method, if available
+    let matrix = unsafe { (*ptr).abs() };
+    matrix.iter().sum()
 }
 
 #[no_mangle]

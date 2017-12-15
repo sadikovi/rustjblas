@@ -7,12 +7,12 @@ scalaVersion := "2.11.7"
 
 // Compile dependencies
 libraryDependencies ++= Seq(
-  "org.jblas" % "jblas" % "1.2.4"
+  "org.jblas" % "jblas" % "1.2.4" % "provided"
 )
 
 // Test dependencies
 libraryDependencies ++= Seq(
-  "org.scalatest" %% "scalatest" % "2.2.4" % "test"
+  "com.novocode" % "junit-interface" % "0.11" % "test"
 )
 
 javacOptions in ThisBuild ++= Seq("-Xlint:unchecked")

@@ -1,6 +1,10 @@
-JAVA_DIR=java
-RUST_DIR=rust
-CPP_DIR=cpp
+ROOT_DIR=$(shell dirname $(realpath $(lastword $(MAKEFILE_LIST))))
+JAVA_DIR=$(ROOT_DIR)/java
+RUST_DIR=$(ROOT_DIR)/rust
+CPP_DIR=$(ROOT_DIR)/cpp
+
+# target dir with final artifacts
+TARGET_DIR=$(ROOT_DIR)/target
 
 # list of classes to be compiled for jni
 JNI_CLASSES="com.github.sadikovi.rustjblas.DoubleMatrix"
@@ -28,13 +32,13 @@ clean_cpp:
 	cd $(CPP_DIR) && rm -rf target
 
 clean: clean_java clean_rust clean_cpp
-	rm -rf target
+	rm -rf $(TARGET_DIR)
 
 # == test ==
 
 test_java:
 	# run java tests
-	cd $(JAVA_DIR) && sbt test
+	cd $(JAVA_DIR) && SBT_OPTS="-Djava.library.path=$(TARGET_DIR)" sbt test
 
 test_rust:
 	# run rust tests
@@ -54,14 +58,14 @@ build_rust:
 
 build_cpp:
 	# compile cpp shared library
-	bin/cpp_compile.sh
+	$(ROOT_DIR)/bin/cpp_compile.sh
 
 build: build_java jni build_rust build_cpp
 	# copy artifacts into target folder
-	mkdir -p target && cp $(JAVA_DIR)/target/scala-2.11/*.jar target && cp $(CPP_DIR)/target/* target
+	mkdir -p $(TARGET_DIR) && cp $(JAVA_DIR)/target/scala-2.11/*.jar $(TARGET_DIR) && cp $(CPP_DIR)/target/* $(TARGET_DIR)
 
 # == jni ==
 
 jni:
 	# generate files for jni
-	bin/javah -cp $(JAVA_DIR)/target/scala-2.11/classes -d $(CPP_DIR) $(JNI_CLASSES)
+	$(ROOT_DIR)/bin/javah -cp $(JAVA_DIR)/target/scala-2.11/classes -d $(CPP_DIR) $(JNI_CLASSES)
