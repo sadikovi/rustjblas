@@ -53,8 +53,3 @@ t.cols
 t.add(4.5).show()
 t.dealloc
 ```
-
-Or you can run java main class that performs example init and method calls:
-```
-java -Djava.library.path=target -cp target/rustjblas_2.11-0.1.0-SNAPSHOT.jar com.github.sadikovi.Main
-```
