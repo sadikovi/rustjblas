@@ -69,10 +69,15 @@ public class DoubleMatrix {
     assert_pointer();
   }
 
+  /** Convert pointer into hex string */
+  private static String ptrstr(long pointer) {
+    return "0x" + Long.toHexString(pointer).toUpperCase();
+  }
+
   /** Check if current pointer is valid */
   private synchronized void assert_pointer() {
     if (pointer == INVALID_PTR) {
-      throw new IllegalStateException("Invalid state of double matrix, ptr=" + pointer);
+      throw new IllegalStateException("Invalid state of double matrix, ptr=" + ptrstr(pointer));
     }
   }
 
@@ -117,8 +122,8 @@ public class DoubleMatrix {
 
   @Override
   public String toString() {
-    if (pointer == INVALID_PTR) return "<matrix dealloc, pointer " + pointer + ">";
-    return "<matrix valid, pointer " + pointer + ", rows " + rows() + ", columns " + cols() + ">";
+    if (pointer == INVALID_PTR) return "<matrix [dealloc], ptr=" + ptrstr(pointer) + ">";
+    return "<matrix " + rows() + " x " + cols() + " [valid], ptr=" + ptrstr(pointer) + ">";
   }
 
   @Override

@@ -397,5 +397,6 @@ pub extern "C" fn matrix_transpose(ptr: *const DoubleMatrix) -> *const DoubleMat
 #[no_mangle]
 pub extern "C" fn matrix_diag(ptr: *const DoubleMatrix) -> PtrResult {
     let this = unsafe { &(*ptr) };
-    try_catch_ptr(|| DoubleMatrix::from_diagonal(&this.diagonal()))
+    // return diagonal as column vector similar to jblas
+    try_catch_ptr(|| DoubleMatrix::from_columns(&[this.diagonal()]))
 }
