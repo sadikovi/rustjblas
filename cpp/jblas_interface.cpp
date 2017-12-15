@@ -3,7 +3,8 @@
 
 extern "C" {
 
-  /* == Bindings == */
+  // generic exception class that we expect to be thrown
+  const char *EXCEPTION_CLASS = "com/github/sadikovi/rustjblas/OperationException";
 
   // Get matrix pointer for the current instance
   void* get_matrix_pointer(JNIEnv *env, jobject obj) {
@@ -12,6 +13,14 @@ extern "C" {
     jlong ptr = env->GetLongField(obj, fid);
     return (void*) ptr;
   }
+
+  // Throw exception with provided message
+  void throw_exception(JNIEnv *env, const char *message) {
+    jclass clazz = env->FindClass(EXCEPTION_CLASS);
+    env->ThrowNew(clazz, message);
+  }
+
+  /* == Bindings == */
 
   /*
    * Class:     com_github_sadikovi_rustjblas_DoubleMatrix
@@ -23,7 +32,11 @@ extern "C" {
     jsize len = env->GetArrayLength(data);
     // always copy elements from java heap
     jdouble *body = env->GetDoubleArrayElements(data, 0);
-    return (long) alloc_from_array(rows, cols, len, body);
+    PtrResult res = alloc_from_array(rows, cols, len, body);
+    if (res.err) {
+      throw_exception(env, res.err);
+    }
+    return (long) res.ptr;
   }
 
   /*
@@ -33,7 +46,11 @@ extern "C" {
    */
   JNIEXPORT jlong JNICALL Java_com_github_sadikovi_rustjblas_DoubleMatrix_alloc_1rand(
       JNIEnv *env, jclass type, jint rows, jint cols) {
-    return (long) alloc_rand(rows, cols);
+    PtrResult res = alloc_rand(rows, cols);
+    if (res.err) {
+      throw_exception(env, res.err);
+    }
+    return (long) res.ptr;
   }
 
   /*
@@ -43,7 +60,11 @@ extern "C" {
    */
   JNIEXPORT jlong JNICALL Java_com_github_sadikovi_rustjblas_DoubleMatrix_alloc_1zeros(
       JNIEnv *env, jclass type, jint rows, jint cols) {
-    return (long) alloc_zeros(rows, cols);
+    PtrResult res = alloc_zeros(rows, cols);
+    if (res.err) {
+      throw_exception(env, res.err);
+    }
+    return (long) res.ptr;
   }
 
   /*
@@ -53,7 +74,11 @@ extern "C" {
    */
   JNIEXPORT jlong JNICALL Java_com_github_sadikovi_rustjblas_DoubleMatrix_alloc_1ones(
       JNIEnv *env, jclass type, jint rows, jint cols) {
-    return (long) alloc_ones(rows, cols);
+    PtrResult res = alloc_ones(rows, cols);
+    if (res.err) {
+      throw_exception(env, res.err);
+    }
+    return (long) res.ptr;
   }
 
   /*
@@ -84,10 +109,9 @@ extern "C" {
   JNIEXPORT jdoubleArray JNICALL Java_com_github_sadikovi_rustjblas_DoubleMatrix_matrix_1data_1array(
       JNIEnv *env, jobject obj) {
     void *ptr = get_matrix_pointer(env, obj);
-    jsize len = matrix_data_len(ptr);
-    const double *arr  = matrix_data_array(ptr);
-    jdoubleArray result = env->NewDoubleArray(len);
-    env->SetDoubleArrayRegion(result, 0, len, arr);
+    DoubleArray arr = matrix_data_array(ptr);
+    jdoubleArray result = env->NewDoubleArray(arr.len);
+    env->SetDoubleArrayRegion(result, 0, arr.len, arr.data);
     return result;
   }
 
@@ -120,7 +144,11 @@ extern "C" {
    */
   JNIEXPORT jlong JNICALL Java_com_github_sadikovi_rustjblas_DoubleMatrix_matrix_1add_1scalar(
       JNIEnv *env, jobject obj, jdouble scalar) {
-    return (long) matrix_add_scalar(get_matrix_pointer(env, obj), scalar);
+    PtrResult res = matrix_add_scalar(get_matrix_pointer(env, obj), scalar);
+    if (res.err) {
+      throw_exception(env, res.err);
+    }
+    return (long) res.ptr;
   }
 
   /*
@@ -130,7 +158,11 @@ extern "C" {
    */
   JNIEXPORT jlong JNICALL Java_com_github_sadikovi_rustjblas_DoubleMatrix_matrix_1add_1matrix(
       JNIEnv *env, jobject obj, jlong aptr) {
-    return (long) matrix_add_matrix(get_matrix_pointer(env, obj), (void*) aptr);
+    PtrResult res = matrix_add_matrix(get_matrix_pointer(env, obj), (void*) aptr);
+    if (res.err) {
+      throw_exception(env, res.err);
+    }
+    return (long) res.ptr;
   }
 
   /*
@@ -140,7 +172,10 @@ extern "C" {
    */
   JNIEXPORT void JNICALL Java_com_github_sadikovi_rustjblas_DoubleMatrix_matrix_1add_1in_1place_1scalar(
       JNIEnv *env, jobject obj, jdouble scalar) {
-    matrix_add_in_place_scalar(get_matrix_pointer(env, obj), scalar);
+    VoidResult res = matrix_add_in_place_scalar(get_matrix_pointer(env, obj), scalar);
+    if (res.err) {
+      throw_exception(env, res.err);
+    }
   }
 
   /*
@@ -150,7 +185,10 @@ extern "C" {
    */
   JNIEXPORT void JNICALL Java_com_github_sadikovi_rustjblas_DoubleMatrix_matrix_1add_1in_1place_1matrix(
       JNIEnv *env, jobject obj, jlong aptr) {
-    matrix_add_in_place_matrix(get_matrix_pointer(env, obj), (void*) aptr);
+    VoidResult res = matrix_add_in_place_matrix(get_matrix_pointer(env, obj), (void*) aptr);
+    if (res.err) {
+      throw_exception(env, res.err);
+    }
   }
 
   /*
@@ -160,7 +198,11 @@ extern "C" {
    */
   JNIEXPORT jlong JNICALL Java_com_github_sadikovi_rustjblas_DoubleMatrix_matrix_1sub_1scalar(
       JNIEnv *env, jobject obj, jdouble scalar) {
-    return (long) matrix_sub_scalar(get_matrix_pointer(env, obj), scalar);
+    PtrResult res = matrix_sub_scalar(get_matrix_pointer(env, obj), scalar);
+    if (res.err) {
+      throw_exception(env, res.err);
+    }
+    return (long) res.ptr;
   }
 
   /*
@@ -170,7 +212,11 @@ extern "C" {
    */
   JNIEXPORT jlong JNICALL Java_com_github_sadikovi_rustjblas_DoubleMatrix_matrix_1sub_1matrix(
       JNIEnv *env, jobject obj, jlong aptr) {
-    return (long) matrix_sub_matrix(get_matrix_pointer(env, obj), (void*) aptr);
+    PtrResult res = matrix_sub_matrix(get_matrix_pointer(env, obj), (void*) aptr);
+    if (res.err) {
+      throw_exception(env, res.err);
+    }
+    return (long) res.ptr;
   }
 
   /*
@@ -180,7 +226,10 @@ extern "C" {
    */
   JNIEXPORT void JNICALL Java_com_github_sadikovi_rustjblas_DoubleMatrix_matrix_1sub_1in_1place_1scalar(
       JNIEnv *env, jobject obj, jdouble scalar) {
-    matrix_sub_in_place_scalar(get_matrix_pointer(env, obj), scalar);
+    VoidResult res = matrix_sub_in_place_scalar(get_matrix_pointer(env, obj), scalar);
+    if (res.err) {
+      throw_exception(env, res.err);
+    }
   }
 
   /*
@@ -190,7 +239,10 @@ extern "C" {
    */
   JNIEXPORT void JNICALL Java_com_github_sadikovi_rustjblas_DoubleMatrix_matrix_1sub_1in_1place_1matrix(
       JNIEnv *env, jobject obj, jlong aptr) {
-    matrix_sub_in_place_matrix(get_matrix_pointer(env, obj), (void*) aptr);
+    VoidResult res = matrix_sub_in_place_matrix(get_matrix_pointer(env, obj), (void*) aptr);
+    if (res.err) {
+      throw_exception(env, res.err);
+    }
   }
 
   /*
@@ -200,7 +252,11 @@ extern "C" {
    */
   JNIEXPORT jlong JNICALL Java_com_github_sadikovi_rustjblas_DoubleMatrix_matrix_1mul_1scalar(
       JNIEnv *env, jobject obj, jdouble scalar) {
-    return (long) matrix_mul_scalar(get_matrix_pointer(env, obj), scalar);
+    PtrResult res = matrix_mul_scalar(get_matrix_pointer(env, obj), scalar);
+    if (res.err) {
+      throw_exception(env, res.err);
+    }
+    return (long) res.ptr;
   }
 
   /*
@@ -210,7 +266,11 @@ extern "C" {
    */
   JNIEXPORT jlong JNICALL Java_com_github_sadikovi_rustjblas_DoubleMatrix_matrix_1mul_1matrix(
       JNIEnv *env, jobject obj, jlong aptr) {
-    return (long) matrix_mul_matrix(get_matrix_pointer(env, obj), (void*) aptr);
+    PtrResult res = matrix_mul_matrix(get_matrix_pointer(env, obj), (void*) aptr);
+    if (res.err) {
+      throw_exception(env, res.err);
+    }
+    return (long) res.ptr;
   }
 
   /*
@@ -220,7 +280,10 @@ extern "C" {
    */
   JNIEXPORT void JNICALL Java_com_github_sadikovi_rustjblas_DoubleMatrix_matrix_1mul_1in_1place_1scalar(
       JNIEnv *env, jobject obj, jdouble scalar) {
-    matrix_mul_in_place_scalar(get_matrix_pointer(env, obj), scalar);
+    VoidResult res = matrix_mul_in_place_scalar(get_matrix_pointer(env, obj), scalar);
+    if (res.err) {
+      throw_exception(env, res.err);
+    }
   }
 
   /*
@@ -230,7 +293,10 @@ extern "C" {
    */
   JNIEXPORT void JNICALL Java_com_github_sadikovi_rustjblas_DoubleMatrix_matrix_1mul_1in_1place_1matrix(
       JNIEnv *env, jobject obj, jlong aptr) {
-    matrix_mul_in_place_matrix(get_matrix_pointer(env, obj), (void*) aptr);
+    VoidResult res = matrix_mul_in_place_matrix(get_matrix_pointer(env, obj), (void*) aptr);
+    if (res.err) {
+      throw_exception(env, res.err);
+    }
   }
 
   /*
@@ -240,7 +306,11 @@ extern "C" {
    */
   JNIEXPORT jlong JNICALL Java_com_github_sadikovi_rustjblas_DoubleMatrix_matrix_1div_1scalar(
       JNIEnv *env, jobject obj, jdouble scalar) {
-    return (long) matrix_div_scalar(get_matrix_pointer(env, obj), scalar);
+    PtrResult res = matrix_div_scalar(get_matrix_pointer(env, obj), scalar);
+    if (res.err) {
+      throw_exception(env, res.err);
+    }
+    return (long) res.ptr;
   }
 
   /*
@@ -250,7 +320,11 @@ extern "C" {
    */
   JNIEXPORT jlong JNICALL Java_com_github_sadikovi_rustjblas_DoubleMatrix_matrix_1div_1matrix(
       JNIEnv *env, jobject obj, jlong aptr) {
-    return (long) matrix_div_matrix(get_matrix_pointer(env, obj), (void*) aptr);
+    PtrResult res = matrix_div_matrix(get_matrix_pointer(env, obj), (void*) aptr);
+    if (res.err) {
+      throw_exception(env, res.err);
+    }
+    return (long) res.ptr;
   }
 
   /*
@@ -260,7 +334,10 @@ extern "C" {
    */
   JNIEXPORT void JNICALL Java_com_github_sadikovi_rustjblas_DoubleMatrix_matrix_1div_1in_1place_1scalar(
       JNIEnv *env, jobject obj, jdouble scalar) {
-    matrix_div_in_place_scalar(get_matrix_pointer(env, obj), scalar);
+    VoidResult res = matrix_div_in_place_scalar(get_matrix_pointer(env, obj), scalar);
+    if (res.err) {
+      throw_exception(env, res.err);
+    }
   }
 
   /*
@@ -270,7 +347,10 @@ extern "C" {
    */
   JNIEXPORT void JNICALL Java_com_github_sadikovi_rustjblas_DoubleMatrix_matrix_1div_1in_1place_1matrix(
       JNIEnv *env, jobject obj, jlong aptr) {
-    matrix_div_in_place_matrix(get_matrix_pointer(env, obj), (void*) aptr);
+    VoidResult res = matrix_div_in_place_matrix(get_matrix_pointer(env, obj), (void*) aptr);
+    if (res.err) {
+      throw_exception(env, res.err);
+    }
   }
 
   /*
@@ -420,6 +500,10 @@ extern "C" {
    */
   JNIEXPORT jlong JNICALL Java_com_github_sadikovi_rustjblas_DoubleMatrix_matrix_1diag(
       JNIEnv *env, jobject obj) {
-    return (long) matrix_diag(get_matrix_pointer(env, obj));
+    PtrResult res = matrix_diag(get_matrix_pointer(env, obj));
+    if (res.err) {
+      throw_exception(env, res.err);
+    }
+    return (long) res.ptr;
   }
 }
