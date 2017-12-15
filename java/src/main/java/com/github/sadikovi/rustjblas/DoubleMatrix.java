@@ -3,6 +3,9 @@ package com.github.sadikovi.rustjblas;
 /**
  * `DoubleMatrix` class backed by off-heap memory.
  * API resembles one of org.jblas.DoubleMatrix.
+ *
+ * Most of the methods should be expected to throw
+ * `com.github.sadikovi.rustjblas.OperationException`.
  */
 public class DoubleMatrix {
   static {
@@ -20,6 +23,7 @@ public class DoubleMatrix {
    * New matrix has column-major order, thus array is expected to be in column-major order.
    */
   public static DoubleMatrix fromArray(int rows, int cols, double[] arr) {
+    assert_shape(rows, cols);
     if (arr == null || arr.length != rows * cols) {
       throw new IllegalArgumentException("Invalid data array: " + arr);
     }
@@ -29,18 +33,21 @@ public class DoubleMatrix {
 
   /** Create random matrix for specified dimensions */
   public static DoubleMatrix rand(int rows, int cols) {
+    assert_shape(rows, cols);
     long pointer = alloc_rand(rows, cols);
     return new DoubleMatrix(pointer);
   }
 
   /** Create matrix of zeros for specified dimensions */
   public static DoubleMatrix zeros(int rows, int cols) {
+    assert_shape(rows, cols);
     long pointer = alloc_zeros(rows, cols);
     return new DoubleMatrix(pointer);
   }
 
   /** Create matrix of ones for specified dimensions */
   public static DoubleMatrix ones(int rows, int cols) {
+    assert_shape(rows, cols);
     long pointer = alloc_ones(rows, cols);
     return new DoubleMatrix(pointer);
   }
@@ -66,6 +73,13 @@ public class DoubleMatrix {
   private synchronized void assert_pointer() {
     if (pointer == INVALID_PTR) {
       throw new IllegalStateException("Invalid state of double matrix, ptr=" + pointer);
+    }
+  }
+
+  /** Assert matrix shape */
+  private static void assert_shape(int rows, int cols) {
+    if (rows < 0 || cols < 0) {
+      throw new IllegalArgumentException("Invalid matrix shape: rows " + rows + ", cols " + cols);
     }
   }
 

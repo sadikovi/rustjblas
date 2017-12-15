@@ -65,9 +65,9 @@ pub extern "C" fn matrix_data_array(ptr: *const DoubleMatrix) -> *const c_double
 #[no_mangle]
 pub extern "C" fn matrix_pretty_string(ptr: *const DoubleMatrix) -> *const c_char {
     let matrix_str = unsafe { (*ptr).to_string() };
-    let res = CString::new(matrix_str).unwrap();
-    let ptr = res.as_ptr();
-    mem::forget(res);
+    let cstr = CString::new(matrix_str).unwrap();
+    let ptr = cstr.as_ptr();
+    mem::forget(cstr);
     ptr
 }
 
