@@ -26,16 +26,6 @@ Each subproject can also be built from its own folder with `sbt` or `cargo`.
 After build is finished, all necessary artifacts will be copied into `target` folder in project
 directory, and should contain shared `.so`/`.dylib` library and jar.
 
-## Run test
-Run `make test` from the project directory to run all tests. Subproject tests, e.g. Java, can be run
-either with `make test_java` or using `sbt` from a subproject folder; similar for Rust.
-
-## Run clean
-Run `make clean` to remove temporary files and generated artifacts.
-
-## Compile JNI
-Run `make jni` (runs as part of build command) to generate fresh JNI files (for development only).
-
 ## Run sample code
 Run scala-shell with following options from the project directory, `target` folder should contain
 both shared library and jar:
@@ -53,3 +43,15 @@ t.cols
 t.add(4.5).show()
 t.dealloc
 ```
+
+## Development
+
+### Run test
+Run `make test` from the project directory to run all tests. Subproject tests, e.g. Java, can be run
+either with `make test_java` or using `sbt` from a subproject folder; similar for Rust.
+
+### Run clean
+Run `make clean` to remove temporary files and generated artifacts.
+
+### Compile JNI
+Run `make jni` (runs as part of build command) to generate fresh JNI files.
