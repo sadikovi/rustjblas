@@ -1,0 +1,20 @@
+language: scala
+sudo: false
+cache:
+  directories:
+    - $HOME/.ivy2
+    - $HOME/.cargo
+scala:
+  - 2.11.7
+jdk:
+  - oraclejdk7
+addons:
+  apt:
+    packages:
+      - gcc-4.9
+      - g++-4.9
+      - execstack
+before_script:
+  - curl https://sh.rustup.rs -sSf | sh
+script:
+  - make clean && make build && make test
