@@ -1,5 +1,3 @@
-#![feature(get_type_id)]
-
 extern crate libc;
 extern crate nalgebra;
 extern crate rand;
