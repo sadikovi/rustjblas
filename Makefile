@@ -54,7 +54,7 @@ build_java:
 
 build_rust:
 	# compile rust code and generate library
-	cd $(RUST_DIR) && cargo build
+	cd $(RUST_DIR) && RUSTFLAGS="-C target-cpu=native" cargo build
 
 build_cpp:
 	# compile cpp shared library

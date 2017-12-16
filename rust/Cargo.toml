@@ -10,3 +10,8 @@ nalgebra = "0.13"
 [lib]
 crate-type = ["staticlib"]
 name = "rustjblas"
+
+[dependencies.nalgebra-lapack]
+version = "0.5"
+default-features = false
+features = [ "openblas" ]
