@@ -1,5 +1,8 @@
 # rustjblas
 
+[![Build Status](https://travis-ci.org/sadikovi/rustjblas.svg?branch=master)](https://travis-ci.org/sadikovi/rustjblas)
+[![License: MIT](https://img.shields.io/badge/License-MIT-blue.svg)](https://opensource.org/licenses/MIT)
+
 Library for using JBLAS `DoubleMatrix` (https://github.com/mikiobraun/jblas) with off-heap
 allocation.
 
