@@ -36,7 +36,7 @@ both shared library and jar:
 JAVA_OPTS="-Djava.library.path=target" scala -cp target/rustjblas_2.11-0.1.0-SNAPSHOT.jar
 ```
 
-... and try creating matrices in scala-shell:
+and try creating matrices in scala-shell:
 ```scala
 import com.github.sadikovi.rustjblas.DoubleMatrix
 val t = DoubleMatrix.rand(5, 6)
