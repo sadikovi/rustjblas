@@ -6,10 +6,11 @@ cache:
     - $HOME/.cargo
 scala:
   - 2.11.7
+jdk:
+  - oraclejdk8
+  - openjdk7
 addons:
   apt:
-    sources:
-      - ubuntu-toolchain-r-test
     packages:
       - g++
       - execstack
