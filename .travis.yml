@@ -6,8 +6,6 @@ cache:
     - $HOME/.cargo
 scala:
   - 2.11.7
-jdk:
-  - oraclejdk7
 addons:
   apt:
     sources:
