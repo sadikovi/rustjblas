@@ -373,6 +373,34 @@ extern "C" {
     }
   }
 
+
+  /*
+   * Class:     com_github_sadikovi_rustjblas_DoubleMatrix
+   * Method:    matrix_mmul_matrix
+   * Signature: (J)J
+   */
+  JNIEXPORT jlong JNICALL Java_com_github_sadikovi_rustjblas_DoubleMatrix_matrix_1mmul_1matrix(
+      JNIEnv *env, jobject obj, jlong aptr) {
+    PtrResult res = matrix_mmul_matrix(get_matrix_pointer(env, obj), (void*) aptr);
+    if (res.err) {
+      throw_exception(env, res.err);
+    }
+    return (long) res.ptr;
+  }
+
+  /*
+   * Class:     com_github_sadikovi_rustjblas_DoubleMatrix
+   * Method:    matrix_mmul_in_place_matrix
+   * Signature: (J)V
+   */
+  JNIEXPORT void JNICALL Java_com_github_sadikovi_rustjblas_DoubleMatrix_matrix_1mmul_1in_1place_1matrix(
+      JNIEnv *env, jobject obj, jlong aptr) {
+    VoidResult res = matrix_mmul_in_place_matrix(get_matrix_pointer(env, obj), (void*) aptr);
+    if (res.err) {
+      throw_exception(env, res.err);
+    }
+  }
+
   /*
    * Class:     com_github_sadikovi_rustjblas_DoubleMatrix
    * Method:    matrix_column_mins

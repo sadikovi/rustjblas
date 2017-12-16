@@ -307,6 +307,76 @@ public class MatrixOperationsSuite {
     n.dealloc();
   }
 
+  @Test
+  public void testMatrixMultiply() {
+    // square matrix
+    org.jblas.DoubleMatrix m = org.jblas.DoubleMatrix.rand(10, 10);
+    org.jblas.DoubleMatrix ma = org.jblas.DoubleMatrix.rand(10, 10);
+    DoubleMatrix n = DoubleMatrix.fromArray(m.rows, m.columns, m.toArray());
+    DoubleMatrix na = DoubleMatrix.fromArray(ma.rows, ma.columns, ma.toArray());
+    assertMatrix(m.mmul(ma), n.mmul(na));
+    n.dealloc();
+    na.dealloc();
+
+    // non-square matrix
+    m = org.jblas.DoubleMatrix.rand(14, 8);
+    ma = org.jblas.DoubleMatrix.rand(8, 20);
+    n = DoubleMatrix.fromArray(m.rows, m.columns, m.toArray());
+    na = DoubleMatrix.fromArray(ma.rows, ma.columns, ma.toArray());
+    assertMatrix(m.mmul(ma), n.mmul(na));
+    n.dealloc();
+    na.dealloc();
+
+    // row and column vectors into matrix
+    m = org.jblas.DoubleMatrix.rand(10, 1);
+    ma = org.jblas.DoubleMatrix.rand(1, 10);
+    n = DoubleMatrix.fromArray(m.rows, m.columns, m.toArray());
+    na = DoubleMatrix.fromArray(ma.rows, ma.columns, ma.toArray());
+    assertMatrix(m.mmul(ma), n.mmul(na));
+    n.dealloc();
+    na.dealloc();
+
+    // row and column vectors as dot product
+    m = org.jblas.DoubleMatrix.rand(1, 15);
+    ma = org.jblas.DoubleMatrix.rand(15, 1);
+    n = DoubleMatrix.fromArray(m.rows, m.columns, m.toArray());
+    na = DoubleMatrix.fromArray(ma.rows, ma.columns, ma.toArray());
+    assertMatrix(m.mmul(ma), n.mmul(na));
+    n.dealloc();
+    na.dealloc();
+  }
+
+  @Test
+  public void testMatrixMultiplyInPlace() {
+    // square matrix
+    org.jblas.DoubleMatrix m = org.jblas.DoubleMatrix.rand(10, 10);
+    org.jblas.DoubleMatrix ma = org.jblas.DoubleMatrix.rand(10, 10);
+    DoubleMatrix n = DoubleMatrix.fromArray(m.rows, m.columns, m.toArray());
+    DoubleMatrix na = DoubleMatrix.fromArray(ma.rows, ma.columns, ma.toArray());
+    m.mmuli(ma);
+    n.mmuli(na);
+    assertMatrix(m, n);
+    n.dealloc();
+    na.dealloc();
+
+    // non-square matrix
+    m = org.jblas.DoubleMatrix.rand(14, 8);
+    ma = org.jblas.DoubleMatrix.rand(8, 20);
+    n = DoubleMatrix.fromArray(m.rows, m.columns, m.toArray());
+    na = DoubleMatrix.fromArray(ma.rows, ma.columns, ma.toArray());
+    n.mmuli(na);
+    assertMatrix(m.mmul(ma), n);
+    n.dealloc();
+    na.dealloc();
+  }
+
+  @Test(expected = OperationException.class)
+  public void testMatrixMultiplyFail() {
+    DoubleMatrix n = DoubleMatrix.rand(5, 7);
+    n.mmul(DoubleMatrix.rand(3, 4));
+    n.dealloc();
+  }
+
   // == Column stats ==
 
   @Test

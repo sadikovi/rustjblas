@@ -305,6 +305,22 @@ public class DoubleMatrix {
     return this;
   }
 
+  /** Matrix-multiply by a matrix */
+  public DoubleMatrix mmul(DoubleMatrix that) {
+    assert_pointer();
+    that.assert_pointer();
+    long res = matrix_mmul_matrix(that.ptr());
+    return new DoubleMatrix(res);
+  }
+
+  /** Matrix-multiply by a matrix (in place) */
+  public DoubleMatrix mmuli(DoubleMatrix that) {
+    assert_pointer();
+    that.assert_pointer();
+    matrix_mmul_in_place_matrix(that.ptr());
+    return this;
+  }
+
   /** Return column-wise minimums */
   public DoubleMatrix columnMins() {
     assert_pointer();
@@ -437,6 +453,9 @@ public class DoubleMatrix {
   private native long matrix_div_matrix(long ptr);
   private native void matrix_div_in_place_scalar(double scalar);
   private native void matrix_div_in_place_matrix(long ptr);
+
+  private native long matrix_mmul_matrix(long ptr);
+  private native void matrix_mmul_in_place_matrix(long ptr);
 
   private native long matrix_column_mins();
   private native long matrix_column_maxs();

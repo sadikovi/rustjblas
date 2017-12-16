@@ -174,7 +174,7 @@ pub extern "C" fn matrix_add_in_place_scalar(
     scalar: c_double
 ) -> VoidResult
 {
-    try_catch_void(|| unsafe { (*ptr).add_scalar_mut(scalar) })
+    try_catch_void(|| unsafe { (*ptr).add_scalar_mut(scalar); })
 }
 
 #[no_mangle]
@@ -186,7 +186,7 @@ pub extern "C" fn matrix_add_in_place_matrix(
     try_catch_void(|| {
         let this = unsafe { &mut (*ptr) };
         let that = unsafe { &(*aptr) };
-        this.add_assign(that)
+        this.add_assign(that);
     })
 }
 
@@ -218,7 +218,7 @@ pub extern "C" fn matrix_sub_in_place_scalar(
 ) -> VoidResult
 {
     // TODO: check that negation is correct for scalar
-    try_catch_void(|| unsafe { (*ptr).add_scalar_mut(-scalar) })
+    try_catch_void(|| unsafe { (*ptr).add_scalar_mut(-scalar); })
 }
 
 #[no_mangle]
@@ -230,7 +230,7 @@ pub extern "C" fn matrix_sub_in_place_matrix(
     try_catch_void(|| {
         let this = unsafe { &mut (*ptr) };
         let that = unsafe { &(*aptr) };
-        this.sub_assign(that)
+        this.sub_assign(that);
     })
 }
 
@@ -261,7 +261,7 @@ pub extern "C" fn matrix_mul_in_place_scalar(
     scalar: c_double
 ) -> VoidResult
 {
-    try_catch_void(|| unsafe { (*ptr).mul_assign(scalar) })
+    try_catch_void(|| unsafe { (*ptr).mul_assign(scalar); })
 }
 
 #[no_mangle]
@@ -273,7 +273,7 @@ pub extern "C" fn matrix_mul_in_place_matrix(
     try_catch_void(|| {
         let this = unsafe { &mut (*ptr) };
         let that = unsafe { &(*aptr) };
-        this.component_mul_assign(that)
+        this.component_mul_assign(that);
     })
 }
 
@@ -304,7 +304,7 @@ pub extern "C" fn matrix_div_in_place_scalar(
     scalar: c_double
 ) -> VoidResult
 {
-    try_catch_void(|| unsafe { (*ptr).div_assign(scalar) })
+    try_catch_void(|| unsafe { (*ptr).div_assign(scalar); })
 }
 
 #[no_mangle]
@@ -316,7 +316,31 @@ pub extern "C" fn matrix_div_in_place_matrix(
     try_catch_void(|| {
         let this = unsafe { &mut (*ptr) };
         let that = unsafe { &(*aptr) };
-        this.component_div_assign(that)
+        this.component_div_assign(that);
+    })
+}
+
+#[no_mangle]
+pub extern "C" fn matrix_mmul_matrix(
+    ptr: *const DoubleMatrix,
+    aptr: *const DoubleMatrix
+) -> PtrResult
+{
+    let this = unsafe { &(*ptr) };
+    let that = unsafe { &(*aptr) };
+    try_catch_ptr(|| this * that)
+}
+
+#[no_mangle]
+pub extern "C" fn matrix_mmul_in_place_matrix(
+    ptr: *mut DoubleMatrix,
+    aptr: *const DoubleMatrix
+) -> VoidResult
+{
+    try_catch_void(|| {
+        let this = unsafe { &mut (*ptr) };
+        let that = unsafe { &(*aptr) };
+        this.mul_assign(that);
     })
 }
 

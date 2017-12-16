@@ -86,6 +86,9 @@ PtrResult matrix_div_matrix(void*, void*);
 VoidResult matrix_div_in_place_scalar(void*, double);
 VoidResult matrix_div_in_place_matrix(void*, void*);
 
+PtrResult matrix_mmul_matrix(void*, void*);
+VoidResult matrix_mmul_in_place_matrix(void*, void*);
+
 void* matrix_column_mins(void*);
 void* matrix_column_maxs(void*);
 void* matrix_column_means(void*);
