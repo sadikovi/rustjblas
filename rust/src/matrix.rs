@@ -19,7 +19,10 @@
 // SOFTWARE.
 
 use std;
+use std::cmp;
+use blas::dgemm;
 use nalgebra::{Dynamic, Matrix, MatrixVec};
+use nalgebra::storage::Storage;
 
 // Dynamically sized and dynamically allocated float matrix
 pub type DoubleMatrix = Matrix<f64, Dynamic, Dynamic, MatrixVec<f64, Dynamic, Dynamic>>;
@@ -106,6 +109,55 @@ pub fn row_means(matrix: &DoubleMatrix) -> DoubleMatrix {
     let cols = matrix.ncols() as f64; // number of elements for each row
     let sums = row_sums(matrix);
     sums.map(|value| value / cols)
+}
+
+// Matrix multiply c = a * b
+fn mmul_to(a: &DoubleMatrix, b: &DoubleMatrix, c: &mut DoubleMatrix) {
+    let (arows, acols) = a.shape();
+    let (brows, bcols) = b.shape();
+    let (crows, ccols) = c.shape();
+
+    assert_eq!(acols, brows, "input dimensions mismatch for multiplication.");
+    assert_eq!((crows, ccols), (arows, bcols), "output dimensions mismatch for multiplication.");
+
+    let m = arows as i32;
+    let n = bcols as i32;
+    let k = acols as i32;
+
+    let alpha = 1f64;
+    let beta = 0f64;
+
+    unsafe {
+        dgemm(
+            'N' as u8, // transa: u8,
+            'N' as u8, // transb: u8,
+            m, // m: i32,
+            n, // n: i32,
+            k, // k: i32,
+            alpha, // alpha: f64,
+            a.data.data(), // a: &[f64],
+            cmp::max(1, m), // lda: i32,
+            b.data.data(), // b: &[f64],
+            cmp::max(1, k), // ldb: i32,
+            beta, // beta: f64,
+            c.data.data_mut(), // c: &mut [f64],
+            cmp::max(1, m) // ldc: i32
+        );
+    }
+}
+
+// Matrix multiply
+pub fn mmul(a: &DoubleMatrix, b: &DoubleMatrix) -> DoubleMatrix {
+    let mut res = unsafe {
+        DoubleMatrix::new_uninitialized_generic(a.data.shape().0, b.data.shape().1)
+    };
+    mmul_to(a, b, &mut res);
+    res
+}
+
+// Matrix multiply in-place
+pub fn mmul_assign(a: &mut DoubleMatrix, b: &DoubleMatrix) {
+    *a = mmul(&*a, b);
 }
 
 #[cfg(test)]
@@ -296,5 +348,43 @@ mod tests {
         // single element
         let matrix = DoubleMatrix::from_row_slice(1, 1, &[0.43]);
         assert_matrix(&row_means(&matrix), &matrix);
+    }
+
+    #[test]
+    fn test_mmul() {
+        let a = DoubleMatrix::new_random(10, 8);
+        let b = DoubleMatrix::new_random(8, 20);
+        let res = mmul(&a, &b);
+        let exp = &a * &b;
+        assert_matrix(&res, &exp);
+    }
+
+    #[test]
+    fn test_mmul_vector_1() {
+        let a = DoubleMatrix::new_random(10, 1);
+        let b = DoubleMatrix::new_random(1, 8);
+        let res = mmul(&a, &b);
+        let exp = &a * &b;
+        assert_matrix(&res, &exp);
+    }
+
+    #[test]
+    fn test_mmul_vector_2() {
+        let a = DoubleMatrix::new_random(1, 10);
+        let b = DoubleMatrix::new_random(10, 1);
+        let res = mmul(&a, &b);
+        let exp = &a * &b;
+        assert_matrix(&res, &exp);
+    }
+
+    #[test]
+    fn test_mmul_assign() {
+        let a = DoubleMatrix::new_random(10, 8);
+        let b = DoubleMatrix::new_random(8, 20);
+        let mut res = a.clone();
+        mmul_assign(&mut res, &b);
+        let mut exp = a.clone();
+        exp *= &b;
+        assert_matrix(&res, &exp);
     }
 }

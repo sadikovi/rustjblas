@@ -6,6 +6,8 @@ version = "0.1.0"
 libc = "0.2"
 rand = "0.3"
 nalgebra = "0.13"
+blas = "0.19"
+openblas-src = "0.5"
 
 [lib]
 crate-type = ["staticlib"]

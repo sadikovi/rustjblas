@@ -18,10 +18,16 @@
 // OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
 // SOFTWARE.
 
+#![feature(test)]
+
 extern crate libc;
 extern crate nalgebra;
+extern crate blas;
+extern crate openblas_src;
 extern crate rand;
+extern crate test;
 
+mod bench;
 pub mod matrix;
 
 use std::ffi::CString;
@@ -328,7 +334,7 @@ pub extern "C" fn matrix_mmul_matrix(
 {
     let this = unsafe { &(*ptr) };
     let that = unsafe { &(*aptr) };
-    try_catch_ptr(|| this * that)
+    try_catch_ptr(|| matrix::mmul(this, that))
 }
 
 #[no_mangle]
@@ -340,7 +346,7 @@ pub extern "C" fn matrix_mmul_in_place_matrix(
     try_catch_void(|| {
         let this = unsafe { &mut (*ptr) };
         let that = unsafe { &(*aptr) };
-        this.mul_assign(that);
+        matrix::mmul_assign(this, that);
     })
 }
 
