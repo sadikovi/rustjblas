@@ -18,23 +18,25 @@
 // OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
 // SOFTWARE.
 
-#[cfg(test)]
-mod tests {
-    use test::Bencher;
-    use matrix;
-    use matrix::DoubleMatrix;
+#![feature(test)]
 
-    #[bench]
-    fn bench_matrix_mul_orig(b: &mut Bencher) {
-        let m1 = DoubleMatrix::new_random(100, 100);
-        let m2 = DoubleMatrix::new_random(100, 100);
-        b.iter(|| &m1 * &m2);
-    }
+extern crate test;
+extern crate rustjblas;
 
-    #[bench]
-    fn bench_matrix_mul_blas(b: &mut Bencher) {
-        let m1 = DoubleMatrix::new_random(100, 100);
-        let m2 = DoubleMatrix::new_random(100, 100);
-        b.iter(|| matrix::mmul(&m1, &m2));
-    }
+use rustjblas::matrix;
+use rustjblas::matrix::DoubleMatrix;
+use test::Bencher;
+
+#[bench]
+fn bench_matrix_mul_orig(b: &mut Bencher) {
+    let m1 = DoubleMatrix::new_random(100, 100);
+    let m2 = DoubleMatrix::new_random(100, 100);
+    b.iter(|| &m1 * &m2);
+}
+
+#[bench]
+fn bench_matrix_mul_blas(b: &mut Bencher) {
+    let m1 = DoubleMatrix::new_random(100, 100);
+    let m2 = DoubleMatrix::new_random(100, 100);
+    b.iter(|| matrix::mmul(&m1, &m2));
 }

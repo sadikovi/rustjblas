@@ -18,16 +18,12 @@
 // OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
 // SOFTWARE.
 
-#![feature(test)]
-
 extern crate libc;
 extern crate nalgebra;
 extern crate blas;
 extern crate openblas_src;
 extern crate rand;
-extern crate test;
 
-mod bench;
 pub mod matrix;
 
 use std::ffi::CString;

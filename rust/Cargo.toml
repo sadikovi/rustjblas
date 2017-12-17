@@ -1,6 +1,16 @@
 [package]
 name = "rustjblas"
 version = "0.1.0"
+license = "MIT"
+description = "Library for using JBLAS DoubleMatrix with off-heap allocation"
+authors = ["sadikovi"]
+homepage = "https://github.com/sadikovi/rustjblas"
+repository = "https://github.com/sadikovi/rustjblas"
+keywords = ["jblas", "linalg"]
+
+[lib]
+name = "rustjblas"
+crate-type = ["lib", "staticlib"]
 
 [dependencies]
 libc = "0.2"
@@ -9,11 +19,7 @@ nalgebra = "0.13"
 blas = "0.19"
 openblas-src = "0.5"
 
-[lib]
-crate-type = ["staticlib"]
-name = "rustjblas"
-
 [dependencies.nalgebra-lapack]
 version = "0.5"
 default-features = false
-features = [ "openblas" ]
+features = ["openblas"]

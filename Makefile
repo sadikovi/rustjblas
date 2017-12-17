@@ -10,7 +10,7 @@ TARGET_DIR=$(ROOT_DIR)/target
 JNI_CLASSES="com.github.sadikovi.rustjblas.DoubleMatrix"
 
 # Rust compile flags and link to gfortran library, make available for processes
-LIB_PATH=$(shell find /usr/local -type f -name 'libgfortran.a' 2>/dev/null -exec dirname {} \; | head -n1)
+LIBFORTRAN_PATH=$(shell find /usr -type f -name 'libgfortran.a' 2>/dev/null -exec dirname {} \; | head -n1)
 RUSTFLAGS="-C target-cpu=native"
 
 .PHONY: all,
@@ -47,7 +47,7 @@ test_java:
 
 test_rust:
 	# run rust tests
-	cd $(RUST_DIR) && LIBRARY_PATH=$(LIB_PATH) RUSTFLAGS=$(RUSTFLAGS) cargo test
+	cd $(RUST_DIR) && LIBRARY_PATH=$(LIBFORTRAN_PATH) RUSTFLAGS=$(RUSTFLAGS) cargo test
 
 test: test_java test_rust
 
@@ -59,7 +59,7 @@ build_java:
 
 build_rust:
 	# compile rust code and generate library
-	cd $(RUST_DIR) && LIBRARY_PATH=$(LIB_PATH) RUSTFLAGS=$(RUSTFLAGS) cargo build
+	cd $(RUST_DIR) && LIBRARY_PATH=$(LIBFORTRAN_PATH) RUSTFLAGS=$(RUSTFLAGS) cargo build
 
 build_cpp:
 	# compile cpp shared library
@@ -77,6 +77,6 @@ jni:
 
 # == bench ==
 bench_rust:
-	cd $(RUST_DIR) && LIBRARY_PATH=$(LIB_PATH) RUSTFLAGS=$(RUSTFLAGS) cargo bench
+	cd $(RUST_DIR) && LIBRARY_PATH=$(LIBFORTRAN_PATH) RUSTFLAGS=$(RUSTFLAGS) cargo bench
 
 bench: bench_rust
