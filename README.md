@@ -13,7 +13,7 @@ operations are performed off-heap, including matrix allocation.
 Required:
 - JDK 7+
 - Rust 1.19+
-- sbt, g++, cargo
+- sbt, g++, libgfortran, cargo
 
 Clone repository and cd to the project directory
 ```
@@ -58,3 +58,6 @@ Run `make clean` to remove temporary files and generated artifacts.
 
 ### Compile JNI
 Run `make jni` (runs as part of build command) to generate fresh JNI files.
+
+### Run benchmarks
+Run `make bench` to run benchmarks, or run specific benchmarks, e.g. `make bench_rust`.

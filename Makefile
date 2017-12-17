@@ -9,10 +9,15 @@ TARGET_DIR=$(ROOT_DIR)/target
 # list of classes to be compiled for jni
 JNI_CLASSES="com.github.sadikovi.rustjblas.DoubleMatrix"
 
+# Rust compile flags and link to gfortran library, make available for processes
+LIB_PATH=$(shell find /usr/local -type f -name 'libgfortran.a' 2>/dev/null -exec dirname {} \; | head -n1)
+RUSTFLAGS="-C target-cpu=native"
+
 .PHONY: all,
 	clean_java, clean_rust, clean_cpp, clean,
 	test_java, test_rust, test,
 	build_java, build_rust, build,
+	bench_rust, bench,
 	jni
 
 all: build
@@ -42,7 +47,7 @@ test_java:
 
 test_rust:
 	# run rust tests
-	cd $(RUST_DIR) && cargo test
+	cd $(RUST_DIR) && LIBRARY_PATH=$(LIB_PATH) RUSTFLAGS=$(RUSTFLAGS) cargo test
 
 test: test_java test_rust
 
@@ -54,7 +59,7 @@ build_java:
 
 build_rust:
 	# compile rust code and generate library
-	cd $(RUST_DIR) && RUSTFLAGS="-C target-cpu=native" cargo build
+	cd $(RUST_DIR) && LIBRARY_PATH=$(LIB_PATH) RUSTFLAGS=$(RUSTFLAGS) cargo build
 
 build_cpp:
 	# compile cpp shared library
@@ -69,3 +74,9 @@ build: build_java jni build_rust build_cpp
 jni:
 	# generate files for jni
 	$(ROOT_DIR)/bin/javah -cp $(JAVA_DIR)/target/scala-2.11/classes -d $(CPP_DIR) $(JNI_CLASSES)
+
+# == bench ==
+bench_rust:
+	cd $(RUST_DIR) && LIBRARY_PATH=$(LIB_PATH) RUSTFLAGS=$(RUSTFLAGS) cargo bench
+
+bench: bench_rust
