@@ -13,7 +13,7 @@ operations are performed off-heap, including matrix allocation.
 Required:
 - JDK 7+
 - Rust 1.19+
-- sbt, g++, libgfortran, cargo
+- sbt, cargo, g++, gfortran, libblas3gf, liblapack3gf, execstack (optional)
 
 Clone repository and cd to the project directory
 ```
