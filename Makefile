@@ -10,7 +10,7 @@ TARGET_DIR=$(ROOT_DIR)/target
 JNI_CLASSES="com.github.sadikovi.rustjblas.DoubleMatrix"
 
 # java benchmark class
-JAVA_BENCH_CLASS="com.github.sadikovi.rustjblas.JavaBench"
+JAVA_BENCH_CLASS="com.github.sadikovi.rustjblas.MatrixBench"
 
 # Rust compile flags and link to gfortran library, make available for processes
 LIBFORTRAN_PATH=$(shell find /usr -type f -name 'libgfortran.a' 2>/dev/null -exec dirname {} \; | head -n1)
@@ -81,7 +81,7 @@ jni:
 # == bench ==
 
 bench_java:
-	cd $(JAVA_DIR) && SBT_OPTS="-Djava.library.path=$(TARGET_DIR)" sbt "test:runMain $(JAVA_BENCH_CLASS)"
+	cd $(JAVA_DIR) && SBT_OPTS="-Xmx2g -Djava.library.path=$(TARGET_DIR)" sbt "test:runMain $(JAVA_BENCH_CLASS)"
 
 bench_rust:
 	cd $(RUST_DIR) && LIBRARY_PATH=$(LIBFORTRAN_PATH) RUSTFLAGS=$(RUSTFLAGS) cargo bench
