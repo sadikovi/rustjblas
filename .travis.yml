@@ -13,7 +13,9 @@ addons:
   apt:
     packages:
       - g++
-      - libgfortran
+      - gfortran
+      - libblas3gf
+      - liblapack3gf
       - execstack
 before_script:
   - curl https://sh.rustup.rs -sSf | sh -s -- -y
