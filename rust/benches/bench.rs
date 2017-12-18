@@ -29,13 +29,15 @@ use test::Bencher;
 
 #[bench]
 fn bench_matrix_mul_orig(b: &mut Bencher) {
+    // library implementation of multiplication
     let m1 = DoubleMatrix::new_random(100, 100);
     let m2 = DoubleMatrix::new_random(100, 100);
     b.iter(|| &m1 * &m2);
 }
 
 #[bench]
-fn bench_matrix_mul_blas(b: &mut Bencher) {
+fn bench_matrix_mul_custom(b: &mut Bencher) {
+    // custom multiplication with blas
     let m1 = DoubleMatrix::new_random(100, 100);
     let m2 = DoubleMatrix::new_random(100, 100);
     b.iter(|| matrix::mmul(&m1, &m2));
@@ -43,10 +45,12 @@ fn bench_matrix_mul_blas(b: &mut Bencher) {
 
 #[bench]
 fn bench_create_random_matrix_orig(b: &mut Bencher) {
+    // library implementation of random matrix
     b.iter(|| DoubleMatrix::new_random(100, 100));
 }
 
 #[bench]
-fn bench_create_random_matrix_tmp(b: &mut Bencher) {
+fn bench_create_random_matrix_custom(b: &mut Bencher) {
+    // custom implementation of random matrix using weak_rng
     b.iter(|| matrix::new_random(100, 100));
 }
