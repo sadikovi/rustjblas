@@ -29,6 +29,7 @@ use rand::{Rng, weak_rng};
 pub type DoubleMatrix = Matrix<f64, Dynamic, Dynamic, MatrixVec<f64, Dynamic, Dynamic>>;
 
 // Generate matrix of random values
+// This method is faster than library method
 pub fn new_random(nrows: usize, ncols: usize) -> DoubleMatrix {
     let rows = Dynamic::new(nrows);
     let cols = Dynamic::new(ncols);
@@ -123,7 +124,7 @@ pub fn row_means(matrix: &DoubleMatrix) -> DoubleMatrix {
     sums.map(|value| value / cols)
 }
 
-// Matrix multiply c = a * b
+// Matrix multiply c = a * b using blas
 fn mmul_to(a: &DoubleMatrix, b: &DoubleMatrix, c: &mut DoubleMatrix) {
     let (arows, acols) = a.shape();
     let (brows, bcols) = b.shape();
