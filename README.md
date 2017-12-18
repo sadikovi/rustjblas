@@ -51,7 +51,8 @@ t.dealloc
 
 ### Run test
 Run `make test` from the project directory to run all tests. Subproject tests, e.g. Java, can be run
-either with `make test_java` or using `sbt` from a subproject folder; similar for Rust.
+either with `make test_java` or using `sbt` from a subproject folder; similar for Rust. Note that it
+is required to build project before that to prepare libs.
 
 ### Run clean
 Run `make clean` to remove temporary files and generated artifacts.
@@ -61,4 +62,4 @@ Run `make jni` (runs as part of build command) to generate fresh JNI files.
 
 ### Run benchmarks
 Run `make bench` to run benchmarks (requires nightly), or run specific benchmarks, e.g.
-`make bench_rust` or `make bench_java`.
+`make bench_rust` or `make bench_java`. It is required to build project before that to prepare libs.
