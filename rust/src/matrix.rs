@@ -23,9 +23,21 @@ use std::cmp;
 use blas::dgemm;
 use nalgebra::{Dynamic, Matrix, MatrixVec};
 use nalgebra::storage::Storage;
+use rand::{Rng, weak_rng};
 
 // Dynamically sized and dynamically allocated float matrix
 pub type DoubleMatrix = Matrix<f64, Dynamic, Dynamic, MatrixVec<f64, Dynamic, Dynamic>>;
+
+// Generate matrix of random values
+pub fn new_random(nrows: usize, ncols: usize) -> DoubleMatrix {
+    let rows = Dynamic::new(nrows);
+    let cols = Dynamic::new(ncols);
+
+    let mut rng = weak_rng();
+    let data = rng.gen_iter::<f64>().take(nrows * ncols).collect::<Vec<f64>>();
+    let mvec = MatrixVec::new(rows, cols, data);
+    DoubleMatrix::from_data(mvec)
+}
 
 // Compute column sums
 pub fn column_sums(matrix: &DoubleMatrix) -> DoubleMatrix {

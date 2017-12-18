@@ -40,3 +40,13 @@ fn bench_matrix_mul_blas(b: &mut Bencher) {
     let m2 = DoubleMatrix::new_random(100, 100);
     b.iter(|| matrix::mmul(&m1, &m2));
 }
+
+#[bench]
+fn bench_create_random_matrix_orig(b: &mut Bencher) {
+    b.iter(|| DoubleMatrix::new_random(100, 100));
+}
+
+#[bench]
+fn bench_create_random_matrix_tmp(b: &mut Bencher) {
+    b.iter(|| matrix::new_random(100, 100));
+}

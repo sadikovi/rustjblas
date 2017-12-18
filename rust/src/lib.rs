@@ -106,7 +106,7 @@ pub extern "C" fn alloc_from_array(
 
 #[no_mangle]
 pub extern "C" fn alloc_rand(rows: int32_t, cols: int32_t) -> PtrResult {
-    try_catch_ptr(|| DoubleMatrix::new_random(rows as usize, cols as usize))
+    try_catch_ptr(|| matrix::new_random(rows as usize, cols as usize))
 }
 
 #[no_mangle]
