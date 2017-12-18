@@ -60,4 +60,5 @@ Run `make clean` to remove temporary files and generated artifacts.
 Run `make jni` (runs as part of build command) to generate fresh JNI files.
 
 ### Run benchmarks
-Run `make bench` to run benchmarks (requires nightly), or run specific benchmarks, e.g. `make bench_rust`.
+Run `make bench` to run benchmarks (requires nightly), or run specific benchmarks, e.g.
+`make bench_rust` or `make bench_java`.
