@@ -63,3 +63,28 @@ Run `make jni` (runs as part of build command) to generate fresh JNI files.
 ### Run benchmarks
 Run `make bench` to run benchmarks (requires nightly), or run specific benchmarks, e.g.
 `make bench_rust` or `make bench_java`. It is required to build project before that to prepare libs.
+
+Current benchmark numbers:
+```
+Java HotSpot(TM) 64-Bit Server VM 1.8.0_101-b13 on Linux 3.16.0-70-generic
+Intel(R) Core(TM) i7-4700MQ CPU @ 2.40GHz
+Matrix elementwise operations:                     Best/Avg Time(ms)   Relative
+-------------------------------------------------------------------------------
+Allocate rand matrix (jblas) n = 2000                     89 /   90       1.0X
+Allocate rand matrix (rustjblas), n = 2000                44 /   46       2.0X
+Matrix addition (jblas), n = 2000                         10 /   12       8.5X
+Matrix addition (rustjblas), n = 2000                     39 /   42       2.3X
+Matrix subtraction (jblas), n = 2000                      13 /   14       6.6X
+Matrix subtraction (rustjblas), n = 2000                  40 /   42       2.2X
+Matrix multiplication (jblas), n = 2000                   10 /   12       8.5X
+Matrix multiplication (rustjblas), n = 2000               45 /   49       2.0X
+Matrix division (jblas), n = 2000                         12 /   13       7.6X
+Matrix division (rustjblas), n = 2000                     54 /   59       1.6X
+
+Java HotSpot(TM) 64-Bit Server VM 1.8.0_101-b13 on Linux 3.16.0-70-generic
+Intel(R) Core(TM) i7-4700MQ CPU @ 2.40GHz
+Matrix-matrix operations:                          Best/Avg Time(ms)   Relative
+-------------------------------------------------------------------------------
+Matrix multiplication (jblas), n = 2000                 1318 / 1363       1.0X
+Matrix multiplication (rustjblas), n = 2000              126 /  129      10.4X
+```
