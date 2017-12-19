@@ -19,7 +19,7 @@
 // SOFTWARE.
 
 #include "com_github_sadikovi_rustjblas_DoubleMatrix.h"
-#include "rust_interface.h"
+#include "rust_format.h"
 
 extern "C" {
 

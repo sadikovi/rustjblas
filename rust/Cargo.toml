@@ -7,10 +7,11 @@ authors = ["sadikovi"]
 homepage = "https://github.com/sadikovi/rustjblas"
 repository = "https://github.com/sadikovi/rustjblas"
 keywords = ["jblas", "linalg"]
+build = "build.rs"
 
 [lib]
 name = "rustjblas"
-crate-type = ["lib", "staticlib"]
+crate-type = ["lib", "dylib"]
 
 [dependencies]
 libc = "0.2"
@@ -23,3 +24,8 @@ openblas-src = "0.5"
 version = "0.5"
 default-features = false
 features = ["openblas"]
+
+[build-dependencies]
+cc = "1.0"
+pkg-config = "0.3"
+walkdir = "2.0"
