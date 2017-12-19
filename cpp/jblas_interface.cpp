@@ -103,6 +103,20 @@ extern "C" {
 
   /*
    * Class:     com_github_sadikovi_rustjblas_DoubleMatrix
+   * Method:    alloc_identity
+   * Signature: (II)J
+   */
+  JNIEXPORT jlong JNICALL Java_com_github_sadikovi_rustjblas_DoubleMatrix_alloc_1identity(
+      JNIEnv *env, jclass type, jint rows, jint cols) {
+    PtrResult res = alloc_identity(rows, cols);
+    if (res.err) {
+      throw_exception(env, res.err);
+    }
+    return (long) res.ptr;
+  }
+
+  /*
+   * Class:     com_github_sadikovi_rustjblas_DoubleMatrix
    * Method:    matrix_rows
    * Signature: ()I
    */

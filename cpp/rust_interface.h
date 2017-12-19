@@ -58,6 +58,7 @@ PtrResult alloc_from_array(int, int, size_t, const double*);
 PtrResult alloc_rand(int, int);
 PtrResult alloc_zeros(int, int);
 PtrResult alloc_ones(int, int);
+PtrResult alloc_identity(int, int);
 
 /* instance methods */
 int matrix_rows(void*);

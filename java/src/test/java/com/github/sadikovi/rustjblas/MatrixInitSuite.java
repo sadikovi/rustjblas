@@ -28,6 +28,7 @@ import static org.junit.Assert.assertEquals;
 import static org.junit.Assert.assertTrue;
 
 import static com.github.sadikovi.rustjblas.TestUtil.EPS;
+import static com.github.sadikovi.rustjblas.TestUtil.assertMatrix;
 
 /**
  * Test suite for matrix init methods.
@@ -120,9 +121,8 @@ public class MatrixInitSuite {
     DoubleMatrix matrix = DoubleMatrix.zeros(3, 4);
     assertEquals(matrix.rows(), 3);
     assertEquals(matrix.cols(), 4);
-    for (double elem : matrix.toArray()) {
-      assertEquals(elem, 0.0, EPS);
-    }
+    org.jblas.DoubleMatrix exp = org.jblas.DoubleMatrix.zeros(3, 4);
+    assertMatrix(exp, matrix);
     matrix.dealloc();
   }
 
@@ -148,9 +148,26 @@ public class MatrixInitSuite {
     DoubleMatrix matrix = DoubleMatrix.ones(3, 4);
     assertEquals(matrix.rows(), 3);
     assertEquals(matrix.cols(), 4);
-    for (double elem : matrix.toArray()) {
-      assertEquals(elem, 1.0, EPS);
-    }
+    org.jblas.DoubleMatrix exp = org.jblas.DoubleMatrix.ones(3, 4);
+    assertMatrix(exp, matrix);
+    matrix.dealloc();
+  }
+
+  // == DoubleMatrix.eye ==
+
+  @Test(expected = IllegalArgumentException.class)
+  public void testEyeInvalidShape() {
+    DoubleMatrix.eye(-1);
+  }
+
+  @Test
+  public void testEye() {
+    DoubleMatrix matrix = DoubleMatrix.eye(12);
+    assertEquals(matrix.rows(), 12);
+    assertEquals(matrix.cols(), 12);
+    // non-diagonal elements should be 0s, diagonal elements are 1s
+    org.jblas.DoubleMatrix exp = org.jblas.DoubleMatrix.eye(12);
+    assertMatrix(exp, matrix);
     matrix.dealloc();
   }
 }

@@ -120,6 +120,11 @@ pub extern "C" fn alloc_ones(rows: int32_t, cols: int32_t) -> PtrResult {
 }
 
 #[no_mangle]
+pub extern "C" fn alloc_identity(rows: int32_t, cols: int32_t) -> PtrResult {
+    try_catch_ptr(|| DoubleMatrix::identity(rows as usize, cols as usize))
+}
+
+#[no_mangle]
 pub extern "C" fn matrix_rows(ptr: *const DoubleMatrix) -> int32_t {
     unsafe { (*ptr).nrows() as int32_t }
 }

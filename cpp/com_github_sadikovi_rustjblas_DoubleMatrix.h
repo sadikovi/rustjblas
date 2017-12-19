@@ -43,6 +43,14 @@ JNIEXPORT jlong JNICALL Java_com_github_sadikovi_rustjblas_DoubleMatrix_alloc_1o
 
 /*
  * Class:     com_github_sadikovi_rustjblas_DoubleMatrix
+ * Method:    alloc_identity
+ * Signature: (II)J
+ */
+JNIEXPORT jlong JNICALL Java_com_github_sadikovi_rustjblas_DoubleMatrix_alloc_1identity
+  (JNIEnv *, jclass, jint, jint);
+
+/*
+ * Class:     com_github_sadikovi_rustjblas_DoubleMatrix
  * Method:    matrix_rows
  * Signature: ()I
  */

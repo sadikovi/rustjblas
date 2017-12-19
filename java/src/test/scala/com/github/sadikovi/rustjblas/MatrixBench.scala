@@ -45,6 +45,12 @@ object MatrixBench {
     ewBench.addCase(s"Allocate rand matrix (rustjblas), n = $EW_SIZE") { iter =>
       DoubleMatrix.rand(EW_SIZE, EW_SIZE)
     }
+    ewBench.addCase(s"Allocate identity matrix (jblas) n = $EW_SIZE") { iter =>
+      JDoubleMatrix.eye(EW_SIZE)
+    }
+    ewBench.addCase(s"Allocate identity matrix (rustjblas), n = $EW_SIZE") { iter =>
+      DoubleMatrix.eye(EW_SIZE)
+    }
     ewBench.addCase(s"Matrix addition (jblas), n = $EW_SIZE") { iter => a1.add(b1) }
     ewBench.addCase(s"Matrix addition (rustjblas), n = $EW_SIZE") { iter => m1.add(n1) }
     ewBench.addCase(s"Matrix subtraction (jblas), n = $EW_SIZE") { iter => a1.sub(b1) }

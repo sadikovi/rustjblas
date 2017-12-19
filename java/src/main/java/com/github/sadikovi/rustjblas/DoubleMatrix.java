@@ -74,6 +74,13 @@ public class DoubleMatrix {
     return new DoubleMatrix(pointer);
   }
 
+  /** Construct a new n-by-n identity matrix */
+  public static DoubleMatrix eye(int n) {
+    assert_shape(n, n);
+    long pointer = alloc_identity(n, n);
+    return new DoubleMatrix(pointer);
+  }
+
   /** Load implementation library */
   private static void loadLibrary() {
     String libname = "rustjblas";
@@ -427,6 +434,7 @@ public class DoubleMatrix {
   private static native long alloc_rand(int rows, int cols);
   private static native long alloc_zeros(int rows, int cols);
   private static native long alloc_ones(int rows, int cols);
+  private static native long alloc_identity(int rows, int cols);
 
   private native int matrix_rows();
   private native int matrix_cols();
