@@ -1,7 +1,6 @@
 ROOT_DIR=$(shell dirname $(realpath $(lastword $(MAKEFILE_LIST))))
 JAVA_DIR=$(ROOT_DIR)/java
 RUST_DIR=$(ROOT_DIR)/rust
-CPP_DIR=$(ROOT_DIR)/cpp
 
 # target dir with final artifacts
 TARGET_DIR=$(ROOT_DIR)/target
@@ -12,71 +11,67 @@ JNI_CLASSES="com.github.sadikovi.rustjblas.DoubleMatrix"
 # java benchmark class
 JAVA_BENCH_CLASS="com.github.sadikovi.rustjblas.MatrixBench"
 
-# Rust compile flags and link to gfortran library, make available for processes
-LIBFORTRAN_PATH=$(shell find /usr -type f -name 'libgfortran.a' 2>/dev/null -exec dirname {} \; | head -n1)
-RUSTFLAGS="-C target-cpu=native"
+# Rust compile flags
+RUSTFLAGS=-C target-cpu=native
+export RUSTFLAGS
 
 .PHONY: all,
-	clean_java, clean_rust, clean_cpp, clean,
-	test_java, test_rust, test,
+	clean_java, clean_rust, clean,
 	build_java, build_rust, build,
-	bench_rust, bench,
+	release_java, release_rust, release,
+	test_java, test_rust, test,
+	bench_java, bench_rust, bench,
 	jni
 
-all: build
+all: release
 
 # == clean ==
 
 clean_java:
-	# clean java artifacts
 	cd $(JAVA_DIR) && sbt clean
 
 clean_rust:
-	# clean rust artifacts
 	cd $(RUST_DIR) && cargo clean
 
-clean_cpp:
-	# clean cpp and lib artifacts
-	cd $(CPP_DIR) && rm -rf target
-
-clean: clean_java clean_rust clean_cpp
+clean: clean_java clean_rust
 	rm -rf $(TARGET_DIR)
-
-# == test ==
-
-test_java:
-	# run java tests
-	cd $(JAVA_DIR) && SBT_OPTS="-Djava.library.path=$(TARGET_DIR)" sbt test
-
-test_rust:
-	# run rust tests
-	cd $(RUST_DIR) && LIBRARY_PATH=$(LIBFORTRAN_PATH) RUSTFLAGS=$(RUSTFLAGS) cargo test
-
-test: test_java test_rust
 
 # == build ==
 
 build_java:
-	# compile java classes and generate package
 	cd $(JAVA_DIR) && sbt package
 
 build_rust:
-	# compile rust code and generate library
-	cd $(RUST_DIR) && LIBRARY_PATH=$(LIBFORTRAN_PATH) RUSTFLAGS=$(RUSTFLAGS) cargo build
+	cd $(RUST_DIR) && cargo build --verbose
 
-build_cpp:
-	# compile cpp shared library
-	$(ROOT_DIR)/bin/cpp_compile.sh
+build: build_java build_rust
+	mkdir -p $(TARGET_DIR) && cp $(JAVA_DIR)/target/scala-2.11/*.jar $(TARGET_DIR) && cp $(RUST_DIR)/target/debug/lib* $(TARGET_DIR)
 
-build: build_java jni build_rust build_cpp
-	# copy artifacts into target folder
-	mkdir -p $(TARGET_DIR) && cp $(JAVA_DIR)/target/scala-2.11/*.jar $(TARGET_DIR) && cp $(CPP_DIR)/target/* $(TARGET_DIR)
+# == release ==
+
+release_java: build_java
+
+release_rust:
+	cd $(RUST_DIR) && cargo build --release
+
+release: release_java release_rust
+	mkdir -p $(TARGET_DIR) && cp $(JAVA_DIR)/target/scala-2.11/*.jar $(TARGET_DIR) && cp $(RUST_DIR)/target/release/lib* $(TARGET_DIR)
+
+# == test ==
+
+test_java:
+	cd $(JAVA_DIR) && SBT_OPTS="-Djava.library.path=$(TARGET_DIR)" sbt test
+
+test_rust:
+	cd $(RUST_DIR) && cargo test
+
+test: test_java test_rust
 
 # == jni ==
 
 jni:
 	# generate files for jni
-	$(ROOT_DIR)/bin/javah -cp $(JAVA_DIR)/target/scala-2.11/classes -d $(CPP_DIR) $(JNI_CLASSES)
+	$(ROOT_DIR)/bin/javah -cp $(JAVA_DIR)/target/scala-2.11/classes -d $(RUST_DIR)/format $(JNI_CLASSES)
 
 # == bench ==
 
@@ -84,6 +79,6 @@ bench_java:
 	cd $(JAVA_DIR) && SBT_OPTS="-Xmx2g -Djava.library.path=$(TARGET_DIR)" sbt "test:runMain $(JAVA_BENCH_CLASS)"
 
 bench_rust:
-	cd $(RUST_DIR) && LIBRARY_PATH=$(LIBFORTRAN_PATH) RUSTFLAGS=$(RUSTFLAGS) cargo bench
+	cd $(RUST_DIR) && cargo bench
 
 bench: bench_java bench_rust

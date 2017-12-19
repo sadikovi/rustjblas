@@ -30,18 +30,19 @@ fn main() {
         },
     }
 
+    // include openblas lib, this is pulled as external crate, we just need to link it
+    println!("cargo:rustc-link-lib=static=openblas");
+
     // Compile cpp bindings into static lib which will be linked when we build library
     let java_include = Path::new(&java_home).join("include");
     let platform_suffix = if target.contains("apple") { "darwin" } else { "linux" };
     let java_include_platform = Path::new(&java_home).join("include").join(platform_suffix);
 
+    // this will include cpp as static lib
     cc::Build::new()
         .cpp(true)
         .file("format/jblas_format.cpp")
         .include(java_include)
         .include(java_include_platform)
         .compile("libformat.a");
-
-    // include cpp as static lib
-    println!("cargo:rustc-link-lib=static=format");
 }
