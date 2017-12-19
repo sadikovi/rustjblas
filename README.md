@@ -21,35 +21,41 @@ git clone https://github.com/sadikovi/rustjblas.git
 cd rustjblas
 ```
 
-Run `make` or `make build` from the project directory to build all (Java, Rust, C++). Or use
-separate commands, e.g. `make build_java` or `make build_rust` to build individual subprojects.
+Run `make` from the project directory to build all (Java, C++/Rust) artifacts into library. After
+build is finished, all necessary artifacts will be copied into `target` folder in the project
+directory, and should contain `.so` (`.dylib` on OSX) library and jar.
 
-Each subproject can also be built from its own folder with `sbt` or `cargo`.
-
-After build is finished, all necessary artifacts will be copied into `target` folder in project
-directory, and should contain shared `.so`/`.dylib` library and jar.
-
-## Run sample code
-Run scala-shell with following options from the project directory, `target` folder should contain
-both shared library and jar:
+## Run example
+Once project is built, run scala-shell with following options from the project directory to see
+the code in action (`target` folder should contain both native library and jar):
 ```
 JAVA_OPTS="-Djava.library.path=target" scala -cp target/rustjblas_2.11-0.1.0-SNAPSHOT.jar
 ```
 
-and try creating matrices in scala-shell:
+scala-shell sample commands:
 ```scala
 import com.github.sadikovi.rustjblas.DoubleMatrix
-val t = DoubleMatrix.rand(5, 6)
-t.show()
-t.rows
-t.cols
-t.add(4.5).show()
-t.dealloc
+val m = DoubleMatrix.rand(5, 6)
+m.show()
+m.rows
+m.cols
+m.add(4.5).show()
+m.dealloc
 ```
 
 ## Development
 
-### Run test
+### Build in dev mode
+Run `make build` to build project in dev mode (code less optimised, but faster compilation and
+verbose output). You could also build subprojects separately by running either `make build_java` or
+`make build_rust`. Note that those commands just invoke `sbt` and `cargo`, so you could those to
+build the subprojects as well.
+
+### Build in release mode
+This is default behaviour of running `make` as an shortcut for `make release`. Similar to `make build`,
+this can be run separately for each subproject.
+
+### Run tests
 Run `make test` from the project directory to run all tests. Subproject tests, e.g. Java, can be run
 either with `make test_java` or using `sbt` from a subproject folder; similar for Rust. Note that it
 is required to build project before that to prepare libs.
@@ -61,7 +67,7 @@ Run `make clean` to remove temporary files and generated artifacts.
 Run `make jni` (runs as part of build command) to generate fresh JNI files.
 
 ### Run benchmarks
-Run `make bench` to run benchmarks (requires nightly), or run specific benchmarks, e.g.
+Run `make bench` to run benchmarks (requires nightly Rust), or run specific benchmarks, e.g.
 `make bench_rust` or `make bench_java`. It is required to build project before that to prepare libs.
 
 Current benchmark numbers:
