@@ -22,16 +22,29 @@
 
 package com.github.sadikovi.rustjblas
 
-import org.jblas.{DoubleMatrix => JDoubleMatrix}
+import org.jblas.{DoubleMatrix => JDoubleMatrix, MatrixFunctions, Singular}
 
 object MatrixBench {
+  // matrix size for matrix transformations
+  val TR_SIZE = 2000
   // matrix size for elementwise operations
   val EW_SIZE = 2000
   // matrix size for matrix-matrix operations
   val MM_SIZE = 2000
+  // matrix size for SVD operations
+  val SVD_SIZE = 400
 
   def main(args: Array[String]): Unit = {
     println("\nNOTE: For better performance info, make sure to build library with optimizations\n")
+
+    val a0 = JDoubleMatrix.rand(TR_SIZE, TR_SIZE)
+    val m0 = DoubleMatrix.rand(TR_SIZE, TR_SIZE)
+
+    val trBench = new Benchmark("Matrix transformations")
+    trBench.addCase(s"Matrix transpose (jblas), n = $TR_SIZE") { iter => a0.transpose() }
+    trBench.addCase(s"Matrix transpose (rustjblas), n = $TR_SIZE") { iter => m0.transpose() }
+    trBench.addCase(s"Matrix absolute (jblas), n = $TR_SIZE") { iter => MatrixFunctions.abs(a0) }
+    trBench.addCase(s"Matrix absolute (rustjblas), n = $TR_SIZE") { iter => m0.abs() }
 
     val a1 = JDoubleMatrix.rand(EW_SIZE, EW_SIZE)
     val b1 = JDoubleMatrix.rand(EW_SIZE, EW_SIZE)
@@ -69,7 +82,15 @@ object MatrixBench {
     mmBench.addCase(s"Matrix multiplication (jblas), n = $MM_SIZE") { iter => a2.mmul(b2) }
     mmBench.addCase(s"Matrix multiplication (rustjblas), n = $MM_SIZE") { iter => m2.mmul(n2) }
 
+    val a3 = JDoubleMatrix.rand(SVD_SIZE, SVD_SIZE)
+    val m3 = DoubleMatrix.rand(SVD_SIZE, SVD_SIZE)
+
+    val svdBench = new Benchmark("Matrix SVD operations")
+    svdBench.addCase(s"Full SVD (jblas), n = $SVD_SIZE") { iter => Singular.fullSVD(a3) }
+    svdBench.addCase(s"Full SVD (rustjblas), n = $SVD_SIZE") { iter => m3.fullSVD() }
+
     ewBench.run
     mmBench.run
+    svdBench.run
   }
 }
