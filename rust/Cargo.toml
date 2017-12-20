@@ -24,7 +24,7 @@ openblas-src = "0.5"
 [dependencies.nalgebra-lapack]
 version = "0.5"
 default-features = false
-features = ["netlib"]
+features = ["openblas"]
 
 [build-dependencies]
 cc = "1.0"
