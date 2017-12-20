@@ -355,8 +355,6 @@ public class MatrixOperationsSuite {
     DoubleMatrix na = DoubleMatrix.fromArray(ma.rows, ma.columns, ma.toArray());
     m.mmuli(ma);
     n.mmuli(na);
-    System.out.println(m);
-    n.show();
     assertMatrix(m, n);
     n.dealloc();
     na.dealloc();
@@ -518,5 +516,43 @@ public class MatrixOperationsSuite {
     DoubleMatrix m = DoubleMatrix.fromArray(2, 2, new double[]{1.0, -2.0, 3.0, -4.0});
     assertArrayEquals(m.abs().toArray(), new double[]{1.0, 2.0, 3.0, 4.0}, EPS);
     m.dealloc();
+  }
+
+  // == Singular value decomposition
+
+  private void testFullSVD(int rows, int cols, double offset) {
+    org.jblas.DoubleMatrix m = org.jblas.DoubleMatrix.rand(rows, cols);
+    m.addi(offset);
+    DoubleMatrix n = DoubleMatrix.fromArray(m.rows, m.columns, m.toArray());
+    org.jblas.DoubleMatrix[] res1 = org.jblas.Singular.fullSVD(m);
+    DoubleMatrix[] res2 = n.fullSVD();
+    assertMatrix(res1[0], res2[0]);
+    assertMatrix(res1[1], res2[1]);
+    assertMatrix(res1[2], res2[2]);
+  }
+
+  @Test
+  public void testFullSVDRows() {
+    testFullSVD(20, 10, 0.0);
+  }
+
+  @Test
+  public void testFullSVDCols() {
+    testFullSVD(10, 20, 0.0);
+  }
+
+  @Test
+  public void testFullSVDSquare() {
+    testFullSVD(20, 20, 0.0);
+  }
+
+  @Test
+  public void testFullSVDSquareOffset() {
+    testFullSVD(14, 14, 12.0);
+  }
+
+  @Test
+  public void testFullSVDSmall() {
+    testFullSVD(2, 2, 9.3);
   }
 }
