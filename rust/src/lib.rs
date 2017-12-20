@@ -33,7 +33,7 @@ use std::ops::{AddAssign, DivAssign, MulAssign, SubAssign};
 use std::panic;
 use std::ptr;
 use libc::{int32_t, c_double, c_char, size_t};
-use matrix::DoubleMatrix;
+use matrix::{DoubleMatrix, SVD};
 
 // PtrResult to capture and return either valid pointer to a matrix or error message.
 // Only one pointer should be set.
@@ -55,6 +55,16 @@ pub struct VoidResult {
 pub struct DoubleArray {
     len: int32_t,
     data: *const c_double
+}
+
+// SvdResult to capture and return either set of valid matrix pointers or error message.
+// Pointers are allowed to set to NULL.
+#[repr(C)]
+pub struct SvdResult {
+    u: *const DoubleMatrix,
+    s: *const DoubleMatrix,
+    v: *const DoubleMatrix,
+    err: *const c_char
 }
 
 // Convert error/panic cause into C string
@@ -90,6 +100,39 @@ fn try_catch_void<F: FnOnce() -> () + panic::UnwindSafe>(func: F) -> VoidResult 
     match panic::catch_unwind(func) {
         Ok(_) => VoidResult { err: ptr::null() },
         Err(cause) => VoidResult { err: err_to_cstr(cause) }
+    }
+}
+
+// Function to catch panic and return svd result
+fn try_catch_svd<F: FnOnce() -> SVD + panic::UnwindSafe>(func: F) -> SvdResult {
+    match panic::catch_unwind(func) {
+        Ok(svd) => {
+            // convert matrices into raw pointers
+            let u_ptr = match svd.u {
+                Some(matrix) => Box::into_raw(Box::new(matrix)),
+                None => ptr::null()
+            };
+            let s_ptr = Box::into_raw(Box::new(svd.s));
+            let v_ptr = match svd.v {
+                Some(matrix) => Box::into_raw(Box::new(matrix)),
+                None => ptr::null()
+            };
+
+            SvdResult {
+                u: u_ptr,
+                s: s_ptr,
+                v: v_ptr,
+                err: ptr::null()
+            }
+        },
+        Err(cause) => {
+            SvdResult {
+                u: ptr::null(),
+                s: ptr::null(),
+                v: ptr::null(),
+                err: err_to_cstr(cause)
+            }
+        }
     }
 }
 
@@ -458,4 +501,10 @@ pub extern "C" fn matrix_abs(ptr: *const DoubleMatrix) -> *const DoubleMatrix {
     let this = unsafe { &(*ptr) };
     let matrix = Box::new(this.abs());
     Box::into_raw(matrix)
+}
+
+#[no_mangle]
+pub extern "C" fn matrix_full_svd(ptr: *const DoubleMatrix) -> SvdResult {
+    let this = unsafe { &(*ptr) };
+    try_catch_svd(|| matrix::full_svd(this))
 }
