@@ -451,3 +451,10 @@ pub extern "C" fn matrix_diag(ptr: *const DoubleMatrix) -> PtrResult {
     // return diagonal as column vector similar to jblas
     try_catch_ptr(|| DoubleMatrix::from_columns(&[this.diagonal()]))
 }
+
+#[no_mangle]
+pub extern "C" fn matrix_abs(ptr: *const DoubleMatrix) -> *const DoubleMatrix {
+    let this = unsafe { &(*ptr) };
+    let matrix = Box::new(this.abs());
+    Box::into_raw(matrix)
+}

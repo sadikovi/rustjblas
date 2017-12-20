@@ -349,12 +349,14 @@ public class MatrixOperationsSuite {
   @Test
   public void testMatrixMultiplyInPlace() {
     // square matrix
-    org.jblas.DoubleMatrix m = org.jblas.DoubleMatrix.rand(10, 10);
-    org.jblas.DoubleMatrix ma = org.jblas.DoubleMatrix.rand(10, 10);
+    org.jblas.DoubleMatrix m = org.jblas.DoubleMatrix.rand(3, 3);
+    org.jblas.DoubleMatrix ma = org.jblas.DoubleMatrix.rand(3, 3);
     DoubleMatrix n = DoubleMatrix.fromArray(m.rows, m.columns, m.toArray());
     DoubleMatrix na = DoubleMatrix.fromArray(ma.rows, ma.columns, ma.toArray());
     m.mmuli(ma);
     n.mmuli(na);
+    System.out.println(m);
+    n.show();
     assertMatrix(m, n);
     n.dealloc();
     na.dealloc();
@@ -496,5 +498,25 @@ public class MatrixOperationsSuite {
   public void testDiagFail() {
     DoubleMatrix n = DoubleMatrix.rand(10, 15);
     n.diag();
+  }
+
+  // == Absolute ==
+
+  @Test
+  public void testAbs() {
+    org.jblas.DoubleMatrix m = org.jblas.DoubleMatrix.rand(35, 35);
+    m.negi();
+    DoubleMatrix n = DoubleMatrix.fromArray(m.rows, m.columns, m.toArray());
+    assertMatrix(org.jblas.MatrixFunctions.abs(m), n.abs());
+    // check that original matrix is not updated
+    assertMatrix(m, n);
+    n.dealloc();
+  }
+
+  @Test
+  public void testAbsPartial() {
+    DoubleMatrix m = DoubleMatrix.fromArray(2, 2, new double[]{1.0, -2.0, 3.0, -4.0});
+    assertArrayEquals(m.abs().toArray(), new double[]{1.0, 2.0, 3.0, 4.0}, EPS);
+    m.dealloc();
   }
 }

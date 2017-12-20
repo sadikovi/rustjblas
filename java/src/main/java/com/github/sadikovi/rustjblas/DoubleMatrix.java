@@ -428,6 +428,13 @@ public class DoubleMatrix {
     return new DoubleMatrix(res);
   }
 
+  /** Return copy of this matrix with all absolute values */
+  public DoubleMatrix abs() {
+    assert_pointer();
+    long res = matrix_abs();
+    return new DoubleMatrix(res);
+  }
+
   // == native methods ==
 
   private static native long alloc_from_array(int rows, int cols, double[] arr);
@@ -483,4 +490,5 @@ public class DoubleMatrix {
 
   private native long matrix_transpose();
   private native long matrix_diag();
+  private native long matrix_abs();
 }

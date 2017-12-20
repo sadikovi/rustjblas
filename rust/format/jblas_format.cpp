@@ -568,4 +568,14 @@ extern "C" {
     }
     return (long) res.ptr;
   }
+
+  /*
+   * Class:     com_github_sadikovi_rustjblas_DoubleMatrix
+   * Method:    matrix_abs
+   * Signature: ()J
+   */
+  JNIEXPORT jlong JNICALL Java_com_github_sadikovi_rustjblas_DoubleMatrix_matrix_1abs(
+      JNIEnv *env, jobject obj) {
+    return (long) matrix_abs(get_matrix_pointer(env, obj));
+  }
 }

@@ -108,6 +108,7 @@ double matrix_norm2(void*);
 
 void* matrix_transpose(void*);
 PtrResult matrix_diag(void*);
+void* matrix_abs(void*);
 
 #ifdef __cplusplus
 }
