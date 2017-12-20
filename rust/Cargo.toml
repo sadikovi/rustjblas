@@ -18,12 +18,13 @@ libc = "0.2"
 rand = "0.3"
 nalgebra = "0.13"
 blas = "0.19"
+lapack = "0.15"
 openblas-src = "0.5"
 
 [dependencies.nalgebra-lapack]
 version = "0.5"
 default-features = false
-features = ["openblas"]
+features = []
 
 [build-dependencies]
 cc = "1.0"
