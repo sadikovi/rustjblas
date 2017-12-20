@@ -32,7 +32,7 @@ object MatrixBench {
   // matrix size for matrix-matrix operations
   val MM_SIZE = 2000
   // matrix size for SVD operations
-  val SVD_SIZE = 400
+  val SVD_SIZE = 1000
 
   def main(args: Array[String]): Unit = {
     println("\nNOTE: For better performance info, make sure to build library with optimizations\n")
