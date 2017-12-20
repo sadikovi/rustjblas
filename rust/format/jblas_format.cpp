@@ -49,7 +49,7 @@ extern "C" {
    * Signature: (II[D)J
    */
   JNIEXPORT jlong JNICALL Java_com_github_sadikovi_rustjblas_DoubleMatrix_alloc_1from_1array(
-      JNIEnv *env, jclass type, jint rows, jint cols, jdoubleArray data) {
+      JNIEnv *env, jclass clazz, jint rows, jint cols, jdoubleArray data) {
     jsize len = env->GetArrayLength(data);
     // always copy elements from java heap
     jdouble *body = env->GetDoubleArrayElements(data, 0);
@@ -66,7 +66,7 @@ extern "C" {
    * Signature: (II)J
    */
   JNIEXPORT jlong JNICALL Java_com_github_sadikovi_rustjblas_DoubleMatrix_alloc_1rand(
-      JNIEnv *env, jclass type, jint rows, jint cols) {
+      JNIEnv *env, jclass clazz, jint rows, jint cols) {
     PtrResult res = alloc_rand(rows, cols);
     if (res.err) {
       throw_exception(env, res.err);
@@ -80,7 +80,7 @@ extern "C" {
    * Signature: (II)J
    */
   JNIEXPORT jlong JNICALL Java_com_github_sadikovi_rustjblas_DoubleMatrix_alloc_1zeros(
-      JNIEnv *env, jclass type, jint rows, jint cols) {
+      JNIEnv *env, jclass clazz, jint rows, jint cols) {
     PtrResult res = alloc_zeros(rows, cols);
     if (res.err) {
       throw_exception(env, res.err);
@@ -94,7 +94,7 @@ extern "C" {
    * Signature: (II)J
    */
   JNIEXPORT jlong JNICALL Java_com_github_sadikovi_rustjblas_DoubleMatrix_alloc_1ones(
-      JNIEnv *env, jclass type, jint rows, jint cols) {
+      JNIEnv *env, jclass clazz, jint rows, jint cols) {
     PtrResult res = alloc_ones(rows, cols);
     if (res.err) {
       throw_exception(env, res.err);
@@ -108,7 +108,7 @@ extern "C" {
    * Signature: (II)J
    */
   JNIEXPORT jlong JNICALL Java_com_github_sadikovi_rustjblas_DoubleMatrix_alloc_1identity(
-      JNIEnv *env, jclass type, jint rows, jint cols) {
+      JNIEnv *env, jclass clazz, jint rows, jint cols) {
     PtrResult res = alloc_identity(rows, cols);
     if (res.err) {
       throw_exception(env, res.err);
