@@ -74,25 +74,41 @@ Current benchmark numbers:
 ```
 Java HotSpot(TM) 64-Bit Server VM 1.8.0_101-b13 on Linux 3.16.0-70-generic
 Intel(R) Core(TM) i7-4700MQ CPU @ 2.40GHz
+Matrix transformations:                            Best/Avg Time(ms)   Relative
+-------------------------------------------------------------------------------
+Matrix transpose (jblas), n = 2000                        16 /   17       1.0X
+Matrix transpose (rustjblas), n = 2000                    62 /   66       0.3X
+Matrix absolute (jblas), n = 2000                         12 /   12       1.4X
+Matrix absolute (rustjblas), n = 2000                     42 /   46       0.4X
+
+Java HotSpot(TM) 64-Bit Server VM 1.8.0_101-b13 on Linux 3.16.0-70-generic
+Intel(R) Core(TM) i7-4700MQ CPU @ 2.40GHz
 Matrix elementwise operations:                     Best/Avg Time(ms)   Relative
 -------------------------------------------------------------------------------
-Allocate rand matrix (jblas) n = 2000                     89 /   90       1.0X
-Allocate rand matrix (rustjblas), n = 2000                43 /   48       2.0X
-Allocate identity matrix (jblas) n = 2000                  3 /    3      28.3X
-Allocate identity matrix (rustjblas), n = 2000            25 /   30       3.5X
-Matrix addition (jblas), n = 2000                         10 /   11       8.8X
-Matrix addition (rustjblas), n = 2000                     27 /   28       3.3X
-Matrix subtraction (jblas), n = 2000                      13 /   14       6.8X
-Matrix subtraction (rustjblas), n = 2000                  27 /   28       3.3X
-Matrix multiplication (jblas), n = 2000                   10 /   11       9.0X
-Matrix multiplication (rustjblas), n = 2000               32 /   34       2.8X
-Matrix division (jblas), n = 2000                         12 /   12       7.6X
-Matrix division (rustjblas), n = 2000                     25 /   38       3.5X
+Allocate rand matrix (jblas) n = 2000                     91 /   92       1.0X
+Allocate rand matrix (rustjblas), n = 2000                54 /   57       1.7X
+Allocate identity matrix (jblas) n = 2000                  3 /    4      29.2X
+Allocate identity matrix (rustjblas), n = 2000            40 /   43       2.3X
+Matrix addition (jblas), n = 2000                         10 /   11       9.1X
+Matrix addition (rustjblas), n = 2000                     43 /   44       2.1X
+Matrix subtraction (jblas), n = 2000                      13 /   14       6.9X
+Matrix subtraction (rustjblas), n = 2000                  43 /   46       2.1X
+Matrix multiplication (jblas), n = 2000                   10 /   11       9.1X
+Matrix multiplication (rustjblas), n = 2000               46 /   49       2.0X
+Matrix division (jblas), n = 2000                         12 /   12       7.8X
+Matrix division (rustjblas), n = 2000                     57 /   59       1.6X
 
 Java HotSpot(TM) 64-Bit Server VM 1.8.0_101-b13 on Linux 3.16.0-70-generic
 Intel(R) Core(TM) i7-4700MQ CPU @ 2.40GHz
 Matrix-matrix operations:                          Best/Avg Time(ms)   Relative
 -------------------------------------------------------------------------------
-Matrix multiplication (jblas), n = 2000                 1318 / 1363       1.0X
-Matrix multiplication (rustjblas), n = 2000              126 /  129      10.4X
+Matrix multiplication (jblas), n = 2000                 1336 / 1339       1.0X
+Matrix multiplication (rustjblas), n = 2000              127 /  132      10.5X
+
+Java HotSpot(TM) 64-Bit Server VM 1.8.0_101-b13 on Linux 3.16.0-70-generic
+Intel(R) Core(TM) i7-4700MQ CPU @ 2.40GHz
+Matrix SVD operations:                             Best/Avg Time(ms)   Relative
+-------------------------------------------------------------------------------
+Full SVD (jblas), n = 1000                              4592 / 4741       1.0X
+Full SVD (rustjblas), n = 1000                           399 /  401      11.5X
 ```
