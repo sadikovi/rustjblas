@@ -89,6 +89,7 @@ object MatrixBench {
     svdBench.addCase(s"Full SVD (jblas), n = $SVD_SIZE") { iter => Singular.fullSVD(a3) }
     svdBench.addCase(s"Full SVD (rustjblas), n = $SVD_SIZE") { iter => m3.fullSVD() }
 
+    trBench.run
     ewBench.run
     mmBench.run
     svdBench.run
