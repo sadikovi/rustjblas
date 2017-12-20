@@ -361,6 +361,14 @@ JNIEXPORT jlong JNICALL Java_com_github_sadikovi_rustjblas_DoubleMatrix_matrix_1
 JNIEXPORT jlong JNICALL Java_com_github_sadikovi_rustjblas_DoubleMatrix_matrix_1abs
   (JNIEnv *, jobject);
 
+/*
+ * Class:     com_github_sadikovi_rustjblas_DoubleMatrix
+ * Method:    matrix_full_svd
+ * Signature: (Lcom/github/sadikovi/rustjblas/DoubleMatrix/SvdResult;)V
+ */
+JNIEXPORT void JNICALL Java_com_github_sadikovi_rustjblas_DoubleMatrix_matrix_1full_1svd
+  (JNIEnv *, jobject, jobject);
+
 #ifdef __cplusplus
 }
 #endif

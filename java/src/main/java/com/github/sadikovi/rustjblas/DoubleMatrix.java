@@ -435,6 +435,28 @@ public class DoubleMatrix {
     return new DoubleMatrix(res);
   }
 
+  // == singular value decomposition methods ==
+
+  /** Placeholder class to store SVD result */
+  private static class SvdResult {
+    long u = INVALID_PTR;
+    long s = INVALID_PTR;
+    long v = INVALID_PTR;
+  }
+
+  /** Compute full SVD with optional U and V */
+  public DoubleMatrix[] fullSVD() {
+    assert_pointer();
+    // store U, s, V
+    SvdResult ptrs = new SvdResult();
+    matrix_full_svd(ptrs);
+    DoubleMatrix[] res = new DoubleMatrix[3];
+    res[0] = (ptrs.u == INVALID_PTR) ? null : new DoubleMatrix(ptrs.u);
+    res[1] = (ptrs.s == INVALID_PTR) ? null : new DoubleMatrix(ptrs.s);
+    res[2] = (ptrs.v == INVALID_PTR) ? null : new DoubleMatrix(ptrs.v);
+    return res;
+  }
+
   // == native methods ==
 
   private static native long alloc_from_array(int rows, int cols, double[] arr);
@@ -491,4 +513,6 @@ public class DoubleMatrix {
   private native long matrix_transpose();
   private native long matrix_diag();
   private native long matrix_abs();
+
+  private native void matrix_full_svd(SvdResult ptrs);
 }

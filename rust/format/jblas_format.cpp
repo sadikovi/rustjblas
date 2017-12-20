@@ -19,6 +19,7 @@
 // SOFTWARE.
 
 #include "com_github_sadikovi_rustjblas_DoubleMatrix.h"
+#include "com_github_sadikovi_rustjblas_DoubleMatrix_SvdResult.h"
 #include "rust_format.h"
 
 extern "C" {
@@ -577,5 +578,39 @@ extern "C" {
   JNIEXPORT jlong JNICALL Java_com_github_sadikovi_rustjblas_DoubleMatrix_matrix_1abs(
       JNIEnv *env, jobject obj) {
     return (long) matrix_abs(get_matrix_pointer(env, obj));
+  }
+
+  /* == Bindings for singular value decomposition == */
+
+  // Set SVD result into pointers array
+  void set_svd_result(JNIEnv *env, SvdResult res, jobject ptrs) {
+    if (res.err) {
+      throw_exception(env, res.err);
+    }
+    // set fields if they are available
+    jclass clazz = env->GetObjectClass(ptrs);
+    if (res.u) {
+      jfieldID fid = env->GetFieldID(clazz, "u", "J");
+      env->SetLongField(ptrs, fid, (long) res.u);
+    }
+    if (res.s) {
+      jfieldID fid = env->GetFieldID(clazz, "s", "J");
+      env->SetLongField(ptrs, fid, (long) res.s);
+    }
+    if (res.v) {
+      jfieldID fid = env->GetFieldID(clazz, "v", "J");
+      env->SetLongField(ptrs, fid, (long) res.v);
+    }
+  }
+
+  /*
+   * Class:     com_github_sadikovi_rustjblas_DoubleMatrix
+   * Method:    matrix_full_svd
+   * Signature: (Lcom/github/sadikovi/rustjblas/DoubleMatrix/SvdResult;)V
+   */
+  JNIEXPORT void JNICALL Java_com_github_sadikovi_rustjblas_DoubleMatrix_matrix_1full_1svd(
+      JNIEnv *env, jobject obj, jobject ptrs) {
+    SvdResult res = matrix_full_svd(get_matrix_pointer(env, obj));
+    set_svd_result(env, res, ptrs);
   }
 }

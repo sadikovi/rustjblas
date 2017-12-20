@@ -503,6 +503,8 @@ pub extern "C" fn matrix_abs(ptr: *const DoubleMatrix) -> *const DoubleMatrix {
     Box::into_raw(matrix)
 }
 
+// == Singular value decomposition methods ==
+
 #[no_mangle]
 pub extern "C" fn matrix_full_svd(ptr: *const DoubleMatrix) -> SvdResult {
     let this = unsafe { &(*ptr) };

@@ -53,6 +53,19 @@ typedef struct DoubleArray {
   const double* data;
 } DoubleArray;
 
+/* SvdResult struct to return result of singular value decomposition as pointers to u, s and v:
+ * `u` - pointer to U matrix
+ * `s` - pointer to s matrix (as vector)
+ * `v` - pointer to V matrix
+ * `err` - err message pointer
+ */
+typedef struct SvdResult {
+  void *u;
+  void *s;
+  void *v;
+  const char *err;
+} SvdResult;
+
 /* static methods */
 PtrResult alloc_from_array(int, int, size_t, const double*);
 PtrResult alloc_rand(int, int);
@@ -109,6 +122,8 @@ double matrix_norm2(void*);
 void* matrix_transpose(void*);
 PtrResult matrix_diag(void*);
 void* matrix_abs(void*);
+
+SvdResult matrix_full_svd(void*);
 
 #ifdef __cplusplus
 }
