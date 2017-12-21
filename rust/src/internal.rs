@@ -424,7 +424,6 @@ impl DoubleMatrix {
     // Compute the singular value decomposition (SVD) of a real M-by-N matrix, also computing the left
     // and right singular vectors, for which it uses a divide-and-conquer algorithm.
     pub fn full_svd(&self) -> SVD {
-        /*
         let (rows, cols) = self.shape();
 
         // here we compute both left and right singular vectors and hard-code value of jobz
@@ -503,8 +502,6 @@ impl DoubleMatrix {
         v.transpose_mut();
 
         SVD { u: Some(u), s: s, v: Some(v) }
-        */
-        SVD { u: None, s: DoubleMatrix::new_random(1, 1), v: None }
     }
 }
 

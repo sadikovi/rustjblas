@@ -30,12 +30,6 @@ fn main() {
         },
     }
 
-    // include openblas lib, this is pulled as external crate, we just need to link it
-    // ignore link on osx, otherwise it fails executing blas functions
-    if !target.contains("apple") {
-        println!("cargo:rustc-link-lib=static=openblas");
-    }
-
     // Compile cpp bindings into static lib which will be linked when we build library
     let java_include = Path::new(&java_home).join("include");
     let platform_suffix = if target.contains("apple") { "darwin" } else { "linux" };

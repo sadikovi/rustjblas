@@ -18,7 +18,7 @@ libc = "0.2"
 rand = "0.3"
 blas = "0.19"
 lapack = "0.15"
-openblas-src = "0.5"
+netlib-src = "0.7"
 
 [build-dependencies]
 cc = "1.0"
