@@ -66,13 +66,35 @@ pub struct DoubleMatrix {
     data: Vec<f64> // data in column major order
 }
 
+// Singular value decomposition struct
+#[derive(Debug)]
+pub struct SVD {
+    pub u: Option<DoubleMatrix>, // left singular vectors
+    pub s: DoubleMatrix, // singular values as column vector
+    pub v: Option<DoubleMatrix> // right singular vectors
+}
+
 impl DoubleMatrix {
-    // Create new matrix from data
+    // Create new matrix from data in column-major order
     pub fn new(rows: usize, cols: usize, data: Vec<f64>) -> Self {
         assert_eq!(rows * cols, data.len(),
             "Dimensions mismatch: {} * {} != {}.", rows, cols, data.len());
         // use shrink_to_fit
         DoubleMatrix { rows: rows, cols: cols, data: data }
+    }
+
+    // Create new matrix from data in row-major order, used only for testing
+    // TODO: when making public, consider optimising this method
+    fn from_row_slice(rows: usize, cols: usize, data: &[f64]) -> Self {
+        assert_eq!(rows * cols, data.len(),
+            "Dimensions mismatch: {} * {} != {}.", rows, cols, data.len());
+        let mut matrix = Self::zeros(rows, cols);
+        for i in 0..rows {
+            for j in 0..cols {
+                matrix.put(i, j, data[cols * i + j]);
+            }
+        }
+        matrix
     }
 
     // Create new matrix of 1s
@@ -383,6 +405,93 @@ impl DoubleMatrix {
         }
         DoubleMatrix::new(self.rows(), self.cols(), vec)
     }
+
+
+    // Compute the singular value decomposition (SVD) of a real M-by-N matrix, also computing the left
+    // and right singular vectors, for which it uses a divide-and-conquer algorithm.
+    pub fn full_svd(&self) -> SVD {
+        /*
+        let (rows, cols) = matrix.shape();
+
+        // here we compute both left and right singular vectors and hard-code value of jobz
+        // also need to copy content of a, since it can be modified, have we decided to change mode
+        let mut a = matrix.data.data().clone();
+        // singular values vector
+        let srows = cmp::min(rows, cols);
+        let scols = 1;
+        let mut s = vec![0f64; srows * scols];
+        // left singular vectors
+        let urows = rows;
+        let ucols = rows;
+        let mut u = vec![0f64; urows * ucols];
+        // right singular vectors
+        let vtrows = cols;
+        let vtcols = cols;
+        let mut vt = vec![0f64; vtrows * vtcols];
+        let mut iwork = vec![0i32; 8 * cmp::min(rows, cols)];
+        let mut info = 0i32;
+
+        // estimate size of lwork
+        let lwork = -1;
+        let mut work = vec![0f64; 1];
+
+        unsafe {
+            dgesdd(
+                'A' as u8, // jobz: u8,
+                rows as i32, // m: i32,
+                cols as i32, // n: i32,
+                &mut vec![], // a: &mut [f64],
+                cmp::max(1, rows) as i32, // lda: i32,
+                &mut vec![], // s: &mut [f64],
+                &mut vec![], // u: &mut [f64],
+                cmp::max(1, urows) as i32, // ldu: i32,
+                &mut vec![], // vt: &mut [f64],
+                cmp::max(1, vtrows) as i32, // ldvt: i32,
+                &mut work, // work: &mut [f64],
+                lwork, // lwork: i32,
+                &mut vec![], // iwork: &mut [i32],
+                &mut info // info: &mut i32
+            );
+        }
+
+        assert!(info == 0, "Workspace query failed to execute with code {}", info);
+
+        // additional workspace data structures after adjustment
+        let lwork = work[0] as usize;
+        let mut work = vec![0f64; lwork];
+
+        unsafe {
+            dgesdd(
+                'A' as u8, // jobz: u8,
+                rows as i32, // m: i32,
+                cols as i32, // n: i32,
+                &mut a, // a: &mut [f64],
+                cmp::max(1, rows) as i32, // lda: i32,
+                &mut s, // s: &mut [f64],
+                &mut u, // u: &mut [f64],
+                cmp::max(1, urows) as i32, // ldu: i32,
+                &mut vt, // vt: &mut [f64],
+                cmp::max(1, vtrows) as i32, // ldvt: i32,
+                &mut work, // work: &mut [f64],
+                lwork as i32, // lwork: i32,
+                &mut iwork, // iwork: &mut [i32],
+                &mut info // info: &mut i32
+            );
+        }
+
+        // TODO: report that -i th element has illegal value
+        assert!(info <= 0, "GESDD did not converge, {}", info);
+
+        let u = new_double_matrix(urows, ucols, u);
+        let s = new_double_matrix(srows, scols, s);
+        // v is returned as vt, so we transpose it in-place
+        let mut v = new_double_matrix(vtrows, vtcols, vt);
+        v.transpose_mut();
+
+        SVD { u: Some(u), s: s, v: Some(v) }
+        */
+        SVD { u: None, s: DoubleMatrix::new_random(1, 1), v: None }
+    }
 }
 
 impl Clone for DoubleMatrix {
@@ -462,36 +571,34 @@ mod tests {
     }
 
     fn test_matrix_1() -> DoubleMatrix {
-        DoubleMatrix::new(3, 4, vec![
-            0.25, 0.42, 0.71,
-            0.16, 0.33, 0.94,
-            0.03, 0.52, 0.37,
-            0.23, 0.27, 0.58
+        DoubleMatrix::from_row_slice(3, 4, &[
+            0.25, 0.16, 0.03, 0.23,
+            0.42, 0.33, 0.52, 0.27,
+            0.71, 0.94, 0.37, 0.58
         ])
     }
 
     fn test_matrix_2() -> DoubleMatrix {
-        DoubleMatrix::new(4, 4, vec![
-            1.0, 0.0, 0.0, 0.0,
-            1.0, 2.0, 0.0, 0.0,
-            0.0, 1.0, 3.0, 0.0,
-            0.0, 0.0, 1.0, 4.0
+        DoubleMatrix::from_row_slice(4, 4, &[
+            1.0, 1.0, 0.0, 0.0,
+            0.0, 2.0, 1.0, 0.0,
+            0.0, 0.0, 3.0, 1.0,
+            0.0, 0.0, 0.0, 4.0
         ])
     }
 
     fn test_matrix_3() -> DoubleMatrix {
-        DoubleMatrix::new(2, 4, vec![
-            1.0, 5.0,
-            2.0, 6.0,
-            3.0, 7.0,
-            4.0, 8.0
+        DoubleMatrix::from_row_slice(2, 4, &[
+            1.0, 2.0, 3.0, 4.0,
+            5.0, 6.0, 7.0, 8.0
         ])
     }
 
     fn test_matrix_4() -> DoubleMatrix {
-        DoubleMatrix::new(3, 2, vec![
-            1.0, 2.0, 3.0,
-            2.0, 4.0, 5.0
+        DoubleMatrix::from_row_slice(3, 2, &[
+            1.0, 2.0,
+            2.0, 4.0,
+            3.0, 5.0
         ])
     }
 
@@ -577,10 +684,11 @@ mod tests {
 
     #[test]
     fn test_elementwise_add() {
-        let exp = DoubleMatrix::new(4, 3, vec![
-            4.4, 4.4, 4.4, 4.4,
-            4.4, 4.4, 4.4, 4.4,
-            4.4, 4.4, 4.4, 4.4
+        let exp = DoubleMatrix::from_row_slice(4, 3, &[
+            4.4, 4.4, 4.4,
+            4.4, 4.4, 4.4,
+            4.4, 4.4, 4.4,
+            4.4, 4.4, 4.4
         ]);
 
         let matrix = DoubleMatrix::ones(4, 3);
@@ -591,10 +699,11 @@ mod tests {
         matrix.add_scalar_mut(3.4);
         assert_matrix(&matrix, &exp);
 
-        let exp = DoubleMatrix::new(4, 3, vec![
-            2.0, 1.0, 1.0, 1.0,
-            1.0, 2.0, 1.0, 1.0,
-            1.0, 1.0, 2.0, 1.0
+        let exp = DoubleMatrix::from_row_slice(4, 3, &[
+            2.0, 1.0, 1.0,
+            1.0, 2.0, 1.0,
+            1.0, 1.0, 2.0,
+            1.0, 1.0, 1.0
         ]);
 
         let matrix = DoubleMatrix::ones(4, 3);
@@ -848,11 +957,10 @@ mod tests {
         assert_matrix(&matrix.abs(), &exp);
     }
 
-    /*
     #[test]
     fn test_full_svd_test_matrix_2() {
         let a = test_matrix_2();
-        let svd = full_svd(&a);
+        let svd = a.full_svd();
 
         let u_exp = DoubleMatrix::from_row_slice(4, 4, &[
             0.013543, -0.135435, 0.542638, 0.828866,
@@ -860,7 +968,7 @@ mod tests {
             0.470163, -0.714229, -0.481962, 0.191143,
             0.875676, 0.450306, 0.167053, -0.050094
         ]);
-        let s_exp = DoubleMatrix::from_column_slice(4, 1, &[
+        let s_exp = DoubleMatrix::from_row_slice(4, 1, &[
             4.260007, 3.107349, 2.111785, 0.858542
         ]);
         let v_exp = DoubleMatrix::from_row_slice(4, 4, &[
@@ -878,13 +986,13 @@ mod tests {
     #[test]
     fn test_full_svd_test_matrix_3() {
         let a = test_matrix_3();
-        let svd = full_svd(&a);
+        let svd = a.full_svd();
 
         let u_exp = DoubleMatrix::from_row_slice(2, 2, &[
             -0.376168, -0.926551,
             -0.926551, 0.376168
         ]);
-        let s_exp = DoubleMatrix::from_column_slice(2, 1, &[
+        let s_exp = DoubleMatrix::from_row_slice(2, 1, &[
             14.227407, 1.257330
         ]);
         let v_exp = DoubleMatrix::from_row_slice(4, 4, &[
@@ -902,14 +1010,14 @@ mod tests {
     #[test]
     fn test_full_svd_test_matrix_4() {
         let a = test_matrix_4();
-        let svd = full_svd(&a);
+        let svd = a.full_svd();
 
         let u_exp = DoubleMatrix::from_row_slice(3, 3, &[
             -0.291036, -0.339556, -0.894427,
             -0.582071, -0.679112, 0.447214,
             -0.759270, 0.650776, -0.000000
         ]);
-        let s_exp = DoubleMatrix::from_column_slice(2, 1, &[
+        let s_exp = DoubleMatrix::from_row_slice(2, 1, &[
             7.675619, 0.291321
         ]);
         let v_exp = DoubleMatrix::from_row_slice(2, 2, &[
@@ -921,5 +1029,4 @@ mod tests {
         assert_matrix_eps(&svd.s, &s_exp, 1e-6);
         assert_matrix_eps(&svd.v.unwrap(), &v_exp, 1e-6);
     }
-    */
 }
