@@ -26,6 +26,7 @@ extern crate openblas_src;
 extern crate rand;
 
 pub mod matrix;
+pub mod internal;
 
 use std::ffi::CString;
 use std::mem;
