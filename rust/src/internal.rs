@@ -22,6 +22,7 @@ use std::cmp;
 use std::f64::NAN;
 use std::fmt::{Display, Error, Formatter};
 use blas::dgemm;
+use lapack::dgesdd;
 use rand::{Rng, weak_rng};
 
 // Macro to generate elementwise operations
@@ -85,7 +86,7 @@ impl DoubleMatrix {
 
     // Create new matrix from data in row-major order, used only for testing
     // TODO: when making public, consider optimising this method
-    fn from_row_slice(rows: usize, cols: usize, data: &[f64]) -> Self {
+    pub fn from_row_slice(rows: usize, cols: usize, data: &[f64]) -> Self {
         assert_eq!(rows * cols, data.len(),
             "Dimensions mismatch: {} * {} != {}.", rows, cols, data.len());
         let mut matrix = Self::zeros(rows, cols);
@@ -387,6 +388,19 @@ impl DoubleMatrix {
         res
     }
 
+    // Transpose matrix in place
+    pub fn transpose_mut(&mut self) {
+        assert!(self.rows() == self.cols(), "Unable to transpose a non-square matrix in-place.");
+        let dim = self.rows();
+        for i in 1 .. dim {
+            for j in 0 .. i {
+                let a = self.m2v(i, j);
+                let b = self.m2v(j, i);
+                self.data.swap(a, b);
+            }
+        }
+    }
+
     // Return diagonal as column vector
     pub fn diag(&self) -> DoubleMatrix {
         assert_eq!(self.rows(), self.cols(), "Unable to get the diagonal of a non-square matrix.");
@@ -411,11 +425,11 @@ impl DoubleMatrix {
     // and right singular vectors, for which it uses a divide-and-conquer algorithm.
     pub fn full_svd(&self) -> SVD {
         /*
-        let (rows, cols) = matrix.shape();
+        let (rows, cols) = self.shape();
 
         // here we compute both left and right singular vectors and hard-code value of jobz
         // also need to copy content of a, since it can be modified, have we decided to change mode
-        let mut a = matrix.data.data().clone();
+        let mut a = self.data.clone();
         // singular values vector
         let srows = cmp::min(rows, cols);
         let scols = 1;
@@ -482,10 +496,10 @@ impl DoubleMatrix {
         // TODO: report that -i th element has illegal value
         assert!(info <= 0, "GESDD did not converge, {}", info);
 
-        let u = new_double_matrix(urows, ucols, u);
-        let s = new_double_matrix(srows, scols, s);
+        let u = DoubleMatrix::new(urows, ucols, u);
+        let s = DoubleMatrix::new(srows, scols, s);
         // v is returned as vt, so we transpose it in-place
-        let mut v = new_double_matrix(vtrows, vtcols, vt);
+        let mut v = DoubleMatrix::new(vtrows, vtcols, vt);
         v.transpose_mut();
 
         SVD { u: Some(u), s: s, v: Some(v) }
@@ -928,6 +942,21 @@ mod tests {
         assert_matrix(&test_matrix_2().transpose().transpose(), &test_matrix_2());
         assert_matrix(&test_matrix_3().transpose().transpose(), &test_matrix_3());
         assert_matrix(&test_matrix_4().transpose().transpose(), &test_matrix_4());
+    }
+
+    #[test]
+    #[should_panic(expected = "Unable to transpose a non-square matrix in-place.")]
+    fn test_transpose_mut_panic() {
+        let mut matrix = test_matrix_1();
+        matrix.transpose_mut();
+    }
+
+    #[test]
+    fn test_transpose_mut() {
+        let matrix = DoubleMatrix::new_random(3, 3);
+        let mut clone = matrix.clone();
+        clone.transpose_mut();
+        assert_matrix(&clone, &matrix.transpose());
     }
 
     #[test]
