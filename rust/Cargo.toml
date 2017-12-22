@@ -7,7 +7,6 @@ authors = ["sadikovi"]
 homepage = "https://github.com/sadikovi/rustjblas"
 repository = "https://github.com/sadikovi/rustjblas"
 keywords = ["jblas", "linalg"]
-build = "build.rs"
 
 [lib]
 name = "rustjblas"
@@ -18,7 +17,7 @@ libc = "0.2"
 rand = "0.3"
 blas = "0.19"
 lapack = "0.15"
-netlib-src = "0.7"
+openblas-src = { version = "0.5", default-features = false, features = ["static"] }
 
 [build-dependencies]
 cc = "1.0"
