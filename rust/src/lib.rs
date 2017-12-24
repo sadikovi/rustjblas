@@ -21,7 +21,6 @@
 extern crate libc;
 extern crate blas;
 extern crate lapack;
-extern crate openblas_src;
 extern crate rand;
 
 pub mod internal;
