@@ -26,3 +26,5 @@ if [[ ! -f "$OPENBLAS_DIR/$SUCCESS_MARK" ]]; then
 else
   echo "Already built openblas, remove $OPENBLAS_DIR or $SUCCESS_MARK to trigger rebuild"
 fi
+
+ls -lh $OPENBLAS_DIR
