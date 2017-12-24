@@ -31,7 +31,7 @@ package com.github.sadikovi.rustjblas;
  */
 public class DoubleMatrix {
   static {
-    loadLibrary();
+    loadLibrary("rustjblas");
   }
 
   // Value for invalid pointer, if matrix has invalid pointer it cannot be processed
@@ -82,8 +82,7 @@ public class DoubleMatrix {
   }
 
   /** Load implementation library */
-  private static void loadLibrary() {
-    String libname = "rustjblas";
+  private static void loadLibrary(String libname) {
     System.out.println("-- Loading library " + libname + ", libpath: " +
       System.getProperty("java.library.path"));
     System.loadLibrary(libname);
