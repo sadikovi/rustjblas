@@ -10,7 +10,7 @@ fn main() {
     // set by cargo
     let target = env::var("TARGET").unwrap();
     let java_home = env::var("JAVA_HOME").expect("JAVA_HOME variable is not set");
-    let openblas_dir = Path::new("openblas-src");
+    let openblas_dir = Path::new("openblas-src").canonicalize().unwrap();
 
     // include gfortran library, if it is accessible through pkg-config, otherwise search /usr
     // space to find the library
