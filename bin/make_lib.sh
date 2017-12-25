@@ -65,7 +65,7 @@ if [ "$(uname)" == "Darwin" ]; then
   g++ -dynamiclib -Wall -lresolv -o $SHARED_LIB.dylib \
     -I$JAVA_HOME/include \
     -I$JAVA_HOME/include/darwin \
-    -L$TARGET_DIR -L$GFORTRAN_PATH -lgfortran -lwrapper -lopenblas $CPP_DIR/jblas_format.cpp
+    -L$TARGET_DIR -L$GFORTRAN_PATH -lwrapper -lopenblas -lgfortran $CPP_DIR/jblas_format.cpp
 elif [ "$(expr substr $(uname -s) 1 5)" == "Linux" ]; then
   # check if execstack is installed
   if [[ -z "$(which execstack)" ]]; then
@@ -76,7 +76,7 @@ elif [ "$(expr substr $(uname -s) 1 5)" == "Linux" ]; then
   g++ -Wall -fPIC -c $CPP_DIR/jblas_format.cpp \
     -I$JAVA_HOME/include -I$JAVA_HOME/include/linux && \
   g++ -Wall -shared -o $SHARED_LIB.so *.o \
-    -L$TARGET_DIR -L$GFORTRAN_PATH -lgfortran -lwrapper -lopenblas && \
+    -L$TARGET_DIR -L$GFORTRAN_PATH -lwrapper -lopenblas -lgfortran && \
   execstack -c $SHARED_LIB.so # also apply execstack in linux
 else
   echo "Unsupported platform $(uname)"
