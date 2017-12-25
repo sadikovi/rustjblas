@@ -10,7 +10,7 @@ keywords = ["jblas", "linalg"]
 build = "build.rs"
 
 [lib]
-name = "rustjblas"
+name = "wrapper"
 crate-type = ["staticlib"]
 
 [dependencies]

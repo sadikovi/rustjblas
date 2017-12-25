@@ -39,7 +39,8 @@ RUST_TARGET_DIR="$RUST_DIR/target/debug"
 if [[ -n "$RELEASE_MODE" ]]; then
   RUST_TARGET_DIR="$RUST_DIR/target/release"
 fi
-cp $RUST_TARGET_DIR/librustjblas.a $TARGET_DIR
+
+cp $RUST_TARGET_DIR/libwrapper.a $TARGET_DIR
 for f in $(find $RUST_TARGET_DIR/build -type f -name 'libopenblas*.a'); do
   filename="${f##*/}"
   echo "Copy $filename as libopenblas.a into $TARGET_DIR"
@@ -64,7 +65,7 @@ if [ "$(uname)" == "Darwin" ]; then
   g++ -dynamiclib -Wall -lresolv -o $SHARED_LIB.dylib \
     -I$JAVA_HOME/include \
     -I$JAVA_HOME/include/darwin \
-    -L$TARGET_DIR -L$GFORTRAN_PATH -lgfortran -lrustjblas -lopenblas $CPP_DIR/jblas_format.cpp
+    -L$TARGET_DIR -L$GFORTRAN_PATH -lgfortran -lwrapper -lopenblas $CPP_DIR/jblas_format.cpp
 elif [ "$(expr substr $(uname -s) 1 5)" == "Linux" ]; then
   # check if execstack is installed
   if [[ -z "$(which execstack)" ]]; then
@@ -72,13 +73,11 @@ elif [ "$(expr substr $(uname -s) 1 5)" == "Linux" ]; then
     exit 1
   fi
 
-  g++ -Wall -fPIC -c $CPP_FILE && \
+  g++ -Wall -fPIC -c $CPP_DIR/jblas_format.cpp \
+    -I$JAVA_HOME/include -I$JAVA_HOME/include/linux && \
   g++ -Wall -shared -o $SHARED_LIB.so *.o \
-    -I$JAVA_HOME/include \
-    -I$JAVA_HOME/include/linux \
-    -L$RUST_OUTPUT -l$RUST_STATIC_LIB -l$RUST_OPENBLAS_LIB
-  # also apply execstack in linux
-  execstack -c $SHARED_LIB.so
+    -L$TARGET_DIR -L$GFORTRAN_PATH -lgfortran -lwrapper -lopenblas && \
+  execstack -c $SHARED_LIB.so # also apply execstack in linux
 else
   echo "Unsupported platform $(uname)"
   exit 1

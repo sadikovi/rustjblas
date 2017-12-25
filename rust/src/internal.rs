@@ -541,10 +541,10 @@ impl Display for DoubleMatrix {
         let max_length_with_space = max_length + 1;
 
         try!(writeln!(f, ""));
-        try!(writeln!(f, "  ┌ {:>width$} ┐", "", width = max_length_with_space * cols - 1));
+        try!(writeln!(f, "  . {:>width$} .", "", width = max_length_with_space * cols - 1));
 
         for i in 0..rows {
-            try!(write!(f, "  │"));
+            try!(write!(f, "  |"));
             for j in 0..cols {
                 let idx = self.m2v(i, j);
                 let number_length = lengths[idx] + 1;
@@ -555,10 +555,10 @@ impl Display for DoubleMatrix {
                     None => try!(write!(f, "{}", self.data[idx]))
                 }
             }
-            try!(writeln!(f, " │"));
+            try!(writeln!(f, " |"));
         }
 
-        try!(writeln!(f, "  └ {:>width$} ┘", "", width = max_length_with_space * cols - 1));
+        try!(writeln!(f, "  . {:>width$} .", "", width = max_length_with_space * cols - 1));
         writeln!(f, "")
     }
 }

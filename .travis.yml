@@ -14,8 +14,7 @@ addons:
     packages:
       - g++
       - gfortran
-      - libblas3gf
-      - liblapack3gf
+      - execstack
 before_script:
   - curl https://sh.rustup.rs -sSf | sh -s -- -y
   - export PATH=$HOME/.cargo/bin:$PATH
