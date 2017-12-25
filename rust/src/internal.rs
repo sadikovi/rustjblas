@@ -58,6 +58,66 @@ macro_rules! elementwise_scalar_op {
     )
 }
 
+macro_rules! dgesdd_op {
+    ($jobz:expr, $a:ident, $rows:ident, $cols:ident, $u:ident, $urows:ident, $s:ident, $vt:ident,
+        $vtrows:ident) => {{
+
+        let mut iwork = vec![0i32; 8 * cmp::min($rows, $cols)];
+        let mut info = 0i32;
+
+        // estimate size of lwork
+        let lwork = -1;
+        let mut work = vec![0f64; 1];
+
+        unsafe {
+            dgesdd(
+                $jobz as u8, // jobz: u8,
+                $rows as i32, // m: i32,
+                $cols as i32, // n: i32,
+                &mut vec![], // a: &mut [f64],
+                cmp::max(1, $rows) as i32, // lda: i32,
+                &mut vec![], // s: &mut [f64],
+                &mut vec![], // u: &mut [f64],
+                cmp::max(1, $urows) as i32, // ldu: i32,
+                &mut vec![], // vt: &mut [f64],
+                cmp::max(1, $vtrows) as i32, // ldvt: i32,
+                &mut work, // work: &mut [f64],
+                lwork, // lwork: i32,
+                &mut vec![], // iwork: &mut [i32],
+                &mut info // info: &mut i32
+            );
+        }
+
+        assert!(info == 0, "Workspace query failed to execute with code {}.", info);
+
+        // additional workspace data structures after adjustment
+        let lwork = work[0] as usize;
+        let mut work = vec![0f64; lwork];
+
+        unsafe {
+            dgesdd(
+                $jobz as u8, // jobz: u8,
+                $rows as i32, // m: i32,
+                $cols as i32, // n: i32,
+                &mut $a, // a: &mut [f64],
+                cmp::max(1, $rows) as i32, // lda: i32,
+                &mut $s, // s: &mut [f64],
+                &mut $u, // u: &mut [f64],
+                cmp::max(1, $urows) as i32, // ldu: i32,
+                &mut $vt, // vt: &mut [f64],
+                cmp::max(1, $vtrows) as i32, // ldvt: i32,
+                &mut work, // work: &mut [f64],
+                lwork as i32, // lwork: i32,
+                &mut iwork, // iwork: &mut [i32],
+                &mut info // info: &mut i32
+            );
+        }
+
+        // TODO: report that -i th element has illegal value
+        assert!(info <= 0, "GESDD did not converge, {}.", info);
+    }}
+}
+
 // Strict representation of the double matrix with as little overhead as possible.
 // This allows us to resolve library conflicts and implement transformations efficiently.
 #[derive(Debug)]
@@ -420,15 +480,13 @@ impl DoubleMatrix {
         DoubleMatrix::new(self.rows(), self.cols(), vec)
     }
 
-    // Internal method to compute either mode 'A' or 'N'
-    #[inline]
-    fn internal_full_svd(&self, only_s: bool) -> SVD {
-        // 'A':  all M columns of U and all N rows of V**T are returned in the arrays U and VT;
-        // 'N':  no columns of U or rows of V**T are computed.
-        let jobz = if only_s { 'N' } else { 'A' };
+
+    // Compute the singular value decomposition (SVD) of a real M-by-N matrix, also computing the left
+    // and right singular vectors, for which it uses a divide-and-conquer algorithm.
+    pub fn full_svd(&self) -> SVD {
+        let jobz = 'A';
         let (rows, cols) = self.shape();
-        // here we compute both left and right singular vectors and hard-code value of jobz
-        // also need to copy content of a, since it can be modified, have we decided to change mode
+        // need to copy content of a, since it can be modified, have we decided to change mode
         let mut a = self.data.clone();
         // singular values vector
         let srows = cmp::min(rows, cols);
@@ -437,87 +495,42 @@ impl DoubleMatrix {
         // left singular vectors
         let urows = rows;
         let ucols = rows;
-        let mut u = if only_s { vec![] } else { vec![0f64; urows * ucols] };
+        let mut u = vec![0f64; urows * ucols];
         // right singular vectors
         let vtrows = cols;
         let vtcols = cols;
-        let mut vt = if only_s { vec![] } else { vec![0f64; vtrows * vtcols] };
-        let mut iwork = vec![0i32; 8 * cmp::min(rows, cols)];
-        let mut info = 0i32;
+        let mut vt = vec![0f64; vtrows * vtcols];
 
-        // estimate size of lwork
-        let lwork = -1;
-        let mut work = vec![0f64; 1];
+        dgesdd_op!(jobz, a, rows, cols, u, urows, s, vt, vtrows);
 
-        unsafe {
-            dgesdd(
-                jobz as u8, // jobz: u8,
-                rows as i32, // m: i32,
-                cols as i32, // n: i32,
-                &mut vec![], // a: &mut [f64],
-                cmp::max(1, rows) as i32, // lda: i32,
-                &mut vec![], // s: &mut [f64],
-                &mut vec![], // u: &mut [f64],
-                cmp::max(1, urows) as i32, // ldu: i32,
-                &mut vec![], // vt: &mut [f64],
-                cmp::max(1, vtrows) as i32, // ldvt: i32,
-                &mut work, // work: &mut [f64],
-                lwork, // lwork: i32,
-                &mut vec![], // iwork: &mut [i32],
-                &mut info // info: &mut i32
-            );
-        }
-
-        assert!(info == 0, "Workspace query failed to execute with code {}", info);
-
-        // additional workspace data structures after adjustment
-        let lwork = work[0] as usize;
-        let mut work = vec![0f64; lwork];
-
-        unsafe {
-            dgesdd(
-                jobz as u8, // jobz: u8,
-                rows as i32, // m: i32,
-                cols as i32, // n: i32,
-                &mut a, // a: &mut [f64],
-                cmp::max(1, rows) as i32, // lda: i32,
-                &mut s, // s: &mut [f64],
-                &mut u, // u: &mut [f64],
-                cmp::max(1, urows) as i32, // ldu: i32,
-                &mut vt, // vt: &mut [f64],
-                cmp::max(1, vtrows) as i32, // ldvt: i32,
-                &mut work, // work: &mut [f64],
-                lwork as i32, // lwork: i32,
-                &mut iwork, // iwork: &mut [i32],
-                &mut info // info: &mut i32
-            );
-        }
-
-        // TODO: report that -i th element has illegal value
-        assert!(info <= 0, "GESDD did not converge, {}", info);
-
-        let u = if only_s { None } else { Some(DoubleMatrix::new(urows, ucols, u)) };
+        let u = DoubleMatrix::new(urows, ucols, u);
         let s = DoubleMatrix::new(srows, scols, s);
         // v is returned as vt, so we transpose it in-place
-        let v = if only_s { None } else {
-            let mut tmp = DoubleMatrix::new(vtrows, vtcols, vt);
-            tmp.transpose_mut();
-            Some(tmp)
-        };
+        let mut v = DoubleMatrix::new(vtrows, vtcols, vt);
+        v.transpose_mut();
 
-        SVD { u: u, s: s, v: v }
-    }
-
-
-    // Compute the singular value decomposition (SVD) of a real M-by-N matrix, also computing the left
-    // and right singular vectors, for which it uses a divide-and-conquer algorithm.
-    pub fn full_svd(&self) -> SVD {
-        self.internal_full_svd(false)
+        SVD { u: Some(u), s: s, v: Some(v) }
     }
 
     // Compute all (up to epsilon) singular values for this matrix
     pub fn singular_values(&self) -> DoubleMatrix {
-        self.internal_full_svd(true).s
+        let jobz = 'N';
+        let (rows, cols) = self.shape();
+        // need to copy content of a, since it can be modified, have we decided to change mode
+        let mut a = self.data.clone();
+        // singular values vector
+        let srows = cmp::min(rows, cols);
+        let scols = 1;
+        let mut s = vec![0f64; srows * scols];
+        // left singular vectors
+        let urows = rows;
+        let mut u = vec![];
+        // right singular vectors
+        let vtrows = cols;
+        let mut vt = vec![];
+
+        dgesdd_op!(jobz, a, rows, cols, u, urows, s, vt, vtrows);
+        DoubleMatrix::new(srows, scols, s)
     }
 
     // Experimental svd for top k singular values
