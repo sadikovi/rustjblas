@@ -510,3 +510,9 @@ pub extern "C" fn matrix_singular_values(ptr: *const DoubleMatrix) -> *const Dou
     let matrix = Box::new(this.singular_values());
     Box::into_raw(matrix)
 }
+
+#[no_mangle]
+pub extern "C" fn matrix_svd_k(ptr: *const DoubleMatrix, k: int32_t) -> SvdResult {
+    let this = unsafe { &(*ptr) };
+    try_catch_svd(|| this.svd(k as usize))
+}

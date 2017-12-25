@@ -377,6 +377,14 @@ JNIEXPORT void JNICALL Java_com_github_sadikovi_rustjblas_DoubleMatrix_matrix_1f
 JNIEXPORT jlong JNICALL Java_com_github_sadikovi_rustjblas_DoubleMatrix_matrix_1singular_1values
   (JNIEnv *, jobject);
 
+/*
+ * Class:     com_github_sadikovi_rustjblas_DoubleMatrix
+ * Method:    matrix_svd_k
+ * Signature: (Lcom/github/sadikovi/rustjblas/DoubleMatrix/SvdResult;I)V
+ */
+JNIEXPORT void JNICALL Java_com_github_sadikovi_rustjblas_DoubleMatrix_matrix_1svd_1k
+  (JNIEnv *, jobject, jobject, jint);
+
 #ifdef __cplusplus
 }
 #endif

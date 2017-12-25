@@ -22,7 +22,7 @@ use std::cmp;
 use std::f64::NAN;
 use std::fmt::{Display, Error, Formatter};
 use blas::dgemm;
-use lapack::dgesdd;
+use lapack::{dgesdd, dgesvdx};
 use rand::{Rng, weak_rng};
 
 // Macro to generate elementwise operations
@@ -480,9 +480,8 @@ impl DoubleMatrix {
         DoubleMatrix::new(self.rows(), self.cols(), vec)
     }
 
-
-    // Compute the singular value decomposition (SVD) of a real M-by-N matrix, also computing the left
-    // and right singular vectors, for which it uses a divide-and-conquer algorithm.
+    // Compute the singular value decomposition (SVD) of a real M-by-N matrix, also computing the
+    // left and right singular vectors, for which it uses a divide-and-conquer algorithm.
     pub fn full_svd(&self) -> SVD {
         let jobz = 'A';
         let (rows, cols) = self.shape();
@@ -505,7 +504,7 @@ impl DoubleMatrix {
 
         let u = DoubleMatrix::new(urows, ucols, u);
         let s = DoubleMatrix::new(srows, scols, s);
-        // v is returned as vt, so we transpose it in-place
+        // v is returned as square vt, so we transpose it in-place
         let mut v = DoubleMatrix::new(vtrows, vtcols, vt);
         v.transpose_mut();
 
@@ -522,20 +521,111 @@ impl DoubleMatrix {
         let srows = cmp::min(rows, cols);
         let scols = 1;
         let mut s = vec![0f64; srows * scols];
-        // left singular vectors
+        // do not compute left singular vectors
         let urows = rows;
         let mut u = vec![];
-        // right singular vectors
+        // do not compute right singular vectors
         let vtrows = cols;
         let mut vt = vec![];
 
         dgesdd_op!(jobz, a, rows, cols, u, urows, s, vt, vtrows);
+
         DoubleMatrix::new(srows, scols, s)
     }
 
     // Experimental svd for top k singular values
     pub fn svd(&self, k: usize) -> SVD {
-        SVD { u: None, s: DoubleMatrix::new_random(2, 2), v: None }
+        let (rows, cols) = self.shape();
+        assert!(k >= 1 && k <= cmp::min(rows, cols), "Invalid number of singular values: {}", k);
+
+        let mut a = self.data.clone();
+        // singular values vector
+        let mut ns = vec![0i32; 1]; // vector to contain number of singluar values found
+        let (srows, scols) = (k, 1);
+        let mut s = vec![0f64; srows * scols];
+        // left singular vectors
+        let (urows, ucols) = (rows, k);
+        let mut u = vec![0f64; urows * ucols];
+        // right singular vectors
+        let (vtrows, vtcols) = (k, cols);
+        let mut vt = vec![0f64; vtrows * vtcols];
+        let mut iwork = vec![0i32; 12 * cmp::min(rows, cols)];
+        let mut info = 0i32;
+
+        // estimate size of lwork
+        let lwork = -1;
+        let mut work = vec![0f64; 1];
+
+        unsafe {
+            dgesvdx(
+                'V' as u8, // jobu: u8,
+                'V' as u8, // jobvt: u8,
+                'I' as u8, // range: u8,
+                rows as i32, // m: i32,
+                cols as i32, // n: i32,
+                &mut vec![], // a: &mut [f64],
+                cmp::max(1, rows) as i32, // lda: i32,
+                0f64, // vl: f64,
+                0f64, // vu: f64,
+                1i32, // il: i32,
+                k as i32, // iu: i32,
+                &mut ns, // ns: &mut [i32],
+                &mut vec![], // s: &mut [f64],
+                &mut vec![], // u: &mut [f64],
+                cmp::max(1, urows) as i32, // ldu: i32,
+                &mut vec![], // vt: &mut [f64],
+                cmp::max(1, vtrows) as i32, // ldvt: i32,
+                &mut work, // work: &mut [f64],
+                lwork, // lwork: i32,
+                &mut vec![], // iwork: &mut [i32],
+                &mut info, // info: &mut i32
+            );
+        }
+
+        assert!(info == 0, "Workspace query failed to execute with code {}", info);
+
+        // additional workspace data structures after adjustment
+        let lwork = work[0] as usize;
+        let mut work = vec![0f64; cmp::max(1, lwork)];
+
+        unsafe {
+            dgesvdx(
+                'V' as u8, // jobu: u8,
+                'V' as u8, // jobvt: u8,
+                'I' as u8, // range: u8,
+                rows as i32, // m: i32,
+                cols as i32, // n: i32,
+                &mut a, // a: &mut [f64],
+                cmp::max(1, rows) as i32, // lda: i32,
+                0f64, // vl: f64,
+                0f64, // vu: f64,
+                1i32, // il: i32,
+                k as i32, // iu: i32,
+                &mut ns, // ns: &mut [i32],
+                &mut s, // s: &mut [f64],
+                &mut u, // u: &mut [f64],
+                cmp::max(1, urows) as i32, // ldu: i32,
+                &mut vt, // vt: &mut [f64],
+                cmp::max(1, vtrows) as i32, // ldvt: i32,
+                &mut work, // work: &mut [f64],
+                lwork as i32, // lwork: i32,
+                &mut iwork, // iwork: &mut [i32],
+                &mut info, // info: &mut i32
+            );
+        }
+
+        let u = DoubleMatrix::new(urows, ucols, u);
+        let s = DoubleMatrix::new(srows, scols, s);
+        // v is returned as vt, so we transpose it in-place
+        let mut varr = vec![0f64; vtcols * vtrows];
+        for i in 0..vt.len() {
+            let row = i % vtrows;
+            let col = i / vtrows;
+            let ti = col + row * vtcols;
+            varr[ti] = vt[i];
+        }
+        let v = DoubleMatrix::new(vtcols, vtrows, varr);
+        SVD { u: Some(u), s: s, v: Some(v) }
     }
 }
 
@@ -1111,5 +1201,33 @@ mod tests {
             14.227407, 1.257330
         ]);
         assert_matrix_eps(&s, &s_exp, 1e-6);
+    }
+
+    #[test]
+    fn test_svd_matrix_2() {
+        let a = test_matrix_2();
+        let svd = a.svd(2);
+
+        let u_exp = DoubleMatrix::from_row_slice(4, 2, &[
+            -0.013543, -0.135435,
+            -0.109341, -0.518419,
+            -0.470163, -0.714229,
+            -0.875676, 0.450306
+        ]);
+        let s_exp = DoubleMatrix::from_row_slice(2, 1, &[
+            4.260007, 3.107349
+        ]);
+
+        let v_exp = DoubleMatrix::from_row_slice(4, 2, &[
+            -0.003179, -0.043585,
+            -0.054513, -0.377258,
+            -0.356767, -0.856391,
+            -0.932596, 0.349815
+        ]);
+
+        assert_matrix(&a, &test_matrix_2());
+        assert_matrix_eps(&svd.u.unwrap(), &u_exp, 1e-6);
+        assert_matrix_eps(&svd.s, &s_exp, 1e-6);
+        assert_matrix_eps(&svd.v.unwrap(), &v_exp, 1e-6);
     }
 }

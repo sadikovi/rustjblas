@@ -81,7 +81,6 @@ public class MatrixInitSuite {
     });
     double[] exp = new double[]{1.0, 4.0, 2.0, 5.0, 3.0, 6.0};
     assertArrayEquals(matrix.toArray(), exp, EPS);
-    matrix.show();
 
     matrix = DoubleMatrix.fromRows(new double[][] {
       new double[]{1.0, 2.0},
@@ -91,7 +90,6 @@ public class MatrixInitSuite {
     });
     exp = new double[]{1.0, 3.0, 5.0, 7.0, 2.0, 4.0, 6.0, 8.0};
     assertArrayEquals(matrix.toArray(), exp, EPS);
-    matrix.show();
   }
 
   @Test(expected = IllegalArgumentException.class)

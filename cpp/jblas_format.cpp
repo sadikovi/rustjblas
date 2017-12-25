@@ -623,4 +623,15 @@ extern "C" {
       JNIEnv *env, jobject obj) {
     return (long) matrix_singular_values(get_matrix_pointer(env, obj));
   }
+
+  /*
+   * Class:     com_github_sadikovi_rustjblas_DoubleMatrix
+   * Method:    matrix_svd_k
+   * Signature: (Lcom/github/sadikovi/rustjblas/DoubleMatrix/SvdResult;I)V
+   */
+  JNIEXPORT void JNICALL Java_com_github_sadikovi_rustjblas_DoubleMatrix_matrix_1svd_1k(
+      JNIEnv *env, jobject obj, jobject ptrs, jint k) {
+    SvdResult res = matrix_svd_k(get_matrix_pointer(env, obj), k);
+    set_svd_result(env, res, ptrs);
+  }
 }

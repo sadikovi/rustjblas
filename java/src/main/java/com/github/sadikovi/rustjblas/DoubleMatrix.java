@@ -488,6 +488,19 @@ public class DoubleMatrix {
     return new DoubleMatrix(res);
   }
 
+  /** Compute SVD for the first k top singular values */
+  public DoubleMatrix[] svd(int k) {
+    assert_pointer();
+    // store U, s, V
+    SvdResult ptrs = new SvdResult();
+    matrix_svd_k(ptrs, k);
+    DoubleMatrix[] res = new DoubleMatrix[3];
+    res[0] = (ptrs.u == INVALID_PTR) ? null : new DoubleMatrix(ptrs.u);
+    res[1] = (ptrs.s == INVALID_PTR) ? null : new DoubleMatrix(ptrs.s);
+    res[2] = (ptrs.v == INVALID_PTR) ? null : new DoubleMatrix(ptrs.v);
+    return res;
+  }
+
   // == native methods ==
 
   private static native long alloc_from_array(int rows, int cols, double[] arr);
@@ -547,4 +560,5 @@ public class DoubleMatrix {
 
   private native void matrix_full_svd(SvdResult ptrs);
   private native long matrix_singular_values();
+  private native void matrix_svd_k(SvdResult ptrs, int k);
 }
