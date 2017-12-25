@@ -526,6 +526,9 @@ public class MatrixOperationsSuite {
     DoubleMatrix n = DoubleMatrix.fromArray(m.rows, m.columns, m.toArray());
     org.jblas.DoubleMatrix[] res1 = org.jblas.Singular.fullSVD(m);
     DoubleMatrix[] res2 = n.fullSVD();
+    // check that original matrix is not modified
+    assertMatrix(m, n);
+    // check svd output
     assertMatrix(res1[0], res2[0]);
     assertMatrix(res1[1], res2[1]);
     assertMatrix(res1[2], res2[2]);
