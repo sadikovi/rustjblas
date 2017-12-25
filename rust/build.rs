@@ -13,9 +13,9 @@ fn main() {
 
     // libraries to link
     let libraries = vec![
-        ("gfortran", find_lib_path("libgfortran", "libgfortran.dylib")),
-        ("blas", find_lib_path("libblas", "libblas.dylib")),
-        ("lapack", find_lib_path("liblapack", "liblapack.dylib"))
+        ("gfortran", find_lib_path("libgfortran")),
+        ("blas", find_lib_path("libblas")),
+        ("lapack", find_lib_path("liblapack"))
     ];
 
     // compile cpp bindings into static lib which will be linked when we build library
@@ -38,7 +38,7 @@ fn main() {
     }
 }
 
-fn find_lib_path(lib_name: &str, full_lib_name: &str) -> String {
+fn find_lib_path(lib_name: &str) -> String {
     match pkg_config::find_library(lib_name) {
         Ok(lib) => {
             for path in lib.include_paths.iter() {
@@ -48,11 +48,11 @@ fn find_lib_path(lib_name: &str, full_lib_name: &str) -> String {
         Err(_) => {
             // cannot find library in pkg-config, search manually in /usr space
             for entry in WalkDir::new("/usr").into_iter().filter_map(|e| e.ok()) {
-                if entry.file_name().to_str().map(|s| s == full_lib_name).unwrap_or(false) {
+                if entry.file_name().to_str().map(|s| s.starts_with(lib_name)).unwrap_or(false) {
                     return format!("{}", entry.path().parent().unwrap().display());
                 }
             }
         },
     }
-    panic!("Failed to find path for library {} ({})", lib_name, full_lib_name);
+    panic!("Failed to find path for library {}", lib_name);
 }
