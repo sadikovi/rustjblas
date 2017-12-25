@@ -71,6 +71,46 @@ public class MatrixInitSuite {
     matrix.dealloc();
   }
 
+  // == DoubleMatrix.fromRows ==
+
+  @Test
+  public void testFromRows() {
+    DoubleMatrix matrix = DoubleMatrix.fromRows(new double[][] {
+      new double[]{1.0, 2.0, 3.0},
+      new double[]{4.0, 5.0, 6.0}
+    });
+    double[] exp = new double[]{1.0, 4.0, 2.0, 5.0, 3.0, 6.0};
+    assertArrayEquals(matrix.toArray(), exp, EPS);
+    matrix.show();
+
+    matrix = DoubleMatrix.fromRows(new double[][] {
+      new double[]{1.0, 2.0},
+      new double[]{3.0, 4.0},
+      new double[]{5.0, 6.0},
+      new double[]{7.0, 8.0},
+    });
+    exp = new double[]{1.0, 3.0, 5.0, 7.0, 2.0, 4.0, 6.0, 8.0};
+    assertArrayEquals(matrix.toArray(), exp, EPS);
+    matrix.show();
+  }
+
+  @Test(expected = IllegalArgumentException.class)
+  public void testFromRowsFailDiffLength1() {
+    DoubleMatrix.fromRows(new double[][] {
+      new double[]{1.0, 2.0, 3.0},
+      new double[]{4.0, 5.0, 6.0},
+      new double[]{4.0, 5.0}
+    });
+  }
+
+  @Test(expected = IllegalArgumentException.class)
+  public void testFromRowsFailDiffLength2() {
+    DoubleMatrix.fromRows(new double[][] {
+      new double[]{1.0, 2.0},
+      new double[]{4.0, 5.0, 6.0}
+    });
+  }
+
   // == DoubleMatrix.rand ==
 
   @Test(expected = IllegalArgumentException.class)

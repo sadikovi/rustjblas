@@ -53,6 +53,31 @@ public class DoubleMatrix {
     return new DoubleMatrix(pointer);
   }
 
+  /**
+   * Create matrix from a set of row arrays.
+   * Arrays should have equal length.
+   */
+  public static DoubleMatrix fromRows(double[][] values) {
+    int rows = values.length;
+    int cols = (rows > 0) ? values[0].length : 0;
+
+    // assert number of columns in each row
+    for (int i = 0; i < rows; i++) {
+      if (cols != values[i].length) {
+        throw new IllegalArgumentException("Invalid number of columns in row " + (i + 1) +
+          " (" + cols + " != " + values[i].length + ")");
+      }
+    }
+
+    double[] arr = new double[rows * cols];
+    for (int i = 0; i < rows; i++) {
+      for (int j = 0; j < cols; j++) {
+        arr[i + j*rows] = values[i][j];
+      }
+    }
+    return fromArray(rows, cols, arr);
+  }
+
   /** Create random matrix for specified dimensions */
   public static DoubleMatrix rand(int rows, int cols) {
     assert_shape(rows, cols);
