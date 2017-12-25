@@ -88,6 +88,8 @@ object MatrixBench {
     val svdBench = new Benchmark("Matrix SVD operations")
     svdBench.addCase(s"Full SVD (jblas), n = $SVD_SIZE") { iter => Singular.fullSVD(a3) }
     svdBench.addCase(s"Full SVD (rustjblas), n = $SVD_SIZE") { iter => m3.fullSVD() }
+    svdBench.addCase(s"Singular values (jblas), n = $SVD_SIZE") { iter => Singular.SVDValues(a3) }
+    svdBench.addCase(s"Singular values (rustjblas), n = $SVD_SIZE") { iter => m3.singularValues() }
 
     trBench.run
     ewBench.run
