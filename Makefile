@@ -1,8 +1,7 @@
 ROOT_DIR=$(shell dirname $(realpath $(lastword $(MAKEFILE_LIST))))
 JAVA_DIR=$(ROOT_DIR)/java
+CPP_DIR=$(ROOT_DIR)/cpp
 RUST_DIR=$(ROOT_DIR)/rust
-
-# target dir with final artifacts
 TARGET_DIR=$(ROOT_DIR)/target
 
 # list of classes to be compiled for jni
@@ -45,7 +44,7 @@ build_rust:
 	cd $(RUST_DIR) && cargo build --verbose
 
 build: build_java jni build_rust
-	mkdir -p $(TARGET_DIR) && cp $(JAVA_DIR)/target/scala-2.11/*.jar $(TARGET_DIR) && cp $(RUST_DIR)/target/debug/lib* $(TARGET_DIR)
+	$(ROOT_DIR)/bin/make_lib.sh
 
 # == release ==
 
@@ -55,7 +54,7 @@ release_rust:
 	cd $(RUST_DIR) && cargo build --release
 
 release: release_java jni release_rust
-	mkdir -p $(TARGET_DIR) && cp $(JAVA_DIR)/target/scala-2.11/*.jar $(TARGET_DIR) && cp $(RUST_DIR)/target/release/lib* $(TARGET_DIR)
+	$(ROOT_DIR)/bin/make_lib.sh --release
 
 # == test ==
 
@@ -71,7 +70,7 @@ test: test_java test_rust
 
 jni:
 	# generate files for jni
-	$(ROOT_DIR)/bin/javah -cp $(JAVA_DIR)/target/scala-2.11/classes -d $(RUST_DIR)/format $(JNI_CLASSES)
+	$(ROOT_DIR)/bin/javah -cp $(JAVA_DIR)/target/scala-2.11/classes -d $(CPP_DIR) $(JNI_CLASSES)
 
 # == bench ==
 

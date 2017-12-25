@@ -37,8 +37,8 @@ public class MatrixPropsSuite {
     double[] data = new double[]{1.0, 2.0, 3.0, 4.0, 5.0, 6.0};
     DoubleMatrix matrix = DoubleMatrix.fromArray(2, 3, data);
     String expected =
-      "  │ 1 3 5 │\n" +
-      "  │ 2 4 6 │\n";
+      "  | 1 3 5 |\n" +
+      "  | 2 4 6 |\n";
     assertTrue(matrix.prettyString().contains(expected.trim()));
   }
 

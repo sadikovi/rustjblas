@@ -19,21 +19,19 @@
 // SOFTWARE.
 
 extern crate libc;
-extern crate nalgebra;
 extern crate blas;
 extern crate lapack;
 extern crate openblas_src;
 extern crate rand;
 
-pub mod matrix;
+pub mod internal;
 
 use std::ffi::CString;
 use std::mem;
-use std::ops::{AddAssign, DivAssign, MulAssign, SubAssign};
 use std::panic;
 use std::ptr;
 use libc::{int32_t, c_double, c_char, size_t};
-use matrix::{DoubleMatrix, SVD};
+use internal::{DoubleMatrix, SVD};
 
 // PtrResult to capture and return either valid pointer to a matrix or error message.
 // Only one pointer should be set.
@@ -145,12 +143,12 @@ pub extern "C" fn alloc_from_array(
 ) -> PtrResult
 {
     let vec = unsafe { Vec::from_raw_parts(ptr, len, len) };
-    try_catch_ptr(|| DoubleMatrix::from_column_slice(rows as usize, cols as usize, &vec))
+    try_catch_ptr(|| DoubleMatrix::new(rows as usize, cols as usize, vec))
 }
 
 #[no_mangle]
 pub extern "C" fn alloc_rand(rows: int32_t, cols: int32_t) -> PtrResult {
-    try_catch_ptr(|| matrix::new_random(rows as usize, cols as usize))
+    try_catch_ptr(|| DoubleMatrix::new_random(rows as usize, cols as usize))
 }
 
 #[no_mangle]
@@ -160,7 +158,7 @@ pub extern "C" fn alloc_zeros(rows: int32_t, cols: int32_t) -> PtrResult {
 
 #[no_mangle]
 pub extern "C" fn alloc_ones(rows: int32_t, cols: int32_t) -> PtrResult {
-    try_catch_ptr(|| DoubleMatrix::from_element(rows as usize, cols as usize, 1f64))
+    try_catch_ptr(|| DoubleMatrix::ones(rows as usize, cols as usize))
 }
 
 #[no_mangle]
@@ -170,18 +168,18 @@ pub extern "C" fn alloc_identity(rows: int32_t, cols: int32_t) -> PtrResult {
 
 #[no_mangle]
 pub extern "C" fn matrix_rows(ptr: *const DoubleMatrix) -> int32_t {
-    unsafe { (*ptr).nrows() as int32_t }
+    unsafe { (*ptr).rows() as int32_t }
 }
 
 #[no_mangle]
 pub extern "C" fn matrix_cols(ptr: *const DoubleMatrix) -> int32_t {
-    unsafe { (*ptr).ncols() as int32_t }
+    unsafe { (*ptr).cols() as int32_t }
 }
 
 #[no_mangle]
 pub extern "C" fn matrix_data_array(ptr: *const DoubleMatrix) -> DoubleArray {
     // TODO: Add check for length at most being i32 max value, currently check exists in Java
-    let arr = unsafe { (*ptr).data.as_slice() };
+    let arr = unsafe { (*ptr).data() };
     DoubleArray { len: arr.len() as i32, data: arr.as_ptr() }
 }
 
@@ -216,7 +214,7 @@ pub extern "C" fn matrix_add_matrix(
 {
     let this = unsafe { &(*ptr) };
     let that = unsafe { &(*aptr) };
-    try_catch_ptr(|| this + that)
+    try_catch_ptr(|| this.add_matrix(that))
 }
 
 #[no_mangle]
@@ -237,7 +235,7 @@ pub extern "C" fn matrix_add_in_place_matrix(
     try_catch_void(|| {
         let this = unsafe { &mut (*ptr) };
         let that = unsafe { &(*aptr) };
-        this.add_assign(that);
+        this.add_matrix_mut(that);
     })
 }
 
@@ -247,8 +245,7 @@ pub extern "C" fn matrix_sub_scalar(
     scalar: c_double
 ) -> PtrResult
 {
-    // TODO: check that negation is correct for scalar
-    try_catch_ptr(|| unsafe { (*ptr).add_scalar(-scalar) })
+    try_catch_ptr(|| unsafe { (*ptr).sub_scalar(scalar) })
 }
 
 #[no_mangle]
@@ -259,7 +256,7 @@ pub extern "C" fn matrix_sub_matrix(
 {
     let this = unsafe { &(*ptr) };
     let that = unsafe { &(*aptr) };
-    try_catch_ptr(|| this - that)
+    try_catch_ptr(|| this.sub_matrix(that))
 }
 
 #[no_mangle]
@@ -269,7 +266,7 @@ pub extern "C" fn matrix_sub_in_place_scalar(
 ) -> VoidResult
 {
     // TODO: check that negation is correct for scalar
-    try_catch_void(|| unsafe { (*ptr).add_scalar_mut(-scalar); })
+    try_catch_void(|| unsafe { (*ptr).sub_scalar_mut(scalar); })
 }
 
 #[no_mangle]
@@ -281,7 +278,7 @@ pub extern "C" fn matrix_sub_in_place_matrix(
     try_catch_void(|| {
         let this = unsafe { &mut (*ptr) };
         let that = unsafe { &(*aptr) };
-        this.sub_assign(that);
+        this.sub_matrix_mut(that);
     })
 }
 
@@ -292,7 +289,7 @@ pub extern "C" fn matrix_mul_scalar(
 ) -> PtrResult
 {
     let this = unsafe { &(*ptr) };
-    try_catch_ptr(|| this * scalar)
+    try_catch_ptr(|| this.mul_scalar(scalar))
 }
 
 #[no_mangle]
@@ -303,7 +300,7 @@ pub extern "C" fn matrix_mul_matrix(
 {
     let this = unsafe { &(*ptr) };
     let that = unsafe { &(*aptr) };
-    try_catch_ptr(|| this.component_mul(that))
+    try_catch_ptr(|| this.mul_matrix(that))
 }
 
 #[no_mangle]
@@ -312,7 +309,7 @@ pub extern "C" fn matrix_mul_in_place_scalar(
     scalar: c_double
 ) -> VoidResult
 {
-    try_catch_void(|| unsafe { (*ptr).mul_assign(scalar); })
+    try_catch_void(|| unsafe { (*ptr).mul_scalar_mut(scalar); })
 }
 
 #[no_mangle]
@@ -324,7 +321,7 @@ pub extern "C" fn matrix_mul_in_place_matrix(
     try_catch_void(|| {
         let this = unsafe { &mut (*ptr) };
         let that = unsafe { &(*aptr) };
-        this.component_mul_assign(that);
+        this.mul_matrix_mut(that);
     })
 }
 
@@ -335,7 +332,7 @@ pub extern "C" fn matrix_div_scalar(
 ) -> PtrResult
 {
     let this = unsafe { &(*ptr) };
-    try_catch_ptr(|| this / scalar)
+    try_catch_ptr(|| this.div_scalar(scalar))
 }
 
 #[no_mangle]
@@ -346,7 +343,7 @@ pub extern "C" fn matrix_div_matrix(
 {
     let this = unsafe { &(*ptr) };
     let that = unsafe { &(*aptr) };
-    try_catch_ptr(|| this.component_div(that))
+    try_catch_ptr(|| this.div_matrix(that))
 }
 
 #[no_mangle]
@@ -355,7 +352,7 @@ pub extern "C" fn matrix_div_in_place_scalar(
     scalar: c_double
 ) -> VoidResult
 {
-    try_catch_void(|| unsafe { (*ptr).div_assign(scalar); })
+    try_catch_void(|| unsafe { (*ptr).div_scalar_mut(scalar); })
 }
 
 #[no_mangle]
@@ -367,7 +364,7 @@ pub extern "C" fn matrix_div_in_place_matrix(
     try_catch_void(|| {
         let this = unsafe { &mut (*ptr) };
         let that = unsafe { &(*aptr) };
-        this.component_div_assign(that);
+        this.div_matrix_mut(that);
     })
 }
 
@@ -379,7 +376,7 @@ pub extern "C" fn matrix_mmul_matrix(
 {
     let this = unsafe { &(*ptr) };
     let that = unsafe { &(*aptr) };
-    try_catch_ptr(|| matrix::mmul(this, that))
+    try_catch_ptr(|| this.mmul(that))
 }
 
 #[no_mangle]
@@ -391,35 +388,35 @@ pub extern "C" fn matrix_mmul_in_place_matrix(
     try_catch_void(|| {
         let this = unsafe { &mut (*ptr) };
         let that = unsafe { &(*aptr) };
-        matrix::mmul_assign(this, that);
+        this.mmul_assign(that);
     })
 }
 
 #[no_mangle]
 pub extern "C" fn matrix_column_mins(ptr: *const DoubleMatrix) -> *const DoubleMatrix {
     let this = unsafe { &(*ptr) };
-    let matrix = Box::new(matrix::column_mins(this));
+    let matrix = Box::new(this.column_mins());
     Box::into_raw(matrix)
 }
 
 #[no_mangle]
 pub extern "C" fn matrix_column_maxs(ptr: *const DoubleMatrix) -> *const DoubleMatrix {
     let this = unsafe { &(*ptr) };
-    let matrix = Box::new(matrix::column_maxs(this));
+    let matrix = Box::new(this.column_maxs());
     Box::into_raw(matrix)
 }
 
 #[no_mangle]
 pub extern "C" fn matrix_column_means(ptr: *const DoubleMatrix) -> *const DoubleMatrix {
     let this = unsafe { &(*ptr) };
-    let matrix = Box::new(matrix::column_means(this));
+    let matrix = Box::new(this.column_means());
     Box::into_raw(matrix)
 }
 
 #[no_mangle]
 pub extern "C" fn matrix_column_sums(ptr: *const DoubleMatrix) -> *const DoubleMatrix {
     let this = unsafe { &(*ptr) };
-    let matrix = Box::new(matrix::column_sums(this));
+    let matrix = Box::new(this.column_sums());
     Box::into_raw(matrix)
 }
 
@@ -427,59 +424,54 @@ pub extern "C" fn matrix_column_sums(ptr: *const DoubleMatrix) -> *const DoubleM
 #[no_mangle]
 pub extern "C" fn matrix_row_mins(ptr: *const DoubleMatrix) -> *const DoubleMatrix {
     let this = unsafe { &(*ptr) };
-    let matrix = Box::new(matrix::row_mins(this));
+    let matrix = Box::new(this.row_mins());
     Box::into_raw(matrix)
 }
 
 #[no_mangle]
 pub extern "C" fn matrix_row_maxs(ptr: *const DoubleMatrix) -> *const DoubleMatrix {
     let this = unsafe { &(*ptr) };
-    let matrix = Box::new(matrix::row_maxs(this));
+    let matrix = Box::new(this.row_maxs());
     Box::into_raw(matrix)
 }
 
 #[no_mangle]
 pub extern "C" fn matrix_row_means(ptr: *const DoubleMatrix) -> *const DoubleMatrix {
     let this = unsafe { &(*ptr) };
-    let matrix = Box::new(matrix::row_means(this));
+    let matrix = Box::new(this.row_means());
     Box::into_raw(matrix)
 }
 
 #[no_mangle]
 pub extern "C" fn matrix_row_sums(ptr: *const DoubleMatrix) -> *const DoubleMatrix {
     let this = unsafe { &(*ptr) };
-    let matrix = Box::new(matrix::row_sums(this));
+    let matrix = Box::new(this.row_sums());
     Box::into_raw(matrix)
 }
 
 #[no_mangle]
 pub extern "C" fn matrix_min(ptr: *const DoubleMatrix) -> c_double {
-    let iter = unsafe { (*ptr).iter() };
-    iter.fold(std::f64::NAN, |left, right| left.min(*right))
+    unsafe { (*ptr).min() }
 }
 
 #[no_mangle]
 pub extern "C" fn matrix_max(ptr: *const DoubleMatrix) -> c_double {
-    let iter = unsafe { (*ptr).iter() };
-    iter.fold(std::f64::NAN, |left, right| left.max(*right))
+    unsafe { (*ptr).max() }
 }
 
 #[no_mangle]
 pub extern "C" fn matrix_sum(ptr: *const DoubleMatrix) -> c_double {
-    let iter = unsafe { (*ptr).iter() };
-    iter.sum()
+    unsafe { (*ptr).sum() }
 }
 
 #[no_mangle]
 pub extern "C" fn matrix_norm1(ptr: *const DoubleMatrix) -> c_double {
-    // TODO: replace with built-in method, if available
-    let matrix = unsafe { (*ptr).abs() };
-    matrix.iter().sum()
+    unsafe { (*ptr).norm1() }
 }
 
 #[no_mangle]
 pub extern "C" fn matrix_norm2(ptr: *const DoubleMatrix) -> c_double {
-    unsafe { (*ptr).norm() }
+    unsafe { (*ptr).norm2() }
 }
 
 #[no_mangle]
@@ -493,7 +485,7 @@ pub extern "C" fn matrix_transpose(ptr: *const DoubleMatrix) -> *const DoubleMat
 pub extern "C" fn matrix_diag(ptr: *const DoubleMatrix) -> PtrResult {
     let this = unsafe { &(*ptr) };
     // return diagonal as column vector similar to jblas
-    try_catch_ptr(|| DoubleMatrix::from_columns(&[this.diagonal()]))
+    try_catch_ptr(|| this.diag())
 }
 
 #[no_mangle]
@@ -508,5 +500,5 @@ pub extern "C" fn matrix_abs(ptr: *const DoubleMatrix) -> *const DoubleMatrix {
 #[no_mangle]
 pub extern "C" fn matrix_full_svd(ptr: *const DoubleMatrix) -> SvdResult {
     let this = unsafe { &(*ptr) };
-    try_catch_svd(|| matrix::full_svd(this))
+    try_catch_svd(|| this.full_svd())
 }
