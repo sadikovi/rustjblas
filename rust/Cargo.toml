@@ -11,15 +11,15 @@ build = "build.rs"
 
 [lib]
 name = "rustjblas"
-crate-type = ["dylib"]
+crate-type = ["staticlib"]
 
 [dependencies]
 libc = "0.2"
 rand = "0.3"
 blas = "0.19"
 lapack = "0.15"
+openblas-src = {version = "0.5", default-features = false, features = ["static"]}
 
 [build-dependencies]
-cc = "1.0"
 pkg-config = "0.3"
 walkdir = "2.0"
