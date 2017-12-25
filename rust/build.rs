@@ -10,28 +10,15 @@ fn main() {
     // set by cargo
     let target = env::var("TARGET").unwrap();
     let java_home = env::var("JAVA_HOME").expect("JAVA_HOME variable is not set");
-    let openblas_dir = Path::new("openblas-src").canonicalize().unwrap();
 
-    // include gfortran library, if it is accessible through pkg-config, otherwise search /usr
-    // space to find the library
-    match pkg_config::find_library("libgfortran") {
-        Ok(lib) => {
-            for path in lib.include_paths.iter() {
-                println!("cargo:rustc-link-search=native={}", path.parent().unwrap().display());
-            }
-        },
-        Err(_) => {
-            // cannot find libgfortran in pkg-config, search manually in /usr space
-            for entry in WalkDir::new("/usr").into_iter().filter_map(|e| e.ok()) {
-                if entry.file_name().to_str().map(|s| s == "libgfortran.a").unwrap_or(false) {
-                    println!("cargo:rustc-link-search=native={}",
-                        entry.path().parent().unwrap().display());
-                }
-            }
-        },
-    }
+    // libraries to link
+    let libraries = vec![
+        ("gfortran", find_lib_path("libgfortran", "libgfortran.dylib")),
+        ("blas", find_lib_path("libblas", "libblas.dylib")),
+        ("lapack", find_lib_path("liblapack", "liblapack.dylib"))
+    ];
 
-    // Compile cpp bindings into static lib which will be linked when we build library
+    // compile cpp bindings into static lib which will be linked when we build library
     let java_include = Path::new(&java_home).join("include");
     let platform_suffix = if target.contains("apple") { "darwin" } else { "linux" };
     let java_include_platform = Path::new(&java_home).join("include").join(platform_suffix);
@@ -44,7 +31,28 @@ fn main() {
         .include(java_include_platform)
         .compile("libformat.a");
 
-    println!("cargo:rustc-link-lib=dylib=gfortran");
-    println!("cargo:rustc-link-lib=dylib=openblas");
-    println!("cargo:rustc-link-search=native={}", openblas_dir.display());
+    // add dynamic libraries to cargo build
+    for (name, path) in libraries {
+        println!("cargo:rustc-link-lib=dylib={}", name);
+        println!("cargo:rustc-link-search=native={}", path);
+    }
+}
+
+fn find_lib_path(lib_name: &str, full_lib_name: &str) -> String {
+    match pkg_config::find_library(lib_name) {
+        Ok(lib) => {
+            for path in lib.include_paths.iter() {
+                return format!("{}", path.parent().unwrap().display());
+            }
+        },
+        Err(_) => {
+            // cannot find library in pkg-config, search manually in /usr space
+            for entry in WalkDir::new("/usr").into_iter().filter_map(|e| e.ok()) {
+                if entry.file_name().to_str().map(|s| s == full_lib_name).unwrap_or(false) {
+                    return format!("{}", entry.path().parent().unwrap().display());
+                }
+            }
+        },
+    }
+    panic!("Failed to find path for library {} ({})", lib_name, full_lib_name);
 }

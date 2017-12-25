@@ -21,7 +21,7 @@ export RUSTFLAGS
 	release_java, release_rust, release,
 	test_java, test_rust, test,
 	bench_java, bench_rust, bench,
-	jni, openblas
+	jni
 
 all: release
 
@@ -44,7 +44,7 @@ build_java:
 build_rust:
 	cd $(RUST_DIR) && cargo build --verbose
 
-build: build_java jni openblas build_rust
+build: build_java jni build_rust
 	mkdir -p $(TARGET_DIR) && cp $(JAVA_DIR)/target/scala-2.11/*.jar $(TARGET_DIR) && cp $(RUST_DIR)/target/debug/lib* $(TARGET_DIR)
 
 # == release ==
@@ -54,7 +54,7 @@ release_java: build_java
 release_rust:
 	cd $(RUST_DIR) && cargo build --release
 
-release: release_java jni openblas release_rust
+release: release_java jni release_rust
 	mkdir -p $(TARGET_DIR) && cp $(JAVA_DIR)/target/scala-2.11/*.jar $(TARGET_DIR) && cp $(RUST_DIR)/target/release/lib* $(TARGET_DIR)
 
 # == test ==
@@ -72,11 +72,6 @@ test: test_java test_rust
 jni:
 	# generate files for jni
 	$(ROOT_DIR)/bin/javah -cp $(JAVA_DIR)/target/scala-2.11/classes -d $(RUST_DIR)/format $(JNI_CLASSES)
-
-# == openblas ==
-openblas:
-	# build openblas source
-	$(ROOT_DIR)/bin/openblas.sh
 
 # == bench ==
 
