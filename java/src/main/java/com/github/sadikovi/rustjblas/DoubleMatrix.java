@@ -481,6 +481,13 @@ public class DoubleMatrix {
     return res;
   }
 
+  /** Compute singular values for this matrix and return them as column vector */
+  public DoubleMatrix singularValues() {
+    assert_pointer();
+    long res = matrix_singular_values();
+    return new DoubleMatrix(res);
+  }
+
   // == native methods ==
 
   private static native long alloc_from_array(int rows, int cols, double[] arr);
@@ -539,4 +546,5 @@ public class DoubleMatrix {
   private native long matrix_abs();
 
   private native void matrix_full_svd(SvdResult ptrs);
+  private native long matrix_singular_values();
 }

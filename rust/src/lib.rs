@@ -502,3 +502,11 @@ pub extern "C" fn matrix_full_svd(ptr: *const DoubleMatrix) -> SvdResult {
     let this = unsafe { &(*ptr) };
     try_catch_svd(|| this.full_svd())
 }
+
+
+#[no_mangle]
+pub extern "C" fn matrix_singular_values(ptr: *const DoubleMatrix) -> *const DoubleMatrix {
+    let this = unsafe { &(*ptr) };
+    let matrix = Box::new(this.singular_values());
+    Box::into_raw(matrix)
+}

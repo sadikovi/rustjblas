@@ -555,4 +555,25 @@ public class MatrixOperationsSuite {
   public void testFullSVDSmall() {
     testFullSVD(2, 2, 9.3);
   }
+
+  private void testSingularValues(int rows, int cols) {
+    org.jblas.DoubleMatrix m = org.jblas.DoubleMatrix.rand(rows, cols);
+    DoubleMatrix n = DoubleMatrix.fromArray(m.rows, m.columns, m.toArray());
+    assertMatrix(org.jblas.Singular.SVDValues(m), n.singularValues());
+  }
+
+  @Test
+  public void testSingularValuesSquare() {
+    testSingularValues(20, 20);
+  }
+
+  @Test
+  public void testSingularValuesRows() {
+    testSingularValues(20, 11);
+  }
+
+  @Test
+  public void testSingularValuesCols() {
+    testSingularValues(11, 20);
+  }
 }

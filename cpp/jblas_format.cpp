@@ -613,4 +613,14 @@ extern "C" {
     SvdResult res = matrix_full_svd(get_matrix_pointer(env, obj));
     set_svd_result(env, res, ptrs);
   }
+
+  /*
+   * Class:     com_github_sadikovi_rustjblas_DoubleMatrix
+   * Method:    matrix_singular_values
+   * Signature: ()J
+   */
+  JNIEXPORT jlong JNICALL Java_com_github_sadikovi_rustjblas_DoubleMatrix_matrix_1singular_1values(
+      JNIEnv *env, jobject obj) {
+    return (long) matrix_singular_values(get_matrix_pointer(env, obj));
+  }
 }

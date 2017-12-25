@@ -503,6 +503,71 @@ impl DoubleMatrix {
 
         SVD { u: Some(u), s: s, v: Some(v) }
     }
+
+    // Compute all (up to epsilon) singular values for this matrix
+    pub fn singular_values(&self) -> DoubleMatrix {
+        let (rows, cols) = self.shape();
+
+        let mut a = self.data.clone(); // necessary to clone, for 'S' content of a is destroyed
+        let (srows, scols) = (cmp::min(rows, cols), 1);
+        let mut s = vec![0f64; srows * scols];
+        let (urows, vtrows) = (rows, cols);
+        let mut iwork = vec![0i32; 8 * cmp::min(rows, cols)];
+        let mut info = 0i32;
+
+        // estimate size of lwork
+        let lwork = -1;
+        let mut work = vec![0f64; 1];
+
+        unsafe {
+            dgesdd(
+                'N' as u8, // jobz: u8,
+                rows as i32, // m: i32,
+                cols as i32, // n: i32,
+                &mut vec![], // a: &mut [f64],
+                cmp::max(1, rows) as i32, // lda: i32,
+                &mut vec![], // s: &mut [f64],
+                &mut vec![], // u: &mut [f64],
+                cmp::max(1, urows) as i32, // ldu: i32,
+                &mut vec![], // vt: &mut [f64],
+                cmp::max(1, vtrows) as i32, // ldvt: i32,
+                &mut work, // work: &mut [f64],
+                lwork, // lwork: i32,
+                &mut vec![], // iwork: &mut [i32],
+                &mut info // info: &mut i32
+            );
+        }
+
+        assert!(info == 0, "Workspace query failed to execute with code {}", info);
+
+        // additional workspace data structures after adjustment
+        let lwork = work[0] as usize;
+        let mut work = vec![0f64; lwork];
+
+        unsafe {
+            dgesdd(
+                'N' as u8, // jobz: u8,
+                rows as i32, // m: i32,
+                cols as i32, // n: i32,
+                &mut a, // a: &mut [f64],
+                cmp::max(1, rows) as i32, // lda: i32,
+                &mut s, // s: &mut [f64],
+                &mut vec![], // u: &mut [f64],
+                cmp::max(1, urows) as i32, // ldu: i32,
+                &mut vec![], // vt: &mut [f64],
+                cmp::max(1, vtrows) as i32, // ldvt: i32,
+                &mut work, // work: &mut [f64],
+                lwork as i32, // lwork: i32,
+                &mut iwork, // iwork: &mut [i32],
+                &mut info // info: &mut i32
+            );
+        }
+
+        // TODO: report that -i th element has illegal value
+        assert!(info <= 0, "GESDD did not converge, {}", info);
+
+        DoubleMatrix::new(srows, scols, s)
+    }
 }
 
 impl Clone for DoubleMatrix {
@@ -1004,6 +1069,7 @@ mod tests {
             0.932596, 0.349815, 0.088195, -0.010752
         ]);
 
+        assert_matrix(&a, &test_matrix_2());
         assert_matrix_eps(&svd.u.unwrap(), &u_exp, 1e-6);
         assert_matrix_eps(&svd.s, &s_exp, 1e-6);
         assert_matrix_eps(&svd.v.unwrap(), &v_exp, 1e-6);
@@ -1028,6 +1094,7 @@ mod tests {
             -0.626754, -0.554238, -0.545542, 0.048826
         ]);
 
+        assert_matrix(&a, &test_matrix_3());
         assert_matrix_eps(&svd.u.unwrap(), &u_exp, 1e-6);
         assert_matrix_eps(&svd.s, &s_exp, 1e-6);
         assert_matrix_eps(&svd.v.unwrap(), &v_exp, 1e-6);
@@ -1051,8 +1118,29 @@ mod tests {
             -0.873768, -0.486344
         ]);
 
+        assert_matrix(&a, &test_matrix_4());
         assert_matrix_eps(&svd.u.unwrap(), &u_exp, 1e-6);
         assert_matrix_eps(&svd.s, &s_exp, 1e-6);
         assert_matrix_eps(&svd.v.unwrap(), &v_exp, 1e-6);
+    }
+
+    #[test]
+    fn test_singular_values_matrix_2() {
+        let a = test_matrix_2();
+        let s = a.singular_values();
+        let s_exp = DoubleMatrix::from_row_slice(4, 1, &[
+            4.260007, 3.107349, 2.111785, 0.858542
+        ]);
+        assert_matrix_eps(&s, &s_exp, 1e-6);
+    }
+
+    #[test]
+    fn test_singular_values_matrix_3() {
+        let a = test_matrix_3();
+        let s = a.singular_values();
+        let s_exp = DoubleMatrix::from_row_slice(2, 1, &[
+            14.227407, 1.257330
+        ]);
+        assert_matrix_eps(&s, &s_exp, 1e-6);
     }
 }
