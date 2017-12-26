@@ -18,7 +18,6 @@
 // OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
 // SOFTWARE.
 
-#![feature(cfg_target_feature)]
 extern crate libc;
 extern crate blas;
 extern crate lapack;
