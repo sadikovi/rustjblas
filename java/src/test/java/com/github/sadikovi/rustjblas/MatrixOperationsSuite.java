@@ -473,13 +473,20 @@ public class MatrixOperationsSuite {
 
   // == Transpose ==
 
-  @Test
-  public void testTranspose() {
-    org.jblas.DoubleMatrix m = org.jblas.DoubleMatrix.rand(35, 25);
+  private void testTransposeMatrix(int rows, int cols) {
+    org.jblas.DoubleMatrix m = org.jblas.DoubleMatrix.rand(rows, cols);
     DoubleMatrix n = DoubleMatrix.fromArray(m.rows, m.columns, m.toArray());
     assertMatrix(m.transpose(), n.transpose());
     assertMatrix(m, n.transpose().transpose());
     n.dealloc();
+  }
+
+  @Test
+  public void testTranspose() {
+    testTransposeMatrix(1, 1);
+    testTransposeMatrix(35, 35);
+    testTransposeMatrix(35, 17);
+    testTransposeMatrix(18, 40);
   }
 
   // == Diagonal ==

@@ -439,13 +439,15 @@ impl DoubleMatrix {
 
     // Return transposed matrix
     pub fn transpose(&self) -> DoubleMatrix {
-        let mut res = DoubleMatrix::zeros(self.cols(), self.rows());
-        for i in 0..self.rows() {
-            for j in 0..self.cols() {
-                res.put(j, i, self.get(i, j));
-            }
+        let mut tarr = vec![0f64; self.rows * self.cols];
+        let arr = self.data();
+        for i in 0..arr.len() {
+            let row = i % self.rows;
+            let col = i / self.rows;
+            let ti = col + row * self.cols;
+            tarr[ti] = arr[i];
         }
-        res
+        DoubleMatrix::new(self.cols(), self.rows(), tarr)
     }
 
     // Transpose matrix in place
