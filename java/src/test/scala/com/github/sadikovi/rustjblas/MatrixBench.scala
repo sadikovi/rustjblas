@@ -51,6 +51,16 @@ object MatrixBench {
     val m1 = DoubleMatrix.rand(EW_SIZE, EW_SIZE)
     val n1 = DoubleMatrix.rand(EW_SIZE, EW_SIZE)
 
+    val seBench = new Benchmark("Scalar Elementwise operations")
+    seBench.addCase(s"Scalar addition (jblas), n = $EW_SIZE") { iter => a1.add(3.1) }
+    seBench.addCase(s"Scalar addition (rustjblas), n = $EW_SIZE") { iter => m1.add(3.1) }
+    seBench.addCase(s"Scalar subtraction (jblas), n = $EW_SIZE") { iter => a1.sub(3.2) }
+    seBench.addCase(s"Scalar subtraction (rustjblas), n = $EW_SIZE") { iter => m1.sub(3.2) }
+    seBench.addCase(s"Scalar multiplication (jblas), n = $EW_SIZE") { iter => a1.mul(3.3) }
+    seBench.addCase(s"Scalar multiplication (rustjblas), n = $EW_SIZE") { iter => m1.mul(3.3) }
+    seBench.addCase(s"Scalar division (jblas), n = $EW_SIZE") { iter => a1.div(3.4) }
+    seBench.addCase(s"Scalar division (rustjblas), n = $EW_SIZE") { iter => m1.div(3.4) }
+
     val ewBench = new Benchmark("Matrix elementwise operations")
     ewBench.addCase(s"Allocate rand matrix (jblas) n = $EW_SIZE") { iter =>
       JDoubleMatrix.rand(EW_SIZE, EW_SIZE)
@@ -91,8 +101,9 @@ object MatrixBench {
     svdBench.addCase(s"Singular values (jblas), n = $SVD_SIZE") { iter => Singular.SVDValues(a3) }
     svdBench.addCase(s"Singular values (rustjblas), n = $SVD_SIZE") { iter => m3.singularValues() }
 
-    trBench.run
-    ewBench.run
+    // trBench.run
+    // seBench.run
+    // ewBench.run
     mmBench.run
     svdBench.run
   }
