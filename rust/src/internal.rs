@@ -113,8 +113,8 @@ macro_rules! dgesdd_op {
             );
         }
 
-        // TODO: report that -i th element has illegal value
-        assert!(info <= 0, "GESDD did not converge, {}.", info);
+        // this is strict check; when info is negative, then ith parameter has illegal value
+        assert!(info == 0, "GESDD did not converge, {}.", info);
     }}
 }
 
@@ -613,6 +613,9 @@ impl DoubleMatrix {
                 &mut info, // info: &mut i32
             );
         }
+
+        // this is strict check; when info is negative, then ith parameter has illegal value
+        assert!(info == 0, "GESVDX did not converge, {}.", info);
 
         let u = DoubleMatrix::new(urows, ucols, u);
         let s = DoubleMatrix::new(srows, scols, s);
