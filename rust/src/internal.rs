@@ -21,26 +21,13 @@
 use std::cmp;
 use std::f64::NAN;
 use std::fmt::{Display, Error, Formatter};
-use blas::{dasum, dgemm, dnrm2};
+use blas::{dasum, daxpy, dgemm, dnrm2, dscal};
 use lapack::{dgesdd, dgesvdx};
 use rand::{Rng, weak_rng};
 
 // Macro to generate elementwise operations
-macro_rules! elementwise_scalar_op {
-    ($fn_scalar_mut:ident, $fn_scalar:ident, $fn_matrix_mut:ident, $fn_matrix:ident, $op:tt) => (
-        #[inline]
-        pub fn $fn_scalar_mut(&mut self, value: f64) {
-            for i in 0..self.data.len() {
-                self.data[i] = self.data[i] $op value;
-            }
-        }
-
-        pub fn $fn_scalar(&self, value: f64) -> Self {
-            let mut clone = self.clone();
-            clone.$fn_scalar_mut(value);
-            clone
-        }
-
+macro_rules! vector_op {
+    ($fn_matrix_mut:ident, $fn_matrix:ident, $op:tt) => (
         #[inline]
         pub fn $fn_matrix_mut(&mut self, other: &DoubleMatrix) {
             assert_eq!(self.shape(), other.shape(),
@@ -242,10 +229,57 @@ impl DoubleMatrix {
     }
 
     // Elementwise matrix operations
-    elementwise_scalar_op!(add_scalar_mut, add_scalar, add_matrix_mut, add_matrix, +);
-    elementwise_scalar_op!(sub_scalar_mut, sub_scalar, sub_matrix_mut, sub_matrix, -);
-    elementwise_scalar_op!(mul_scalar_mut, mul_scalar, mul_matrix_mut, mul_matrix, *);
-    elementwise_scalar_op!(div_scalar_mut, div_scalar, div_matrix_mut, div_matrix, /);
+
+    #[inline]
+    pub fn add_scalar_mut(&mut self, value: f64) {
+        let dy = self.data_mut();
+        unsafe { daxpy(dy.len() as i32, 1f64, &[value], 0i32, dy, 1i32); }
+    }
+
+    #[inline]
+    pub fn sub_scalar_mut(&mut self, value: f64) {
+        self.add_scalar_mut(-value);
+    }
+
+    #[inline]
+    pub fn mul_scalar_mut(&mut self, value: f64) {
+        let x = self.data_mut();
+        unsafe { dscal(x.len() as i32, value, x, 1i32); }
+    }
+
+    #[inline]
+    pub fn div_scalar_mut(&mut self, value: f64) {
+        self.mul_scalar_mut(1f64 / value);
+    }
+
+    #[inline]
+    pub fn add_scalar(&self, value: f64) -> DoubleMatrix {
+        let mut clone = self.clone();
+        clone.add_scalar_mut(value);
+        clone
+    }
+
+    #[inline]
+    pub fn sub_scalar(&self, value: f64) -> DoubleMatrix {
+        self.add_scalar(-value)
+    }
+
+    #[inline]
+    pub fn mul_scalar(&self, value: f64) -> DoubleMatrix {
+        let mut clone = self.clone();
+        clone.mul_scalar_mut(value);
+        clone
+    }
+
+    #[inline]
+    pub fn div_scalar(&self, value: f64) -> DoubleMatrix {
+        self.mul_scalar(1f64 / value)
+    }
+
+    vector_op!(add_matrix_mut, add_matrix, +);
+    vector_op!(sub_matrix_mut, sub_matrix, -);
+    vector_op!(mul_matrix_mut, mul_matrix, *);
+    vector_op!(div_matrix_mut, div_matrix, /);
 
     // Matrix multiply c = a * b using blas
     fn mmul_to(a: &DoubleMatrix, b: &DoubleMatrix, c: &mut DoubleMatrix) {
