@@ -117,6 +117,10 @@ macro_rules! dcopy {
         unsafe { dcopy(dx.len() as i32, dx, 1i32, &mut dy, 1i32); }
         dy
     }};
+    ($dx:ident, $dy:ident) => {{
+        // caller should ensure that dx.len == dy.len
+        unsafe { dcopy($dx.len() as i32, $dx, 1i32, &mut $dy, 1i32); }
+    }}
 }
 
 // Strict representation of the double matrix with as little overhead as possible.
@@ -434,6 +438,51 @@ impl DoubleMatrix {
         let mut sums = self.row_sums();
         sums.div_scalar_mut(cols);
         sums
+    }
+
+    // Put (update) column vector in this matrix for a column index
+    pub fn put_column(&mut self, col: usize, vector: &DoubleMatrix) {
+        assert_eq!(vector.shape(), (self.rows(), 1),
+            "Invalid shape for column vector: {:?}.", vector.shape());
+        assert!(col < self.cols(), "Invalid column index {} ({} columns).", col, self.cols());
+        let start = self.m2v(0, col);
+        let end = self.m2v(self.rows() - 1, col);
+        let dx = vector.data();
+        let mut dy = &mut self.data[start..end];
+        dcopy!(dx, dy);
+    }
+    // Get column for index col from this matrix as column vector
+    pub fn get_column(&self, col: usize) -> DoubleMatrix {
+        assert!(col < self.cols(), "Invalid column index {} ({} columns).", col, self.cols());
+        let mut vector = DoubleMatrix::zeros(self.rows(), 1);
+        {
+            let start = self.m2v(0, col);
+            let end = self.m2v(self.rows() - 1, col);
+            let dx = &self.data[start..end+1];
+            let mut dy = &mut vector.data;
+            dcopy!(dx, dy);
+        }
+        vector
+    }
+
+    // Put (update) row vector in this matrix for a row index
+    pub fn put_row(&mut self, row: usize, vector: &DoubleMatrix) {
+        assert_eq!(vector.shape(), (1, self.cols()),
+            "Invalid shape for row vector: {:?}.", vector.shape());
+        assert!(row < self.rows(), "Invalid row index {} ({} rows).", row, self.rows());
+        for col in 0..self.cols() {
+            self.put(row, col, vector.get(0, col));
+        }
+    }
+
+    // Get row for index row from this matrix as row vector
+    pub fn get_row(&self, row: usize) -> DoubleMatrix {
+        assert!(row < self.rows(), "Invalid row index {} ({} rows).", row, self.rows());
+        let mut vector = vec![0f64; self.cols()];
+        for col in 0..self.cols() {
+            vector[col] = self.get(row, col);
+        }
+        DoubleMatrix::new(1, self.cols(), vector)
     }
 
     // Find min element in matrix
@@ -1070,6 +1119,78 @@ mod tests {
         // single element
         let matrix = DoubleMatrix::new(1, 1, vec![0.43]);
         assert_matrix(&matrix.row_means(), &matrix);
+    }
+
+    #[test]
+    #[should_panic(expected = "Invalid shape for column vector: (4, 5).")]
+    fn test_put_get_column_invalid_shape() {
+        let mut matrix = test_matrix_1();
+        let (rows, cols) = matrix.shape();
+        matrix.put_column(1, &DoubleMatrix::ones(rows + 1, cols + 1));
+    }
+
+    #[test]
+    #[should_panic(expected = "Invalid column index 4 (4 columns).")]
+    fn test_put_get_column_invalid_index_1() {
+        let mut matrix = test_matrix_1();
+        let (rows, cols) = matrix.shape();
+        matrix.put_column(cols, &DoubleMatrix::ones(rows, 1));
+    }
+
+    #[test]
+    #[should_panic(expected = "Invalid column index 4 (4 columns).")]
+    fn test_put_get_column_invalid_index_2() {
+        let matrix = test_matrix_1();
+        matrix.get_column(matrix.cols());
+    }
+
+    #[test]
+    fn test_put_get_column() {
+        let mut matrix = test_matrix_1();
+        let (rows, cols) = matrix.shape();
+        let vector = DoubleMatrix::ones(rows, 1);
+        matrix.put_column(1, &vector);
+        assert_matrix(&matrix.get_column(1), &vector);
+        for col in 0..cols {
+            matrix.put_column(col, &vector);
+        }
+        assert_matrix(&matrix, &DoubleMatrix::ones(rows, cols));
+    }
+
+    #[test]
+    #[should_panic(expected = "Invalid shape for row vector: (4, 5).")]
+    fn test_put_get_row_invalid_shape() {
+        let mut matrix = test_matrix_1();
+        let (rows, cols) = matrix.shape();
+        matrix.put_row(1, &DoubleMatrix::ones(rows + 1, cols + 1));
+    }
+
+    #[test]
+    #[should_panic(expected = "Invalid row index 3 (3 rows).")]
+    fn test_put_get_row_invalid_index_1() {
+        let mut matrix = test_matrix_1();
+        let (rows, cols) = matrix.shape();
+        matrix.put_row(rows, &DoubleMatrix::ones(1, cols));
+    }
+
+    #[test]
+    #[should_panic(expected = "Invalid row index 3 (3 rows).")]
+    fn test_put_get_row_invalid_index_2() {
+        let matrix = test_matrix_1();
+        matrix.get_row(matrix.rows());
+    }
+
+    #[test]
+    fn test_put_get_row() {
+        let mut matrix = test_matrix_1();
+        let (rows, cols) = matrix.shape();
+        let vector = DoubleMatrix::ones(1, cols);
+        matrix.put_row(1, &vector);
+        assert_matrix(&matrix.get_row(1), &vector);
+        for row in 0..rows {
+            matrix.put_row(row, &vector);
+        }
+        assert_matrix(&matrix, &DoubleMatrix::ones(rows, cols));
     }
 
     #[test]
