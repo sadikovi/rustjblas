@@ -72,34 +72,59 @@ public class MatrixOperationsSuite {
 
   // == Matrix elementwise addition ==
 
+  // helper method to test different matrices
+  private void testElementwiseMatrixOp(int rows, int cols, String op) {
+    org.jblas.DoubleMatrix m = org.jblas.DoubleMatrix.rand(rows, cols);
+    org.jblas.DoubleMatrix ma = org.jblas.DoubleMatrix.rand(rows, cols);
+    DoubleMatrix n = DoubleMatrix.fromArray(m.rows, m.columns, m.toArray());
+    DoubleMatrix na = DoubleMatrix.fromArray(ma.rows, ma.columns, ma.toArray());
+    if (op.equals("add")) {
+      assertMatrix(m.add(ma), n.add(na));
+    } else if (op.equals("sub")) {
+      assertMatrix(m.sub(ma), n.sub(na));
+    } else if (op.equals("mul")) {
+      assertMatrix(m.mul(ma), n.mul(na));
+    } else if (op.equals("div")) {
+      assertMatrix(m.div(ma), n.div(na));
+    } else {
+      throw new IllegalArgumentException("Invalid operation " + op);
+    }
+    assertMatrix(m, n);
+    n.dealloc();
+    na.dealloc();
+  }
+
+  // helper method to test different matrices (in place)
+  private void testElementwiseMatrixInPlaceOp(int rows, int cols, String op) {
+    org.jblas.DoubleMatrix m = org.jblas.DoubleMatrix.rand(rows, cols);
+    org.jblas.DoubleMatrix ma = org.jblas.DoubleMatrix.rand(rows, cols);
+    DoubleMatrix n = DoubleMatrix.fromArray(m.rows, m.columns, m.toArray());
+    DoubleMatrix na = DoubleMatrix.fromArray(ma.rows, ma.columns, ma.toArray());
+    if (op.equals("addi")) {
+      m.addi(ma);
+      n.addi(na);
+    } else if (op.equals("subi")) {
+      m.subi(ma);
+      n.subi(na);
+    } else if (op.equals("muli")) {
+      m.muli(ma);
+      n.muli(na);
+    } else if (op.equals("divi")) {
+      m.divi(ma);
+      n.divi(na);
+    } else {
+      throw new IllegalArgumentException("Invalid operation " + op);
+    }
+    assertMatrix(m, n);
+    n.dealloc();
+    na.dealloc();
+  }
+
   @Test
   public void testAddScalar() {
     org.jblas.DoubleMatrix m = org.jblas.DoubleMatrix.rand(11, 21);
     DoubleMatrix n = DoubleMatrix.fromArray(m.rows, m.columns, m.toArray());
     assertMatrix(m.add(12.345), n.add(12.345));
-    n.dealloc();
-  }
-
-  @Test
-  public void testAddMatrix() {
-    org.jblas.DoubleMatrix m = org.jblas.DoubleMatrix.rand(11, 21);
-    DoubleMatrix n = DoubleMatrix.fromArray(m.rows, m.columns, m.toArray());
-    assertMatrix(m.add(m), n.add(n));
-    n.dealloc();
-
-    m = org.jblas.DoubleMatrix.rand(11, 21);
-    org.jblas.DoubleMatrix ma = org.jblas.DoubleMatrix.rand(11, 21);
-    n = DoubleMatrix.fromArray(m.rows, m.columns, m.toArray());
-    DoubleMatrix na = DoubleMatrix.fromArray(ma.rows, ma.columns, ma.toArray());
-    assertMatrix(m.add(ma), n.add(na));
-    n.dealloc();
-    na.dealloc();
-  }
-
-  @Test(expected = OperationException.class)
-  public void testAddMatrixFail() {
-    DoubleMatrix n = DoubleMatrix.rand(10, 20);
-    n.add(DoubleMatrix.rand(2, 3));
     n.dealloc();
   }
 
@@ -114,16 +139,28 @@ public class MatrixOperationsSuite {
   }
 
   @Test
-  public void testAddMatrixInPlace() {
-    org.jblas.DoubleMatrix m = org.jblas.DoubleMatrix.rand(11, 21);
-    org.jblas.DoubleMatrix ma = org.jblas.DoubleMatrix.rand(11, 21);
-    DoubleMatrix n = DoubleMatrix.fromArray(m.rows, m.columns, m.toArray());
-    DoubleMatrix na = DoubleMatrix.fromArray(ma.rows, ma.columns, ma.toArray());
-    m.addi(ma);
-    n.addi(na);
-    assertMatrix(m, n);
+  public void testAddMatrix() {
+    testElementwiseMatrixOp(12, 12, "add");
+    testElementwiseMatrixOp(11, 21, "add");
+    testElementwiseMatrixOp(21, 11, "add");
+    testElementwiseMatrixOp(41, 1, "add");
+    testElementwiseMatrixOp(1, 41, "add");
+  }
+
+  @Test(expected = OperationException.class)
+  public void testAddMatrixFail() {
+    DoubleMatrix n = DoubleMatrix.rand(10, 20);
+    n.add(DoubleMatrix.rand(2, 3));
     n.dealloc();
-    na.dealloc();
+  }
+
+  @Test
+  public void testAddMatrixInPlace() {
+    testElementwiseMatrixInPlaceOp(12, 12, "addi");
+    testElementwiseMatrixInPlaceOp(11, 21, "addi");
+    testElementwiseMatrixInPlaceOp(21, 11, "addi");
+    testElementwiseMatrixInPlaceOp(41, 1, "addi");
+    testElementwiseMatrixInPlaceOp(1, 41, "addi");
   }
 
   @Test(expected = OperationException.class)
@@ -155,26 +192,20 @@ public class MatrixOperationsSuite {
 
   @Test
   public void testSubMatrix() {
-    org.jblas.DoubleMatrix m = org.jblas.DoubleMatrix.rand(20, 40);
-    org.jblas.DoubleMatrix ma = org.jblas.DoubleMatrix.rand(20, 40);
-    DoubleMatrix n = DoubleMatrix.fromArray(m.rows, m.columns, m.toArray());
-    DoubleMatrix na = DoubleMatrix.fromArray(ma.rows, ma.columns, ma.toArray());
-    assertMatrix(m.sub(ma), n.sub(na));
-    n.dealloc();
-    na.dealloc();
+    testElementwiseMatrixOp(20, 40, "sub");
+    testElementwiseMatrixOp(40, 20, "sub");
+    testElementwiseMatrixOp(41, 1, "sub");
+    testElementwiseMatrixOp(1, 41, "sub");
+    testElementwiseMatrixOp(11, 35, "sub");
   }
 
   @Test
   public void testSubMatrixInPlace() {
-    org.jblas.DoubleMatrix m = org.jblas.DoubleMatrix.rand(20, 40);
-    org.jblas.DoubleMatrix ma = org.jblas.DoubleMatrix.rand(20, 40);
-    DoubleMatrix n = DoubleMatrix.fromArray(m.rows, m.columns, m.toArray());
-    DoubleMatrix na = DoubleMatrix.fromArray(ma.rows, ma.columns, ma.toArray());
-    m.subi(ma);
-    n.subi(na);
-    assertMatrix(m, n);
-    n.dealloc();
-    na.dealloc();
+    testElementwiseMatrixInPlaceOp(20, 40, "subi");
+    testElementwiseMatrixInPlaceOp(40, 20, "subi");
+    testElementwiseMatrixInPlaceOp(41, 1, "subi");
+    testElementwiseMatrixInPlaceOp(1, 41, "subi");
+    testElementwiseMatrixInPlaceOp(11, 35, "subi");
   }
 
   @Test(expected = OperationException.class)
@@ -213,26 +244,20 @@ public class MatrixOperationsSuite {
 
   @Test
   public void testMulMatrix() {
-    org.jblas.DoubleMatrix m = org.jblas.DoubleMatrix.rand(30, 10);
-    org.jblas.DoubleMatrix ma = org.jblas.DoubleMatrix.rand(30, 10);
-    DoubleMatrix n = DoubleMatrix.fromArray(m.rows, m.columns, m.toArray());
-    DoubleMatrix na = DoubleMatrix.fromArray(ma.rows, ma.columns, ma.toArray());
-    assertMatrix(m.mul(ma), n.mul(na));
-    n.dealloc();
-    na.dealloc();
+    testElementwiseMatrixOp(30, 10, "mul");
+    testElementwiseMatrixOp(10, 30, "mul");
+    testElementwiseMatrixOp(41, 1, "mul");
+    testElementwiseMatrixOp(1, 41, "mul");
+    testElementwiseMatrixOp(11, 25, "mul");
   }
 
   @Test
   public void testMulMatrixInPlace() {
-    org.jblas.DoubleMatrix m = org.jblas.DoubleMatrix.rand(30, 10);
-    org.jblas.DoubleMatrix ma = org.jblas.DoubleMatrix.rand(30, 10);
-    DoubleMatrix n = DoubleMatrix.fromArray(m.rows, m.columns, m.toArray());
-    DoubleMatrix na = DoubleMatrix.fromArray(ma.rows, ma.columns, ma.toArray());
-    m.muli(ma);
-    n.muli(na);
-    assertMatrix(m, n);
-    n.dealloc();
-    na.dealloc();
+    testElementwiseMatrixInPlaceOp(30, 10, "muli");
+    testElementwiseMatrixInPlaceOp(10, 30, "muli");
+    testElementwiseMatrixInPlaceOp(41, 1, "muli");
+    testElementwiseMatrixInPlaceOp(1, 41, "muli");
+    testElementwiseMatrixInPlaceOp(11, 25, "muli");
   }
 
   @Test(expected = OperationException.class)
@@ -271,26 +296,20 @@ public class MatrixOperationsSuite {
 
   @Test
   public void testDivMatrix() {
-    org.jblas.DoubleMatrix m = org.jblas.DoubleMatrix.rand(14, 14);
-    org.jblas.DoubleMatrix ma = org.jblas.DoubleMatrix.rand(14, 14);
-    DoubleMatrix n = DoubleMatrix.fromArray(m.rows, m.columns, m.toArray());
-    DoubleMatrix na = DoubleMatrix.fromArray(ma.rows, ma.columns, ma.toArray());
-    assertMatrix(m.div(ma), n.div(na));
-    n.dealloc();
-    na.dealloc();
+    testElementwiseMatrixOp(30, 10, "div");
+    testElementwiseMatrixOp(10, 30, "div");
+    testElementwiseMatrixOp(41, 1, "div");
+    testElementwiseMatrixOp(1, 41, "div");
+    testElementwiseMatrixOp(11, 25, "div");
   }
 
   @Test
   public void testDivMatrixInPlace() {
-    org.jblas.DoubleMatrix m = org.jblas.DoubleMatrix.rand(14, 14);
-    org.jblas.DoubleMatrix ma = org.jblas.DoubleMatrix.rand(14, 14);
-    DoubleMatrix n = DoubleMatrix.fromArray(m.rows, m.columns, m.toArray());
-    DoubleMatrix na = DoubleMatrix.fromArray(ma.rows, ma.columns, ma.toArray());
-    m.divi(ma);
-    n.divi(na);
-    assertMatrix(m, n);
-    n.dealloc();
-    na.dealloc();
+    testElementwiseMatrixInPlaceOp(30, 10, "divi");
+    testElementwiseMatrixInPlaceOp(10, 30, "divi");
+    testElementwiseMatrixInPlaceOp(41, 1, "divi");
+    testElementwiseMatrixInPlaceOp(1, 41, "divi");
+    testElementwiseMatrixInPlaceOp(11, 25, "divi");
   }
 
   @Test(expected = OperationException.class)

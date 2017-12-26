@@ -18,11 +18,13 @@
 // OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
 // SOFTWARE.
 
+#![feature(cfg_target_feature)]
 extern crate libc;
 extern crate blas;
 extern crate lapack;
 extern crate openblas_src;
 extern crate rand;
+extern crate simd;
 
 pub mod internal;
 

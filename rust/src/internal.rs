@@ -24,14 +24,36 @@ use std::fmt::{Display, Error, Formatter};
 use blas::{dasum, daxpy, dgemm, dnrm2, dscal};
 use lapack::{dgesdd, dgesvdx};
 use rand::{Rng, weak_rng};
+#[cfg(target_feature = "avx")]
+use simd::x86::avx::f64x4;
 
-// Macro to generate elementwise operations
+// Macro to generate vectorized elementwise matrix operations (experimental)
 macro_rules! vector_op {
     ($fn_matrix_mut:ident, $fn_matrix:ident, $op:tt) => (
-        #[inline]
+        #[cfg(target_feature = "avx")]
+        #[inline(never)]
         pub fn $fn_matrix_mut(&mut self, other: &DoubleMatrix) {
             assert_eq!(self.shape(), other.shape(),
                 "Matrices do not have the same shape ({:?} != {:?}).", self.shape(), other.shape());
+            let x = self.data_mut();
+            let y = other.data();
+            let len = x.len();
+            let mut i = 0;
+            while i < len & !3 {
+                let a = f64x4::load(x, i);
+                let b = f64x4::load(y, i);
+                (a $op b).store(x, i);
+                i += 4;
+            }
+            while i < len {
+                x[i] = x[i] $op y[i];
+                i += 1;
+            }
+        }
+
+        #[cfg(not(target_feature = "avx"))]
+        pub fn $fn_matrix_mut(&mut self, other: &DoubleMatrix) {
+            // load default non-vectorizes implementation when instructions are not available
             for i in 0..self.data.len() {
                 self.data[i] = self.data[i] $op other.data[i];
             }
