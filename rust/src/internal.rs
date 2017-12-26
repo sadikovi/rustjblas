@@ -21,7 +21,7 @@
 use std::cmp;
 use std::f64::NAN;
 use std::fmt::{Display, Error, Formatter};
-use blas::dgemm;
+use blas::{dasum, dgemm, dnrm2};
 use lapack::{dgesdd, dgesvdx};
 use rand::{Rng, weak_rng};
 
@@ -421,20 +421,14 @@ impl DoubleMatrix {
 
     // The 1-norm of the matrix as vector (sum of absolute values of elements).
     pub fn norm1(&self) -> f64 {
-        let mut norm = 0f64;
-        for i in 0..self.data.len() {
-            norm += self.data[i].abs();
-        }
-        norm
+        let a = self.data();
+        unsafe { dasum(a.len() as i32, a, 1i32) }
     }
 
     // The Euclidean norm of the matrix as vector, also the Frobenius norm of the matrix.
     pub fn norm2(&self) -> f64 {
-        let mut norm = 0f64;
-        for i in 0..self.data.len() {
-            norm += self.data[i] * self.data[i];
-        }
-        norm.sqrt()
+        let a = self.data();
+        unsafe { dnrm2(a.len() as i32, a, 1i32) }
     }
 
     // Return transposed matrix
@@ -708,6 +702,14 @@ mod tests {
 
     fn assert_matrix(a: &DoubleMatrix, b: &DoubleMatrix) {
         assert_matrix_eps(a, b, 1e-8);
+    }
+
+    fn assert_eq_f64_eps(a: f64, b: f64, eps: f64) {
+        assert!((a - b).abs() <= eps, "Element mismatch {} != {}", a, b);
+    }
+
+    fn assert_eq_f64(a: f64, b: f64) {
+        assert_eq_f64_eps(a, b, 1e-8);
     }
 
     fn test_matrix_1() -> DoubleMatrix {
@@ -1048,18 +1050,18 @@ mod tests {
 
     #[test]
     fn test_norm1() {
-        assert_eq!(test_matrix_1().norm1(), 4.81);
-        assert_eq!(test_matrix_2().norm1(), 13.0);
-        assert_eq!(test_matrix_3().norm1(), 36.0);
-        assert_eq!(test_matrix_4().norm1(), 17.0);
+        assert_eq_f64(test_matrix_1().norm1(), 4.81);
+        assert_eq_f64(test_matrix_2().norm1(), 13.0);
+        assert_eq_f64(test_matrix_3().norm1(), 36.0);
+        assert_eq_f64(test_matrix_4().norm1(), 17.0);
     }
 
     #[test]
     fn test_norm2() {
-        assert_eq!(test_matrix_1().norm2(), 1.622189877911954);
-        assert_eq!(test_matrix_2().norm2(), 5.744562646538029);
-        assert_eq!(test_matrix_3().norm2(), 14.2828568570857);
-        assert_eq!(test_matrix_4().norm2(), 7.681145747868608);
+        assert_eq_f64(test_matrix_1().norm2(), 1.622189877911954);
+        assert_eq_f64(test_matrix_2().norm2(), 5.744562646538029);
+        assert_eq_f64(test_matrix_3().norm2(), 14.2828568570857);
+        assert_eq_f64(test_matrix_4().norm2(), 7.681145747868608);
     }
 
     #[test]
