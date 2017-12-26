@@ -458,6 +458,60 @@ extern "C" {
 
   /*
    * Class:     com_github_sadikovi_rustjblas_DoubleMatrix
+   * Method:    matrix_put_column
+   * Signature: (IJ)V
+   */
+  JNIEXPORT void JNICALL Java_com_github_sadikovi_rustjblas_DoubleMatrix_matrix_1put_1column(
+      JNIEnv *env, jobject obj, jint col, jlong aptr) {
+    VoidResult res = matrix_put_column(get_matrix_pointer(env, obj), col, (void*) aptr);
+    if (res.err) {
+      throw_exception(env, res.err);
+    }
+  }
+
+  /*
+   * Class:     com_github_sadikovi_rustjblas_DoubleMatrix
+   * Method:    matrix_get_column
+   * Signature: (I)J
+   */
+  JNIEXPORT jlong JNICALL Java_com_github_sadikovi_rustjblas_DoubleMatrix_matrix_1get_1column(
+      JNIEnv *env, jobject obj, jint col) {
+    PtrResult res = matrix_get_column(get_matrix_pointer(env, obj), col);
+    if (res.err) {
+      throw_exception(env, res.err);
+    }
+    return (long) res.ptr;
+  }
+
+  /*
+   * Class:     com_github_sadikovi_rustjblas_DoubleMatrix
+   * Method:    matrix_put_row
+   * Signature: (IJ)V
+   */
+  JNIEXPORT void JNICALL Java_com_github_sadikovi_rustjblas_DoubleMatrix_matrix_1put_1row(
+      JNIEnv *env, jobject obj, jint row, jlong aptr) {
+    VoidResult res = matrix_put_row(get_matrix_pointer(env, obj), row, (void*) aptr);
+    if (res.err) {
+      throw_exception(env, res.err);
+    }
+  }
+
+  /*
+   * Class:     com_github_sadikovi_rustjblas_DoubleMatrix
+   * Method:    matrix_get_row
+   * Signature: (I)J
+   */
+  JNIEXPORT jlong JNICALL Java_com_github_sadikovi_rustjblas_DoubleMatrix_matrix_1get_1row(
+      JNIEnv *env, jobject obj, jint row) {
+    PtrResult res = matrix_get_row(get_matrix_pointer(env, obj), row);
+    if (res.err) {
+      throw_exception(env, res.err);
+    }
+    return (long) res.ptr;
+  }
+
+  /*
+   * Class:     com_github_sadikovi_rustjblas_DoubleMatrix
    * Method:    matrix_row_mins
    * Signature: ()J
    */

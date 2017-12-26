@@ -299,6 +299,38 @@ JNIEXPORT jlong JNICALL Java_com_github_sadikovi_rustjblas_DoubleMatrix_matrix_1
 
 /*
  * Class:     com_github_sadikovi_rustjblas_DoubleMatrix
+ * Method:    matrix_put_column
+ * Signature: (IJ)V
+ */
+JNIEXPORT void JNICALL Java_com_github_sadikovi_rustjblas_DoubleMatrix_matrix_1put_1column
+  (JNIEnv *, jobject, jint, jlong);
+
+/*
+ * Class:     com_github_sadikovi_rustjblas_DoubleMatrix
+ * Method:    matrix_get_column
+ * Signature: (I)J
+ */
+JNIEXPORT jlong JNICALL Java_com_github_sadikovi_rustjblas_DoubleMatrix_matrix_1get_1column
+  (JNIEnv *, jobject, jint);
+
+/*
+ * Class:     com_github_sadikovi_rustjblas_DoubleMatrix
+ * Method:    matrix_put_row
+ * Signature: (IJ)V
+ */
+JNIEXPORT void JNICALL Java_com_github_sadikovi_rustjblas_DoubleMatrix_matrix_1put_1row
+  (JNIEnv *, jobject, jint, jlong);
+
+/*
+ * Class:     com_github_sadikovi_rustjblas_DoubleMatrix
+ * Method:    matrix_get_row
+ * Signature: (I)J
+ */
+JNIEXPORT jlong JNICALL Java_com_github_sadikovi_rustjblas_DoubleMatrix_matrix_1get_1row
+  (JNIEnv *, jobject, jint);
+
+/*
+ * Class:     com_github_sadikovi_rustjblas_DoubleMatrix
  * Method:    matrix_min
  * Signature: ()D
  */

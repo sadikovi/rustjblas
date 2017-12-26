@@ -450,6 +450,50 @@ pub extern "C" fn matrix_row_sums(ptr: *const DoubleMatrix) -> *const DoubleMatr
 }
 
 #[no_mangle]
+pub extern "C" fn matrix_put_column(
+    ptr: *mut DoubleMatrix,
+    col: int32_t,
+    aptr: *const DoubleMatrix
+) -> VoidResult
+{
+    try_catch_void(|| {
+        let this = unsafe { &mut (*ptr) };
+        let that = unsafe { &(*aptr) };
+        this.put_column(col as usize, that);
+    })
+}
+
+#[no_mangle]
+pub extern "C" fn matrix_get_column(ptr: *const DoubleMatrix, col: int32_t) -> PtrResult {
+    try_catch_ptr(|| {
+        let this = unsafe { &(*ptr) };
+        this.get_column(col as usize)
+    })
+}
+
+#[no_mangle]
+pub extern "C" fn matrix_put_row(
+    ptr: *mut DoubleMatrix,
+    row: int32_t,
+    aptr: *const DoubleMatrix
+) -> VoidResult
+{
+    try_catch_void(|| {
+        let this = unsafe { &mut (*ptr) };
+        let that = unsafe { &(*aptr) };
+        this.put_row(row as usize, that);
+    })
+}
+
+#[no_mangle]
+pub extern "C" fn matrix_get_row(ptr: *const DoubleMatrix, row: int32_t) -> PtrResult {
+    try_catch_ptr(|| {
+        let this = unsafe { &(*ptr) };
+        this.get_row(row as usize)
+    })
+}
+
+#[no_mangle]
 pub extern "C" fn matrix_min(ptr: *const DoubleMatrix) -> c_double {
     unsafe { (*ptr).min() }
 }

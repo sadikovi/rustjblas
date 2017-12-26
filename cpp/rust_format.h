@@ -113,6 +113,11 @@ void* matrix_row_maxs(void*);
 void* matrix_row_means(void*);
 void* matrix_row_sums(void*);
 
+VoidResult matrix_put_column(void*, int, void*);
+PtrResult matrix_get_column(void*, int);
+VoidResult matrix_put_row(void*, int, void*);
+PtrResult matrix_get_row(void*, int);
+
 double matrix_min(void*);
 double matrix_max(void*);
 double matrix_sum(void*);

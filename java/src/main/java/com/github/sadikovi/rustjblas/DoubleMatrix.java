@@ -408,6 +408,34 @@ public class DoubleMatrix {
     return new DoubleMatrix(res);
   }
 
+  /** Put (update) column in this matrix with a column vector */
+  public void putColumn(int col, DoubleMatrix vector) {
+    assert_pointer();
+    vector.assert_pointer();
+    matrix_put_column(col, vector.ptr());
+  }
+
+  /** Get column as vector for the column index */
+  public DoubleMatrix getColumn(int col) {
+    assert_pointer();
+    long res = matrix_get_column(col);
+    return new DoubleMatrix(res);
+  }
+
+  /** Put (update) row in this matrix with a row vector */
+  public void putRow(int row, DoubleMatrix vector) {
+    assert_pointer();
+    vector.assert_pointer();
+    matrix_put_row(row, vector.ptr());
+  }
+
+  /** Get row as vector for the row index */
+  public DoubleMatrix getRow(int row) {
+    assert_pointer();
+    long res = matrix_get_row(row);
+    return new DoubleMatrix(res);
+  }
+
   /** Return the minimal element of this matrix */
   public double min() {
     assert_pointer();
@@ -547,6 +575,11 @@ public class DoubleMatrix {
   private native long matrix_row_maxs();
   private native long matrix_row_means();
   private native long matrix_row_sums();
+
+  private native void matrix_put_column(int col, long ptr);
+  private native long matrix_get_column(int col);
+  private native void matrix_put_row(int row, long ptr);
+  private native long matrix_get_row(int row);
 
   private native double matrix_min();
   private native double matrix_max();

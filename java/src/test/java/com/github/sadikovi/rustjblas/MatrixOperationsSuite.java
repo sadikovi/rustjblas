@@ -464,6 +464,86 @@ public class MatrixOperationsSuite {
     n.dealloc();
   }
 
+  // == Put/get column/row ==
+
+  @Test(expected = OperationException.class)
+  public void testPutGetColumnInvalidIndex1() {
+    DoubleMatrix.rand(3, 4).getColumn(-1);
+  }
+
+  @Test(expected = OperationException.class)
+  public void testPutGetColumnInvalidIndex3() {
+    DoubleMatrix.rand(3, 4).getColumn(4);
+  }
+
+  @Test(expected = OperationException.class)
+  public void testPutGetColumnInvalidIndex4() {
+    DoubleMatrix.rand(3, 4).putColumn(-1, DoubleMatrix.rand(3, 1));
+  }
+
+  @Test(expected = OperationException.class)
+  public void testPutGetColumnInvalidIndex5() {
+    DoubleMatrix.rand(3, 4).putColumn(4, DoubleMatrix.rand(3, 1));
+  }
+
+  @Test(expected = OperationException.class)
+  public void testPutGetColumnInvalidShape() {
+    DoubleMatrix.rand(3, 4).putColumn(0, DoubleMatrix.rand(3, 4));
+  }
+
+  @Test
+  public void testPutGetColumn() {
+    org.jblas.DoubleMatrix m = org.jblas.DoubleMatrix.rand(56, 23);
+    DoubleMatrix n = DoubleMatrix.fromArray(m.rows, m.columns, m.toArray());
+    for (int i = 0; i < m.columns; i++) {
+      assertMatrix(m.getColumn(i), n.getColumn(i));
+    }
+    for (int i = 0; i < m.columns; i++) {
+      m.putColumn(i, org.jblas.DoubleMatrix.ones(m.rows, 1));
+      n.putColumn(i, DoubleMatrix.ones(m.rows, 1));
+    }
+    assertMatrix(m, n);
+  }
+
+  @Test(expected = OperationException.class)
+  public void testPutGetRowInvalidIndex1() {
+    DoubleMatrix.rand(3, 4).getRow(-1);
+  }
+
+  @Test(expected = OperationException.class)
+  public void testPutGetRowInvalidIndex3() {
+    DoubleMatrix.rand(3, 4).getRow(4);
+  }
+
+  @Test(expected = OperationException.class)
+  public void testPutGetRowInvalidIndex4() {
+    DoubleMatrix.rand(3, 4).putRow(-1, DoubleMatrix.rand(1, 4));
+  }
+
+  @Test(expected = OperationException.class)
+  public void testPutGetRowInvalidIndex5() {
+    DoubleMatrix.rand(3, 4).putRow(3, DoubleMatrix.rand(1, 4));
+  }
+
+  @Test(expected = OperationException.class)
+  public void testPutGetRowInvalidShape() {
+    DoubleMatrix.rand(3, 4).putRow(0, DoubleMatrix.rand(3, 4));
+  }
+
+  @Test
+  public void testPutGetRow() {
+    org.jblas.DoubleMatrix m = org.jblas.DoubleMatrix.rand(56, 23);
+    DoubleMatrix n = DoubleMatrix.fromArray(m.rows, m.columns, m.toArray());
+    for (int i = 0; i < m.rows; i++) {
+      assertMatrix(m.getRow(i), n.getRow(i));
+    }
+    for (int i = 0; i < m.rows; i++) {
+      m.putRow(i, org.jblas.DoubleMatrix.ones(1, m.columns));
+      n.putRow(i, DoubleMatrix.ones(1, m.columns));
+    }
+    assertMatrix(m, n);
+  }
+
   // == Min, max, sum, norm1, norm2 ==
 
   @Test
