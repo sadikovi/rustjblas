@@ -529,6 +529,7 @@ impl DoubleMatrix {
     }
 
     // Return transposed matrix
+    #[inline]
     pub fn transpose(&self) -> DoubleMatrix {
         let mut tarr = vec![0f64; self.rows * self.cols];
         let arr = self.data();
@@ -634,7 +635,7 @@ impl DoubleMatrix {
         let mut a = dcopy!(self.data());
         // singular values vector
         let mut ns = vec![0i32; 1]; // vector to contain number of singluar values found
-        let (srows, scols) = (k, 1);
+        let (srows, scols) = (cmp::min(rows, cols), 1);
         let mut s = vec![0f64; srows * scols];
         // left singular vectors
         let (urows, ucols) = (rows, k);
@@ -709,18 +710,14 @@ impl DoubleMatrix {
 
         // this is strict check; when info is negative, then ith parameter has illegal value
         assert!(info == 0, "GESVDX did not converge, {}.", info);
+        assert!(ns[0] == k as i32,
+            "GESVDX: {} (ns[0]) != {} (k), truncation is not supported", ns[0], k);
 
         let u = DoubleMatrix::new(urows, ucols, u);
-        let s = DoubleMatrix::new(srows, scols, s);
-        // v is returned as vt, so we transpose it in-place
-        let mut varr = vec![0f64; vtcols * vtrows];
-        for i in 0..vt.len() {
-            let row = i % vtrows;
-            let col = i / vtrows;
-            let ti = col + row * vtcols;
-            varr[ti] = vt[i];
-        }
-        let v = DoubleMatrix::new(vtcols, vtrows, varr);
+        s.truncate(k); // do not call dcopy on s, it is normally small (< 100)
+        let s = DoubleMatrix::new(k, 1, s);
+        // v is returned as vt, transpose by copy, because it is not square
+        let v = DoubleMatrix::new(vtrows, vtcols, vt).transpose();
         SVD { u: Some(u), s: s, v: Some(v) }
     }
 }

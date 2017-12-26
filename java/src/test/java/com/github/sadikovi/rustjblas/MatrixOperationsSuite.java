@@ -685,4 +685,48 @@ public class MatrixOperationsSuite {
   public void testSingularValuesCols() {
     testSingularValues(11, 20);
   }
+
+  // Compute topK svd for jblas
+  private org.jblas.DoubleMatrix[] jblasSVD(org.jblas.DoubleMatrix m, int k) {
+    org.jblas.DoubleMatrix[] res = org.jblas.Singular.fullSVD(m);
+    org.jblas.ranges.IntervalRange range = new org.jblas.ranges.IntervalRange(0, k);
+    res[0] = res[0].getColumns(range);
+    res[1] = res[1].getRows(range);
+    res[2] = res[2].getColumns(range);
+    return res;
+  }
+
+  private void testSVDtopK(int rows, int cols, int k) {
+    org.jblas.DoubleMatrix m = org.jblas.DoubleMatrix.rand(rows, cols);
+    DoubleMatrix n = DoubleMatrix.fromArray(m.rows, m.columns, m.toArray());
+    org.jblas.DoubleMatrix[] res1 = jblasSVD(m, k);
+    DoubleMatrix[] res2 = n.svd(k);
+    // check that original matrix is not modified
+    assertMatrix(m, n);
+    // check svd output
+    assertMatrix(org.jblas.MatrixFunctions.abs(res1[0]), res2[0].abs());
+    assertMatrix(org.jblas.MatrixFunctions.abs(res1[1]), res2[1].abs());
+    assertMatrix(org.jblas.MatrixFunctions.abs(res1[2]), res2[2].abs());
+  }
+
+  @Test
+  public void testSVDtopKSquare() {
+    testSVDtopK(20, 20, 1);
+    testSVDtopK(20, 20, 10);
+    testSVDtopK(20, 20, 20);
+  }
+
+  @Test
+  public void testSVDtopKRows() {
+    testSVDtopK(20, 11, 1);
+    testSVDtopK(20, 11, 5);
+    testSVDtopK(20, 11, 11);
+  }
+
+  @Test
+  public void testSVDtopKCols() {
+    testSVDtopK(11, 20, 1);
+    testSVDtopK(11, 20, 5);
+    testSVDtopK(11, 20, 11);
+  }
 }
