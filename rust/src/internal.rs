@@ -21,7 +21,7 @@
 use std::cmp;
 use std::f64::NAN;
 use std::fmt::{Display, Error, Formatter};
-use blas::{dasum, daxpy, dgemm, dnrm2, dscal};
+use blas::{dasum, daxpy, dcopy, dgemm, dnrm2, dscal};
 use lapack::{dgesdd, dgesvdx};
 use rand::{Rng, weak_rng};
 
@@ -103,6 +103,20 @@ macro_rules! dgesdd_op {
         // this is strict check; when info is negative, then ith parameter has illegal value
         assert!(info == 0, "GESDD did not converge, {}.", info);
     }}
+}
+
+macro_rules! dcopy {
+    ($dx:ident) => {{
+        let mut dy = vec![0f64; $dx.len()];
+        unsafe { dcopy($dx.len() as i32, $dx, 1i32, &mut dy, 1i32); }
+        dy
+    }};
+    ($dx:expr) => {{
+        let dx = $dx;
+        let mut dy = vec![0f64; dx.len()];
+        unsafe { dcopy(dx.len() as i32, dx, 1i32, &mut dy, 1i32); }
+        dy
+    }};
 }
 
 // Strict representation of the double matrix with as little overhead as possible.
@@ -516,7 +530,7 @@ impl DoubleMatrix {
         let jobz = 'A';
         let (rows, cols) = self.shape();
         // need to copy content of a, since it can be modified, have we decided to change mode
-        let mut a = self.data.clone();
+        let mut a = dcopy!(self.data());
         // singular values vector
         let srows = cmp::min(rows, cols);
         let scols = 1;
@@ -546,7 +560,7 @@ impl DoubleMatrix {
         let jobz = 'N';
         let (rows, cols) = self.shape();
         // need to copy content of a, since it can be modified, have we decided to change mode
-        let mut a = self.data.clone();
+        let mut a = dcopy!(self.data());
         // singular values vector
         let srows = cmp::min(rows, cols);
         let scols = 1;
@@ -568,7 +582,7 @@ impl DoubleMatrix {
         let (rows, cols) = self.shape();
         assert!(k >= 1 && k <= cmp::min(rows, cols), "Invalid number of singular values: {}", k);
 
-        let mut a = self.data.clone();
+        let mut a = dcopy!(self.data());
         // singular values vector
         let mut ns = vec![0i32; 1]; // vector to contain number of singluar values found
         let (srows, scols) = (k, 1);
@@ -664,7 +678,7 @@ impl DoubleMatrix {
 
 impl Clone for DoubleMatrix {
     fn clone(&self) -> Self {
-        DoubleMatrix::new(self.rows, self.cols, self.data.clone())
+        DoubleMatrix::new(self.rows, self.cols, dcopy!(self.data()))
     }
 }
 
