@@ -25,6 +25,8 @@ package com.github.sadikovi.rustjblas
 import org.jblas.{DoubleMatrix => JDoubleMatrix, MatrixFunctions, Singular}
 
 object MatrixBench {
+  // matrix size for matrix allocations
+  val AL_SIZE = 2000
   // matrix size for matrix transformations
   val TR_SIZE = 2000
   // matrix size for elementwise operations
@@ -36,6 +38,12 @@ object MatrixBench {
 
   def main(args: Array[String]): Unit = {
     println("\nNOTE: For better performance info, make sure to build library with optimizations\n")
+
+    val alBench = new Benchmark("Matrix allocations")
+    alBench.addCase(s"Allocate rand matrix (jblas) n = $AL_SIZE") { iter => JDoubleMatrix.rand(AL_SIZE, AL_SIZE) }
+    alBench.addCase(s"Allocate rand matrix (rustjblas), n = $AL_SIZE") { iter => DoubleMatrix.rand(AL_SIZE, AL_SIZE) }
+    alBench.addCase(s"Allocate identity matrix (jblas) n = $AL_SIZE") { iter => JDoubleMatrix.eye(AL_SIZE) }
+    alBench.addCase(s"Allocate identity matrix (rustjblas), n = $AL_SIZE") { iter => DoubleMatrix.eye(AL_SIZE) }
 
     val a0 = JDoubleMatrix.rand(TR_SIZE, TR_SIZE)
     val m0 = DoubleMatrix.rand(TR_SIZE, TR_SIZE)
@@ -62,18 +70,6 @@ object MatrixBench {
     seBench.addCase(s"Scalar division (rustjblas), n = $EW_SIZE") { iter => m1.div(3.4) }
 
     val ewBench = new Benchmark("Matrix elementwise operations")
-    ewBench.addCase(s"Allocate rand matrix (jblas) n = $EW_SIZE") { iter =>
-      JDoubleMatrix.rand(EW_SIZE, EW_SIZE)
-    }
-    ewBench.addCase(s"Allocate rand matrix (rustjblas), n = $EW_SIZE") { iter =>
-      DoubleMatrix.rand(EW_SIZE, EW_SIZE)
-    }
-    ewBench.addCase(s"Allocate identity matrix (jblas) n = $EW_SIZE") { iter =>
-      JDoubleMatrix.eye(EW_SIZE)
-    }
-    ewBench.addCase(s"Allocate identity matrix (rustjblas), n = $EW_SIZE") { iter =>
-      DoubleMatrix.eye(EW_SIZE)
-    }
     ewBench.addCase(s"Matrix addition (jblas), n = $EW_SIZE") { iter => a1.add(b1) }
     ewBench.addCase(s"Matrix addition (rustjblas), n = $EW_SIZE") { iter => m1.add(n1) }
     ewBench.addCase(s"Matrix subtraction (jblas), n = $EW_SIZE") { iter => a1.sub(b1) }
@@ -103,6 +99,7 @@ object MatrixBench {
     svdBench.addCase(s"Singular values (jblas), n = $SVD_SIZE") { iter => Singular.SVDValues(a3) }
     svdBench.addCase(s"Singular values (rustjblas), n = $SVD_SIZE") { iter => m3.singularValues() }
 
+    alBench.run
     trBench.run
     seBench.run
     ewBench.run
