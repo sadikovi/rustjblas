@@ -11,6 +11,7 @@ JNI_CLASSES="com.github.sadikovi.rustjblas.DoubleMatrix"
 JAVA_BENCH_CLASS="com.github.sadikovi.rustjblas.MatrixBench"
 
 # Rust compile flags
+# Consider changing it for performance tuning, e.g. "-C target-cpu=haswell"
 RUSTFLAGS=-C target-cpu=native
 export RUSTFLAGS
 
