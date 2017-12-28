@@ -25,12 +25,20 @@ use blas::{dasum, daxpy, dcopy, dgemm, dnrm2, dscal};
 use lapack::{dgesdd, dgesvdx};
 use rand::{Rng, weak_rng};
 
+// Macro to assert matrices shapes
+macro_rules! assert_shape {
+    ($x:expr, $y:expr) => (
+        assert_eq!($x, $y, "Shape mismatch: {:?} != {:?}.", $x, $y);
+    )
+}
+
 // Macro to generate vectorized elementwise matrix operations (experimental)
 macro_rules! vector_op {
     ($fn_matrix_mut:ident, $fn_matrix:ident, $op:tt) => (
         #[inline]
         pub fn $fn_matrix_mut(&mut self, other: &DoubleMatrix) {
-            // load default non-vectorizes implementation when instructions are not available
+            assert_shape!(self.shape(), other.shape());
+            // load default non-vectorized implementation when instructions are not available
             for i in 0..self.data.len() {
                 self.data[i] = self.data[i] $op other.data[i];
             }
@@ -246,7 +254,7 @@ impl DoubleMatrix {
         self.data[i]
     }
 
-    // Elementwise matrix operations
+    // Elementwise matrix-scalar operations
 
     #[inline]
     pub fn add_scalar_mut(&mut self, value: f64) {
@@ -294,10 +302,43 @@ impl DoubleMatrix {
         self.mul_scalar(1f64 / value)
     }
 
-    vector_op!(add_matrix_mut, add_matrix, +);
-    vector_op!(sub_matrix_mut, sub_matrix, -);
+    // Elementwise matrix-matrix operations
+
+    #[inline]
+    pub fn add_matrix_mut(&mut self, other: &DoubleMatrix) {
+        assert_shape!(self.shape(), other.shape());
+        let y = self.data_mut();
+        let x = other.data();
+        unsafe { daxpy(y.len() as i32, 1f64, x, 1i32, y, 1i32); }
+    }
+
+    #[inline]
+    pub fn add_matrix(&self, other: &DoubleMatrix) -> DoubleMatrix {
+        let mut clone = self.clone();
+        clone.add_matrix_mut(other);
+        clone
+    }
+
+    #[inline]
+    pub fn sub_matrix_mut(&mut self, other: &DoubleMatrix) {
+        assert_shape!(self.shape(), other.shape());
+        let y = self.data_mut();
+        let x = other.data();
+        unsafe { daxpy(y.len() as i32, -1f64, x, 1i32, y, 1i32); }
+    }
+
+    #[inline]
+    pub fn sub_matrix(&self, other: &DoubleMatrix) -> DoubleMatrix {
+        let mut clone = self.clone();
+        clone.sub_matrix_mut(other);
+        clone
+    }
+
+    // TODO: convert these methods using blas, e.g. dgbmv
     vector_op!(mul_matrix_mut, mul_matrix, *);
     vector_op!(div_matrix_mut, div_matrix, /);
+
+    // == Matrix operations ==
 
     // Matrix multiply c = a * b using blas
     fn mmul_to(a: &DoubleMatrix, b: &DoubleMatrix, c: &mut DoubleMatrix) {
@@ -919,36 +960,84 @@ mod tests {
     }
 
     #[test]
-    fn test_elementwise_add() {
-        let exp = DoubleMatrix::from_row_slice(4, 3, &[
-            4.4, 4.4, 4.4,
-            4.4, 4.4, 4.4,
-            4.4, 4.4, 4.4,
-            4.4, 4.4, 4.4
-        ]);
+    fn test_elementwise_add_scalar() {
+        let matrix = DoubleMatrix::zeros(4, 5);
+        let res = matrix.add_scalar(1f64);
+        assert_matrix(&res, &DoubleMatrix::ones(4, 5));
+    }
 
-        let matrix = DoubleMatrix::ones(4, 3);
-        let res = matrix.add_scalar(3.4);
+    #[test]
+    fn test_elementwise_add_matrix() {
+        let matrix = DoubleMatrix::zeros(4, 5);
+        let res = matrix.add_matrix(&DoubleMatrix::ones(4, 5));
+        assert_matrix(&res, &DoubleMatrix::ones(4, 5));
+    }
+
+    #[test]
+    #[should_panic(expected = "Shape mismatch: (3, 4) != (2, 3).")]
+    fn test_elementwise_add_matrix_panic() {
+        DoubleMatrix::new_random(3, 4).add_matrix(&DoubleMatrix::new_random(2, 3));
+    }
+
+    #[test]
+    fn test_elementwise_sub_scalar() {
+        let matrix = DoubleMatrix::ones(4, 5);
+        let res = matrix.sub_scalar(1f64);
+        assert_matrix(&res, &DoubleMatrix::zeros(4, 5));
+    }
+
+    #[test]
+    fn test_elementwise_sub_matrix() {
+        let matrix = DoubleMatrix::ones(4, 5);
+        let res = matrix.sub_matrix(&DoubleMatrix::ones(4, 5));
+        assert_matrix(&res, &DoubleMatrix::zeros(4, 5));
+    }
+
+    #[test]
+    #[should_panic(expected = "Shape mismatch: (3, 4) != (2, 3).")]
+    fn test_elementwise_sub_matrix_panic() {
+        DoubleMatrix::new_random(3, 4).sub_matrix(&DoubleMatrix::new_random(2, 3));
+    }
+
+    #[test]
+    fn test_elementwise_mul_scalar() {
+        let matrix = DoubleMatrix::ones(4, 5);
+        let res = matrix.mul_scalar(3f64);
+        let exp = matrix.add_scalar(1f64).add_scalar(1f64);
         assert_matrix(&res, &exp);
+    }
 
-        let mut matrix = DoubleMatrix::ones(4, 3);
-        matrix.add_scalar_mut(3.4);
-        assert_matrix(&matrix, &exp);
+    #[test]
+    fn test_elementwise_mul_matrix() {
+        let matrix = DoubleMatrix::ones(4, 5);
+        let res = matrix.mul_matrix(&DoubleMatrix::identity(4, 5));
+        assert_matrix(&res, &DoubleMatrix::identity(4, 5));
+    }
 
-        let exp = DoubleMatrix::from_row_slice(4, 3, &[
-            2.0, 1.0, 1.0,
-            1.0, 2.0, 1.0,
-            1.0, 1.0, 2.0,
-            1.0, 1.0, 1.0
-        ]);
+    #[test]
+    #[should_panic(expected = "Shape mismatch: (3, 4) != (2, 3).")]
+    fn test_elementwise_mul_matrix_panic() {
+        DoubleMatrix::new_random(3, 4).mul_matrix(&DoubleMatrix::new_random(2, 3));
+    }
 
-        let matrix = DoubleMatrix::ones(4, 3);
-        let res = matrix.add_matrix(&DoubleMatrix::identity(4, 3));
-        assert_matrix(&res, &exp);
+    #[test]
+    fn test_elementwise_div_scalar() {
+        let matrix = DoubleMatrix::ones(4, 5);
+        let res = matrix.div_scalar(0.5);
+        assert_matrix(&res, &matrix.mul_scalar(2f64));
+    }
 
-        let mut matrix = DoubleMatrix::ones(4, 3);
-        matrix.add_matrix_mut(&DoubleMatrix::identity(4, 3));
-        assert_matrix(&matrix, &exp);
+    #[test]
+    fn test_elementwise_div_matrix() {
+        let matrix = DoubleMatrix::new_random(4, 5);
+        let res = matrix.div_matrix(&matrix);
+        assert_matrix(&res, &DoubleMatrix::ones(4, 5));
+    }
+
+    #[test]
+    #[should_panic(expected = "Shape mismatch: (3, 4) != (2, 3).")]
+    fn test_elementwise_div_matrix_panic() {
+        DoubleMatrix::new_random(3, 4).div_matrix(&DoubleMatrix::new_random(2, 3));
     }
 
     #[test]
