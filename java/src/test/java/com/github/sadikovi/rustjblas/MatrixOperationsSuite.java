@@ -624,7 +624,7 @@ public class MatrixOperationsSuite {
     m.dealloc();
   }
 
-  // == Singular value decomposition
+  // == Singular value decomposition ==
 
   private void testFullSVD(int rows, int cols, double offset) {
     org.jblas.DoubleMatrix m = org.jblas.DoubleMatrix.rand(rows, cols);
@@ -634,10 +634,13 @@ public class MatrixOperationsSuite {
     DoubleMatrix[] res2 = n.fullSVD();
     // check that original matrix is not modified
     assertMatrix(m, n);
-    // check svd output
-    assertMatrix(res1[0], res2[0]);
-    assertMatrix(res1[1], res2[1]);
-    assertMatrix(res1[2], res2[2]);
+    // check svd output (we check absolute values and norm2)
+    assertMatrix(org.jblas.MatrixFunctions.abs(res1[0]), res2[0].abs());
+    assertEquals(res1[0].norm2(), res2[0].norm2(), EPS);
+    assertMatrix(org.jblas.MatrixFunctions.abs(res1[1]), res2[1].abs());
+    assertEquals(res1[1].norm2(), res2[1].norm2(), EPS);
+    assertMatrix(org.jblas.MatrixFunctions.abs(res1[2]), res2[2].abs());
+    assertEquals(res1[2].norm2(), res2[2].norm2(), EPS);
   }
 
   @Test
@@ -703,10 +706,13 @@ public class MatrixOperationsSuite {
     DoubleMatrix[] res2 = n.svd(k);
     // check that original matrix is not modified
     assertMatrix(m, n);
-    // check svd output
+    // check svd output (we check absolute values and norm2)
     assertMatrix(org.jblas.MatrixFunctions.abs(res1[0]), res2[0].abs());
+    assertEquals(res1[0].norm2(), res2[0].norm2(), EPS);
     assertMatrix(org.jblas.MatrixFunctions.abs(res1[1]), res2[1].abs());
+    assertEquals(res1[1].norm2(), res2[1].norm2(), EPS);
     assertMatrix(org.jblas.MatrixFunctions.abs(res1[2]), res2[2].abs());
+    assertEquals(res1[2].norm2(), res2[2].norm2(), EPS);
   }
 
   @Test
