@@ -449,7 +449,7 @@ impl DoubleMatrix {
         let end = self.m2v(self.rows() - 1, col);
         let dx = vector.data();
         let mut dy = &mut self.data[start..end];
-        dcopy!(dx, dy);
+        dcopy![dx, dy];
     }
     // Get column for index col from this matrix as column vector
     pub fn get_column(&self, col: usize) -> DoubleMatrix {
@@ -460,7 +460,7 @@ impl DoubleMatrix {
             let end = self.m2v(self.rows() - 1, col);
             let dx = &self.data[start..end+1];
             let mut dy = &mut vector.data;
-            dcopy!(dx, dy);
+            dcopy![dx, dy];
         }
         vector
     }
@@ -580,7 +580,7 @@ impl DoubleMatrix {
         let jobz = 'A';
         let (rows, cols) = self.shape();
         // need to copy content of a, since it can be modified, have we decided to change mode
-        let mut a = dcopy!(self.data());
+        let mut a = dcopy![self.data()];
         // singular values vector
         let srows = cmp::min(rows, cols);
         let scols = 1;
@@ -610,7 +610,7 @@ impl DoubleMatrix {
         let jobz = 'N';
         let (rows, cols) = self.shape();
         // need to copy content of a, since it can be modified, have we decided to change mode
-        let mut a = dcopy!(self.data());
+        let mut a = dcopy![self.data()];
         // singular values vector
         let srows = cmp::min(rows, cols);
         let scols = 1;
@@ -632,7 +632,7 @@ impl DoubleMatrix {
         let (rows, cols) = self.shape();
         assert!(k >= 1 && k <= cmp::min(rows, cols), "Invalid number of singular values: {}", k);
 
-        let mut a = dcopy!(self.data());
+        let mut a = dcopy![self.data()];
         // singular values vector
         let mut ns = vec![0i32; 1]; // vector to contain number of singluar values found
         let (srows, scols) = (cmp::min(rows, cols), 1);
@@ -724,7 +724,7 @@ impl DoubleMatrix {
 
 impl Clone for DoubleMatrix {
     fn clone(&self) -> Self {
-        DoubleMatrix::new(self.rows, self.cols, dcopy!(self.data()))
+        DoubleMatrix::new(self.rows, self.cols, dcopy![self.data()])
     }
 }
 
