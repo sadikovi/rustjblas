@@ -39,8 +39,18 @@ macro_rules! vector_op {
         pub fn $fn_matrix_mut(&mut self, other: &DoubleMatrix) {
             assert_shape!(self.shape(), other.shape());
             // load default non-vectorized implementation when instructions are not available
-            for i in 0..self.data.len() {
+            let mut i = 0;
+            let len = self.data.len();
+            while i < len & !3 {
                 self.data[i] = self.data[i] $op other.data[i];
+                self.data[i+1] = self.data[i+1] $op other.data[i+1];
+                self.data[i+2] = self.data[i+2] $op other.data[i+2];
+                self.data[i+3] = self.data[i+3] $op other.data[i+3];
+                i += 4;
+            }
+            while i < len {
+                self.data[i] = self.data[i] $op other.data[i];
+                i += 1;
             }
         }
 
