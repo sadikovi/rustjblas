@@ -595,7 +595,7 @@ impl DoubleMatrix {
 
     // Transpose matrix in place
     pub fn transpose_mut(&mut self) {
-        assert!(self.rows() == self.cols(), "Unable to transpose a non-square matrix in-place.");
+        assert_eq!(self.rows(), self.cols(), "Unable to transpose a non-square matrix in-place.");
         let dim = self.rows();
         for i in 1 .. dim {
             for j in 0 .. i {
@@ -681,7 +681,7 @@ impl DoubleMatrix {
     // Experimental svd for top k singular values
     pub fn svd(&self, k: usize) -> SVD {
         let (rows, cols) = self.shape();
-        assert!(k >= 1 && k <= cmp::min(rows, cols), "Invalid number of singular values: {}", k);
+        assert!(k >= 1 && k <= cmp::min(rows, cols), "Invalid number of singular values: {}.", k);
 
         let mut a = dcopy![self.data()];
         // singular values vector
@@ -727,7 +727,7 @@ impl DoubleMatrix {
             );
         }
 
-        assert!(info == 0, "Workspace query failed to execute with code {}", info);
+        assert!(info == 0, "Workspace query failed to execute with code {}.", info);
 
         // additional workspace data structures after adjustment
         let lwork = work[0] as usize;
@@ -762,7 +762,7 @@ impl DoubleMatrix {
         // this is strict check; when info is negative, then ith parameter has illegal value
         assert!(info == 0, "GESVDX did not converge, {}.", info);
         assert!(ns[0] == k as i32,
-            "GESVDX: {} (ns[0]) != {} (k), truncation is not supported", ns[0], k);
+            "GESVDX: {} (ns[0]) != {} (k), truncation is not supported.", ns[0], k);
 
         let u = DoubleMatrix::new(urows, ucols, u);
         s.truncate(k); // do not call dcopy on s, it is normally small (< 100)
