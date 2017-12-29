@@ -66,6 +66,7 @@ pub struct SvdResult {
 }
 
 // Convert error/panic cause into C string
+#[inline]
 fn err_to_cstr(cause: Box<std::any::Any>) -> *const c_char {
     let err_msg = if cause.is::<String>() {
         format!("{}", *(*cause).downcast_ref::<String>().unwrap())
@@ -81,6 +82,7 @@ fn err_to_cstr(cause: Box<std::any::Any>) -> *const c_char {
 }
 
 // Function to catch panic and return ptr result for matrix
+#[inline]
 fn try_catch_ptr<F: FnOnce() -> DoubleMatrix + panic::UnwindSafe>(func: F) -> PtrResult {
     match panic::catch_unwind(func) {
         Ok(matrix) => {
@@ -94,6 +96,7 @@ fn try_catch_ptr<F: FnOnce() -> DoubleMatrix + panic::UnwindSafe>(func: F) -> Pt
 }
 
 // Function to catch panic and return void result
+#[inline]
 fn try_catch_void<F: FnOnce() -> () + panic::UnwindSafe>(func: F) -> VoidResult {
     match panic::catch_unwind(func) {
         Ok(_) => VoidResult { err: ptr::null() },
@@ -102,6 +105,7 @@ fn try_catch_void<F: FnOnce() -> () + panic::UnwindSafe>(func: F) -> VoidResult 
 }
 
 // Function to catch panic and return svd result
+#[inline]
 fn try_catch_svd<F: FnOnce() -> SVD + panic::UnwindSafe>(func: F) -> SvdResult {
     match panic::catch_unwind(func) {
         Ok(svd) => {
