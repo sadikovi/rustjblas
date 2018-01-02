@@ -53,8 +53,8 @@ object MatrixBench {
     trBench.addCase(s"Matrix transpose (rustjblas), n = $TR_SIZE") { iter => m0.transpose() }
     trBench.addCase(s"Matrix absolute (jblas), n = $TR_SIZE") { iter => MatrixFunctions.abs(a0) }
     trBench.addCase(s"Matrix absolute (rustjblas), n = $TR_SIZE") { iter => m0.abs() }
-    trBench.addCase(s"Matrix diagonal (jblas), n = $TR_SIZE") { iter => a0.diag() }
-    trBench.addCase(s"Matrix diagonal (rustjblas), n = $TR_SIZE") { iter => m0.diag() }
+    // trBench.addCase(s"Matrix diagonal (jblas), n = $TR_SIZE") { iter => a0.diag() }
+    // trBench.addCase(s"Matrix diagonal (rustjblas), n = $TR_SIZE") { iter => m0.diag() }
 
     val a1 = JDoubleMatrix.rand(EW_SIZE, EW_SIZE)
     val b1 = JDoubleMatrix.rand(EW_SIZE, EW_SIZE)

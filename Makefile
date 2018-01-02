@@ -12,7 +12,8 @@ JAVA_BENCH_CLASS="com.github.sadikovi.rustjblas.MatrixBench"
 
 # Rust compile flags
 # Consider changing it for performance tuning, e.g. "-C target-cpu=haswell"
-RUSTFLAGS=-C target-cpu=native
+#  -C target-feature=+avx,+avx2,+sse2,+sse3,+sse4.1,+sse4.2,+sse4a,+ssse3
+RUSTFLAGS=-C target-cpu=native -C inline-threshold=300
 export RUSTFLAGS
 
 .PHONY: all,
