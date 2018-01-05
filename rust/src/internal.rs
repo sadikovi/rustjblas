@@ -539,9 +539,9 @@ impl DoubleMatrix {
     // Find min element in matrix
     pub fn min(&self) -> f64 {
         let mut min = NAN;
-        for i in 0..self.data.len() {
-            if min.is_nan() || self.data[i] < min {
-                min = self.data[i];
+        for &elem in self.data() {
+            if min.is_nan() || elem < min {
+                min = elem;
             }
         }
         min
@@ -550,9 +550,9 @@ impl DoubleMatrix {
     // Find max element in matrix
     pub fn max(&self) -> f64 {
         let mut max = NAN;
-        for i in 0..self.data.len() {
-            if max.is_nan() || self.data[i] > max {
-                max = self.data[i];
+        for &elem in self.data() {
+            if max.is_nan() || elem > max {
+                max = elem;
             }
         }
         max
@@ -561,8 +561,8 @@ impl DoubleMatrix {
     // Compute sum of elements in matrix
     pub fn sum(&self) -> f64 {
         let mut sum = 0f64;
-        for i in 0..self.data.len() {
-            sum += self.data[i];
+        for &elem in self.data() {
+            sum += elem;
         }
         sum
     }
