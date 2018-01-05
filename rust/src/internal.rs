@@ -33,7 +33,7 @@ macro_rules! assert_shape {
 }
 
 // Macro to generate vectorized elementwise matrix operations (experimental)
-macro_rules! vector_op {
+macro_rules! vectorized_op {
     ($fn_matrix_mut:ident, $fn_matrix:ident, $op:tt) => (
         #[inline]
         pub fn $fn_matrix_mut(&mut self, other: &DoubleMatrix) {
@@ -345,8 +345,8 @@ impl DoubleMatrix {
     }
 
     // TODO: convert these methods using blas, e.g. dgbmv
-    vector_op!(mul_matrix_mut, mul_matrix, *);
-    vector_op!(div_matrix_mut, div_matrix, /);
+    vectorized_op!(mul_matrix_mut, mul_matrix, *);
+    vectorized_op!(div_matrix_mut, div_matrix, /);
 
     // == Matrix operations ==
 
