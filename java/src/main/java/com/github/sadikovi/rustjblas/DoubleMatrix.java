@@ -496,7 +496,12 @@ public class DoubleMatrix {
     long v = INVALID_PTR;
   }
 
-  /** Compute full SVD with optional U and V */
+  /**
+   * Compute full SVD with optional U and V.
+   *
+   * Use this method when most of the singular values are required, it will be faster than `svd(k)`
+   * method.
+   */
   public DoubleMatrix[] fullSVD() {
     assert_pointer();
     // store U, s, V
@@ -516,7 +521,13 @@ public class DoubleMatrix {
     return new DoubleMatrix(res);
   }
 
-  /** Compute SVD for the first k top singular values */
+  /**
+   * Compute SVD for the first k top singular values.
+   *
+   * Works really fast on relatively small matrices or rows > cols, it is slower when matrix is
+   * square, but works on any matrix and k.
+   * When k is large consider using `fullSVD()` method.
+   */
   public DoubleMatrix[] svd(int k) {
     assert_pointer();
     // store U, s, V
