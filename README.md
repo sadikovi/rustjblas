@@ -7,8 +7,8 @@ Linear algebra library that mirrors jblas `DoubleMatrix` (https://github.com/mik
 off-heap allocation. Rust library can be used separately, and most of the methods should be as fast
 as or faster than [nalgebra](http://nalgebra.org).
 
-Native implementation is loaded from Rust code through JNI and use in Java. As mentioned, all
-operations are performed off-heap, including matrix allocation.
+Native implementation is loaded from Rust code through JNI to use in Java. As mentioned, all
+operations are performed off-heap, including matrix allocation (see [benchmarks](#run-benchmarks)).
 
 ## Build instructions
 Required:
