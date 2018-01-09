@@ -3,8 +3,9 @@
 [![Build Status](https://travis-ci.org/sadikovi/rustjblas.svg?branch=master)](https://travis-ci.org/sadikovi/rustjblas)
 [![License: MIT](https://img.shields.io/badge/License-MIT-blue.svg)](https://opensource.org/licenses/MIT)
 
-Library for using JBLAS `DoubleMatrix` (https://github.com/mikiobraun/jblas) with off-heap
-allocation.
+Linear algebra library that mirrors jblas `DoubleMatrix` (https://github.com/mikiobraun/jblas) with
+off-heap allocation. Rust library can be used separately, and most of the methods should be as fast
+as or faster than [nalgebra](http://nalgebra.org).
 
 Native implementation is loaded from Rust code through JNI and use in Java. As mentioned, all
 operations are performed off-heap, including matrix allocation.
@@ -32,7 +33,7 @@ the code in action (`target` folder should contain both native library and jar):
 JAVA_OPTS="-Djava.library.path=target" scala -cp target/rustjblas_2.11-0.1.0-SNAPSHOT.jar
 ```
 
-scala-shell sample commands:
+scala-shell sample commands (for more methods see the source code):
 ```scala
 import com.github.sadikovi.rustjblas.DoubleMatrix
 val m = DoubleMatrix.rand(5, 6)
