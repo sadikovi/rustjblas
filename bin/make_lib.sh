@@ -62,7 +62,7 @@ done
 # build for the target platform
 cd $TARGET_DIR
 if [ "$(uname)" == "Darwin" ]; then
-  g++ -dynamiclib -Wall -Ofast -lresolv -o $SHARED_LIB.dylib \
+  g++ -dynamiclib -Wall -Ofast -ffast-math -lresolv -o $SHARED_LIB.dylib \
     -I$JAVA_HOME/include \
     -I$JAVA_HOME/include/darwin \
     -L$TARGET_DIR -L$GFORTRAN_PATH -lwrapper -lopenblas -lgfortran $CPP_DIR/jblas_format.cpp
@@ -73,9 +73,9 @@ elif [ "$(expr substr $(uname -s) 1 5)" == "Linux" ]; then
     exit 1
   fi
 
-  g++ -Wall -Ofast -fPIC -c $CPP_DIR/jblas_format.cpp \
+  g++ -Wall -Ofast -ffast-math -fPIC -c $CPP_DIR/jblas_format.cpp \
     -I$JAVA_HOME/include -I$JAVA_HOME/include/linux && \
-  g++ -Wall -Ofast -shared -o $SHARED_LIB.so *.o \
+  g++ -Wall -Ofast -ffast-math -shared -o $SHARED_LIB.so *.o \
     -L$TARGET_DIR -L$GFORTRAN_PATH -lwrapper -lopenblas -lgfortran && \
   execstack -c $SHARED_LIB.so # also apply execstack in linux
 else
