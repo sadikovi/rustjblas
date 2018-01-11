@@ -1,6 +1,5 @@
 c
 c     (C) Rasmus Munk Larsen, Stanford University, 2000
-c     (C) David Wells, Virginia Tech, 2014
 c
 
       integer nopx, nreorth, nreorthu, nreorthv, ndot, nitref,
@@ -15,4 +14,4 @@ c
      c     tlanbpro, treorth, treorthu, treorthv, telru, telrv, tbsvd,
      c     tnorm2, tlansvd, nlandim, tritzvec, trestart, tdot, nsing
 
-      external psecond
+      external second
