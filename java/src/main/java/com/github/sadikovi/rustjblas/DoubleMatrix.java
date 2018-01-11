@@ -544,6 +544,30 @@ public class DoubleMatrix {
     return res;
   }
 
+  /**
+   * Compute SVD for the first k top singular values.
+   *
+   * Currently computes both left and right singular vectors, this behaviour can be changed to
+   * allow faster computation. Trades accuracy for faster performance, but should be reasonably
+   * accurate within 1e-8.
+   *
+   * Based on DLANSVD_IRL that computes the leading singular triplets of a large and sparse matrix
+   * A by implicitly restarted Lanczos bidiagonalization with partial reorthogonalization.
+   * Note that current method uses A as dense matrix, which is influenced by using dense_matmul,
+   * based on BLAS dgemv.
+   */
+  public DoubleMatrix[] lansvd(int k) {
+    assert_pointer();
+    // store U, s, V
+    SvdResult ptrs = new SvdResult();
+    matrix_lansvd_k(ptrs, k);
+    DoubleMatrix[] res = new DoubleMatrix[3];
+    res[0] = (ptrs.u == INVALID_PTR) ? null : new DoubleMatrix(ptrs.u);
+    res[1] = (ptrs.s == INVALID_PTR) ? null : new DoubleMatrix(ptrs.s);
+    res[2] = (ptrs.v == INVALID_PTR) ? null : new DoubleMatrix(ptrs.v);
+    return res;
+  }
+
   // == native methods ==
 
   private static native long alloc_from_array(int rows, int cols, double[] arr);
@@ -609,4 +633,5 @@ public class DoubleMatrix {
   private native void matrix_full_svd(SvdResult ptrs);
   private native long matrix_singular_values();
   private native void matrix_svd_k(SvdResult ptrs, int k);
+  private native void matrix_lansvd_k(SvdResult ptrs, int k);
 }

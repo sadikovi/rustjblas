@@ -565,3 +565,9 @@ pub extern "C" fn matrix_svd_k(ptr: *const DoubleMatrix, k: int32_t) -> SvdResul
     let this = unsafe { &(*ptr) };
     try_catch_svd(|| this.svd(k as usize))
 }
+
+#[no_mangle]
+pub extern "C" fn matrix_lansvd_k(ptr: *const DoubleMatrix, k: int32_t) -> SvdResult {
+    let this = unsafe { &(*ptr) };
+    try_catch_svd(|| this.lansvd(k as usize))
+}

@@ -17,6 +17,7 @@ done
 # main directories for the script
 JAVA_DIR="$ROOT_DIR/java"
 CPP_DIR="$ROOT_DIR/cpp"
+PROPACK_DIR="$ROOT_DIR/propack"
 RUST_DIR="$ROOT_DIR/rust"
 TARGET_DIR="$ROOT_DIR/target"
 # output options
@@ -35,6 +36,10 @@ echo "Copy java jar into $TARGET_DIR"
 cp $JAVA_DIR/target/scala-2.11/rustjblas*.jar $TARGET_DIR
 
 echo "Copy static libs into $TARGET_DIR"
+
+echo "Copy libpropack.a into $TARGET_DIR"
+cp $PROPACK_DIR/target/libpropack.a $TARGET_DIR
+
 RUST_TARGET_DIR="$RUST_DIR/target/debug"
 if [[ -n "$RELEASE_MODE" ]]; then
   RUST_TARGET_DIR="$RUST_DIR/target/release"
@@ -65,7 +70,8 @@ if [ "$(uname)" == "Darwin" ]; then
   g++ -dynamiclib -Wall -Ofast -ffast-math -lresolv -o $SHARED_LIB.dylib \
     -I$JAVA_HOME/include \
     -I$JAVA_HOME/include/darwin \
-    -L$TARGET_DIR -L$GFORTRAN_PATH -lwrapper -lopenblas -lgfortran $CPP_DIR/jblas_format.cpp
+    -L$TARGET_DIR -L$GFORTRAN_PATH -lwrapper -lopenblas -lpropack -lgfortran \
+    $CPP_DIR/jblas_format.cpp
 elif [ "$(expr substr $(uname -s) 1 5)" == "Linux" ]; then
   # check if execstack is installed
   if [[ -z "$(which execstack)" ]]; then
@@ -76,7 +82,7 @@ elif [ "$(expr substr $(uname -s) 1 5)" == "Linux" ]; then
   g++ -Wall -Ofast -ffast-math -fPIC -c $CPP_DIR/jblas_format.cpp \
     -I$JAVA_HOME/include -I$JAVA_HOME/include/linux && \
   g++ -Wall -Ofast -ffast-math -shared -o $SHARED_LIB.so *.o \
-    -L$TARGET_DIR -L$GFORTRAN_PATH -lwrapper -lopenblas -lgfortran && \
+    -L$TARGET_DIR -L$GFORTRAN_PATH -lwrapper -lopenblas -lpropack -lgfortran && \
   execstack -c $SHARED_LIB.so # also apply execstack in linux
 else
   echo "Unsupported platform $(uname)"
