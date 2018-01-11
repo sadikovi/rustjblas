@@ -25,8 +25,8 @@ fn main() {
         },
     }
 
-    // linking is used for testing only,
-    // therefore it might be missing certain optimizations
+    // linking is used for testing only, therefore it might be missing certain optimizations;
+    // we build it correctly with optimizations when running `make build` or `make release`.
 
     // link propack lib
     let mut propack_path = env::current_dir().unwrap();

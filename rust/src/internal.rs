@@ -679,7 +679,11 @@ impl DoubleMatrix {
         DoubleMatrix::new(srows, scols, s)
     }
 
-    // Experimental svd for top k singular values
+    // Experimental svd for top k singular values.
+    //
+    // Based on DGESVDX that uses an eigenvalue problem for obtaining the SVD, which
+    // allows for the computation of a subset of singular values and vectors.
+    // See Lapack/DBDSVDX for details.
     pub fn svd(&self, k: usize) -> SVD {
         let (rows, cols) = self.shape();
         assert!(k >= 1 && k <= cmp::min(rows, cols), "Invalid number of singular values: {}.", k);
