@@ -67,6 +67,9 @@ Run `make clean` to remove temporary files and generated artifacts.
 ### Compile JNI
 Run `make jni` (runs as part of build command) to generate fresh JNI files.
 
+### Compile propack lib (double precision)
+Run `make propack_lib` (runs as part of build command) to generate static library.
+
 ### Run benchmarks
 Run `make bench` to run benchmarks (requires nightly Rust), or run specific benchmarks, e.g.
 `make bench_rust` or `make bench_java`. It is required to build project before that to prepare libs.
