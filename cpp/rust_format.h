@@ -131,6 +131,7 @@ void* matrix_abs(void*);
 SvdResult matrix_full_svd(void*);
 void* matrix_singular_values(void*);
 SvdResult matrix_svd_k(void*, int);
+SvdResult matrix_lansvd_k(void*, int);
 
 #ifdef __cplusplus
 }

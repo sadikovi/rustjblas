@@ -524,15 +524,48 @@ public class DoubleMatrix {
   /**
    * Compute SVD for the first k top singular values.
    *
-   * Works really fast on relatively small matrices or rows > cols, it is slower when matrix is
+   * Works fast on relatively small matrices or rows > cols, it is slower when matrix is
    * square, but works on any matrix and k.
-   * When k is large consider using `fullSVD()` method.
+   * When k is large (close to min(rows, cols)) consider using `fullSVD()` method.
+   *
+   * Works great for k >= 50. If k is smaller consider using `lansvd()`.
+   *
+   * Based on DGESVDX that uses an eigenvalue problem for obtaining the SVD, which allows for the
+   * computation of a subset of singular values and vectors. See Lapack/DBDSVDX for details.
+   * This method trades performance for high accuracy of computing singular values.
    */
   public DoubleMatrix[] svd(int k) {
     assert_pointer();
     // store U, s, V
     SvdResult ptrs = new SvdResult();
     matrix_svd_k(ptrs, k);
+    DoubleMatrix[] res = new DoubleMatrix[3];
+    res[0] = (ptrs.u == INVALID_PTR) ? null : new DoubleMatrix(ptrs.u);
+    res[1] = (ptrs.s == INVALID_PTR) ? null : new DoubleMatrix(ptrs.s);
+    res[2] = (ptrs.v == INVALID_PTR) ? null : new DoubleMatrix(ptrs.v);
+    return res;
+  }
+
+  /**
+   * Compute SVD for the first k top singular values.
+   *
+   * Currently computes both left and right singular vectors, this behaviour can be changed to
+   * allow faster computation. Trades accuracy for faster performance, but should be reasonably
+   * accurate within 1e-8.
+   *
+   * Shows great performance for k < 50. For k larger than that performance degrades, so it may be
+   * worth considering `svd()` method instead.
+   *
+   * Based on DLANSVD_IRL that computes the leading singular triplets of a large and sparse matrix
+   * A by implicitly restarted Lanczos bidiagonalization with partial reorthogonalization.
+   * Note that current method uses A as dense matrix, which is influenced by using dense_matmul,
+   * based on BLAS dgemv.
+   */
+  public DoubleMatrix[] lansvd(int k) {
+    assert_pointer();
+    // store U, s, V
+    SvdResult ptrs = new SvdResult();
+    matrix_lansvd_k(ptrs, k);
     DoubleMatrix[] res = new DoubleMatrix[3];
     res[0] = (ptrs.u == INVALID_PTR) ? null : new DoubleMatrix(ptrs.u);
     res[1] = (ptrs.s == INVALID_PTR) ? null : new DoubleMatrix(ptrs.s);
@@ -605,4 +638,5 @@ public class DoubleMatrix {
   private native void matrix_full_svd(SvdResult ptrs);
   private native long matrix_singular_values();
   private native void matrix_svd_k(SvdResult ptrs, int k);
+  private native void matrix_lansvd_k(SvdResult ptrs, int k);
 }

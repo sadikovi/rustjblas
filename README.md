@@ -67,6 +67,9 @@ Run `make clean` to remove temporary files and generated artifacts.
 ### Compile JNI
 Run `make jni` (runs as part of build command) to generate fresh JNI files.
 
+### Compile propack lib (double precision)
+Run `make propack_lib` (runs as part of build command) to generate static library.
+
 ### Run benchmarks
 Run `make bench` to run benchmarks (requires nightly Rust), or run specific benchmarks, e.g.
 `make bench_rust` or `make bench_java`. It is required to build project before that to prepare libs.
@@ -128,10 +131,12 @@ Java HotSpot(TM) 64-Bit Server VM 1.8.0_101-b13 on Linux 3.16.0-70-generic
 Intel(R) Core(TM) i7-4700MQ CPU @ 2.40GHz
 Matrix SVD operations:                             Best/Avg Time(ms)   Relative
 -------------------------------------------------------------------------------
-Full SVD (jblas), n = 1000                              4582 / 4596       1.0X
-Full SVD (rustjblas), n = 1000                           398 /  403      11.5X
-SVD k=5 (rustjblas), n = 1000                            172 /  173      26.7X
-SVD k=20 (rustjblas), n = 1000                           188 /  189      24.4X
-Singular values (jblas), n = 1000                        442 /  444      10.4X
-Singular values (rustjblas), n = 1000                    176 /  180      26.0X
+Full SVD (jblas), n = 1000                              4400 / 4614       1.0X
+Full SVD (rustjblas), n = 1000                           408 /  410      10.8X
+SVD k=5 (rustjblas), n = 1000                            172 /  172      25.6X
+SVD k=20 (rustjblas), n = 1000                           188 /  189      23.4X
+Lanczos k=5 (rustjblas), n = 1000                         52 /   53      84.6X
+Lanczos k=20 (rustjblas), n = 1000                       134 /  135      32.9X
+Singular values (jblas), n = 1000                        448 /  451       9.8X
+Singular values (rustjblas), n = 1000                    189 /  190      23.3X
 ```

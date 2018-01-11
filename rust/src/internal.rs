@@ -19,11 +19,12 @@
 // SOFTWARE.
 
 use std::cmp;
-use std::f64::NAN;
+use std::f64::{EPSILON, NAN};
 use std::fmt::{Display, Error, Formatter};
 use blas::{dasum, daxpy, dcopy, dgemm, dnrm2, dscal};
 use lapack::{dgesdd, dgesvdx};
 use rand::{Rng, weak_rng};
+use las::dlansvd_irl;
 
 // Macro to assert matrices shapes
 macro_rules! assert_shape {
@@ -678,7 +679,13 @@ impl DoubleMatrix {
         DoubleMatrix::new(srows, scols, s)
     }
 
-    // Experimental svd for top k singular values
+    // Experimental svd for top k singular values.
+    // Currenty computes both left and right singular vectors, this behaviour can be changed later,
+    // to allow choice of left or right or none to speed up computation.
+    //
+    // Based on DGESVDX that uses an eigenvalue problem for obtaining the SVD, which
+    // allows for the computation of a subset of singular values and vectors.
+    // See Lapack/DBDSVDX for details.
     pub fn svd(&self, k: usize) -> SVD {
         let (rows, cols) = self.shape();
         assert!(k >= 1 && k <= cmp::min(rows, cols), "Invalid number of singular values: {}.", k);
@@ -769,6 +776,137 @@ impl DoubleMatrix {
         let s = DoubleMatrix::new(k, 1, s);
         // v is returned as vt, transpose by copy, because it is not square
         let v = DoubleMatrix::new(vtrows, vtcols, vt).transpose();
+        SVD { u: Some(u), s: s, v: Some(v) }
+    }
+
+    // Experimental svd for top k singular values.
+    // Currently computes both left and right singular vectors, this behaviour can be changed to
+    // allow faster computation. Also would be good to expose some options, like tolerance and max
+    // number of iterations.
+    //
+    // Based on DLANSVD_IRL that computes the leading singular triplets of a large and sparse matrix
+    // A by implicitly restarted Lanczos bidiagonalization with partial reorthogonalization.
+    // Note that current method uses A as dense matrix, which is influenced by using dense_matmul,
+    // based on BLAS dgemv.
+    pub fn lansvd(&self, k: usize) -> SVD {
+        let (rows, cols) = self.shape();
+        let lanmax = cmp::min(rows, cols);
+        assert!(k >= 1 && k <= lanmax, "Invalid number of singular values: {}.", k);
+
+        // number of desired singular triplets.
+        let neig = cmp::min(k, lanmax);
+        let kmax = cmp::min(cmp::min(5 * neig, rows + 1), cols + 1);
+        // dimension of Krylov subspace
+        let dim = kmax;
+        // number of shift per restart
+        let p = dim - neig;
+        // maximum number of restarts (it looks like dlansvd_irl forces this number of iterations)
+        // current value works well enough
+        let maxiter = 3i32; // original value was 10
+        // desired relative accuracy of computed singular values
+        let tolin = 1e-8;
+
+        // left singular vectors
+        let (urows, ucols) = (rows, kmax + 2);
+        let mut u = vec![0f64; urows * ucols];
+
+        let mut sigma = vec![0f64; kmax];
+        let mut bnd = vec![0f64; kmax];
+
+        // right singular vectors
+        let (vrows, vcols) = (kmax + 1, cols);
+        let mut v = vec![0f64; vrows * vcols];
+
+        // size of work
+        let lwork = rows + cols + 14 * kmax + 8 * kmax * kmax + 32 * rows + 9;
+        // work buffer
+        let mut work = vec![0f64; lwork];
+
+        // size of iwork
+        let liwork = 8 * kmax;
+        let mut iwork = vec![0i32; liwork];
+
+        // doption
+        let doption = vec![
+            // level of orthogonality to maintain among Lanczos vectors
+            EPSILON.sqrt(),
+            // during reorthogonalization, all vectors with with components larger than this value
+            // along the latest Lanczos vector c will be purged
+            EPSILON.powf(3.0 / 4.0),
+            // estimate of || A ||
+            0f64,
+            // smallest relgap between any shift the smallest requested Ritz value
+            0.002
+        ];
+
+        let ioption = vec![
+            // reorthogonalization is done using iterated modified Gram-Schmidt
+            0i32,
+            // extended local orthogonality is enforced among u_{k}, u_{k+1} and v_{k} and v_{k+1}
+            // respectively
+            1i32
+        ];
+
+        // status info
+        let mut info = 0i32;
+
+        // dparm is *const f64, we do not change original matrix
+        let dparm = self.data();
+        // array used for passing data to the APROD function, not used for dense matrices
+        let mut iparm = vec![];
+
+        unsafe {
+            dlansvd_irl(
+                'L' as u8,
+                'Y' as u8,
+                'Y' as u8,
+                rows as i32,
+                cols as i32,
+                dim as i32,
+                p as i32,
+                neig as i32,
+                maxiter,
+                &mut u,
+                cmp::max(1, urows) as i32,
+                &mut sigma,
+                &mut bnd,
+                &mut v,
+                cmp::max(1, vcols) as i32,
+                tolin,
+                &mut work,
+                lwork as i32,
+                &mut iwork,
+                liwork as i32,
+                &doption,
+                &ioption,
+                &mut info,
+                dparm,
+                &mut iparm
+            );
+        }
+
+        if info == -1 {
+            panic!("DLANSVD_IRL, K singular triplets did not converge within KMAX iterations.");
+        } else if info != 0 {
+            panic!("DLANSVD_IRL, an invariant subspace of dimension J was found, {}.", info);
+        }
+        // at this point info == 0, K singular triplets were computed succesfully
+
+        // truncate u to (rows, neig)
+        let (urows, ucols) = (rows, neig);
+        u.truncate(urows * ucols);
+        let u = DoubleMatrix::new(urows, ucols, u);
+
+        // truncate sigma to neig
+        sigma.truncate(neig);
+        let s = DoubleMatrix::new(neig, 1, sigma);
+
+        // truncate v to (neig, cols)
+        // note that v comes already transposed (not as v^T), so we just swap rows and cols
+        let (vrows, vcols) = (cols, neig);
+        v.truncate(vrows * vcols);
+        let v = DoubleMatrix::new(vrows, vcols, v);
+
         SVD { u: Some(u), s: s, v: Some(v) }
     }
 }
@@ -1495,6 +1633,34 @@ mod tests {
             -0.054513, -0.377258,
             -0.356767, -0.856391,
             -0.932596, 0.349815
+        ]);
+
+        assert_matrix(&a, &test_matrix_2());
+        assert_matrix_eps(&svd.u.unwrap(), &u_exp, 1e-6);
+        assert_matrix_eps(&svd.s, &s_exp, 1e-6);
+        assert_matrix_eps(&svd.v.unwrap(), &v_exp, 1e-6);
+    }
+
+    #[test]
+    fn test_lansvd_matrix_2() {
+        let a = test_matrix_2();
+        let svd = a.lansvd(2);
+
+        let u_exp = DoubleMatrix::from_row_slice(4, 2, &[
+            -0.013543, 0.135435,
+            -0.109341, 0.518419,
+            -0.470163, 0.714229,
+            -0.875676, -0.450306
+        ]);
+        let s_exp = DoubleMatrix::from_row_slice(2, 1, &[
+            4.260007, 3.107349
+        ]);
+
+        let v_exp = DoubleMatrix::from_row_slice(4, 2, &[
+            -0.003179, 0.043585,
+            -0.054513, 0.377258,
+            -0.356767, 0.856391,
+            -0.932596, -0.349815
         ]);
 
         assert_matrix(&a, &test_matrix_2());
