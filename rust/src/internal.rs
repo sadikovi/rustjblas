@@ -1603,10 +1603,4 @@ mod tests {
         assert_matrix_eps(&svd.s, &s_exp, 1e-6);
         assert_matrix_eps(&svd.v.unwrap(), &v_exp, 1e-6);
     }
-
-    #[test]
-    fn test_lansvd_matrix_2() {
-        let a = test_matrix_2();
-        a.lansvd(2);
-    }
 }

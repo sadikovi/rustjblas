@@ -1,6 +1,7 @@
 extern crate pkg_config;
 extern crate walkdir;
 
+use std::env;
 use walkdir::WalkDir;
 
 fn main() {
@@ -23,7 +24,18 @@ fn main() {
             }
         },
     }
+
+    // linking is used for testing only,
+    // therefore it might be missing certain optimizations
+
+    // link propack lib
+    let mut propack_path = env::current_dir().unwrap();
+    propack_path.pop(); // go level up to the project directory
+    propack_path.push("propack");
+    propack_path.push("target");
+
     println!("cargo:rustc-link-lib=dylib=openblas");
     // include propack library for dlansvd functions
-    println!("cargo:rustc-link-lib=dylib=propack");
+    println!("cargo:rustc-link-search=native={}", propack_path.as_path().to_str().unwrap());
+    println!("cargo:rustc-link-lib=static=propack");
 }
