@@ -788,7 +788,7 @@ impl DoubleMatrix {
     // A by implicitly restarted Lanczos bidiagonalization with partial reorthogonalization.
     // Note that current method uses A as dense matrix, which is influenced by using dense_matmul,
     // based on BLAS dgemv.
-    pub fn lansvd(&mut self, k: usize) -> SVD {
+    pub fn lansvd(&self, k: usize) -> SVD {
         let (rows, cols) = self.shape();
         let lanmax = cmp::min(rows, cols);
         assert!(k >= 1 && k <= lanmax, "Invalid number of singular values: {}.", k);
@@ -826,7 +826,7 @@ impl DoubleMatrix {
         let mut iwork = vec![0i32; liwork];
 
         // doption
-        let mut doption = vec![
+        let doption = vec![
             // level of orthogonality to maintain among Lanczos vectors
             EPSILON.sqrt(),
             // during reorthogonalization, all vectors with with components larger than this value
@@ -838,7 +838,7 @@ impl DoubleMatrix {
             0.002
         ];
 
-        let mut ioption = vec![
+        let ioption = vec![
             // reorthogonalization is done using iterated modified Gram-Schmidt
             0i32,
             // extended local orthogonality is enforced among u_{k}, u_{k+1} and v_{k} and v_{k+1}
@@ -849,7 +849,8 @@ impl DoubleMatrix {
         // status info
         let mut info = 0i32;
 
-        let dparm = self.data_mut();
+        // dparm is *const f64, we do not change original matrix
+        let dparm = self.data();
         // array used for passing data to the APROD function, not used for dense matrices
         let mut iparm = vec![];
 
@@ -875,17 +876,37 @@ impl DoubleMatrix {
                 lwork as i32,
                 &mut iwork,
                 liwork as i32,
-                &mut doption,
-                &mut ioption,
+                &doption,
+                &ioption,
                 &mut info,
                 dparm,
                 &mut iparm
             );
         }
 
-        println!("info: {}, sigma: {:?}, bnd: {:?}", info, sigma, bnd);
+        if info == -1 {
+            panic!("DLANSVD_IRL, K singular triplets did not converge within KMAX iterations.");
+        } else if info != 0 {
+            panic!("DLANSVD_IRL, an invariant subspace of dimension J was found, {}.", info);
+        }
+        // at this point info == 0, K singular triplets were computed succesfully
 
-        SVD { u: None, s: DoubleMatrix::new_random(2, 2), v: None }
+        // truncate u to (rows, neig)
+        let (urows, ucols) = (rows, neig);
+        u.truncate(urows * ucols);
+        let u = DoubleMatrix::new(urows, ucols, u);
+
+        // truncate sigma to neig
+        sigma.truncate(neig);
+        let s = DoubleMatrix::new(neig, 1, sigma);
+
+        // truncate v to (neig, cols)
+        // note that v comes already transposed (not as v^T), so we just swap rows and cols
+        let (vrows, vcols) = (cols, neig);
+        v.truncate(vrows * vcols);
+        let v = DoubleMatrix::new(vrows, vcols, v);
+
+        SVD { u: Some(u), s: s, v: Some(v) }
     }
 }
 
@@ -1611,6 +1632,34 @@ mod tests {
             -0.054513, -0.377258,
             -0.356767, -0.856391,
             -0.932596, 0.349815
+        ]);
+
+        assert_matrix(&a, &test_matrix_2());
+        assert_matrix_eps(&svd.u.unwrap(), &u_exp, 1e-6);
+        assert_matrix_eps(&svd.s, &s_exp, 1e-6);
+        assert_matrix_eps(&svd.v.unwrap(), &v_exp, 1e-6);
+    }
+
+    #[test]
+    fn test_lansvd_matrix_2() {
+        let a = test_matrix_2();
+        let svd = a.lansvd(2);
+
+        let u_exp = DoubleMatrix::from_row_slice(4, 2, &[
+            -0.013543, 0.135435,
+            -0.109341, 0.518419,
+            -0.470163, 0.714229,
+            -0.875676, -0.450306
+        ]);
+        let s_exp = DoubleMatrix::from_row_slice(2, 1, &[
+            4.260007, 3.107349
+        ]);
+
+        let v_exp = DoubleMatrix::from_row_slice(4, 2, &[
+            -0.003179, 0.043585,
+            -0.054513, 0.377258,
+            -0.356767, 0.856391,
+            -0.932596, -0.349815
         ]);
 
         assert_matrix(&a, &test_matrix_2());

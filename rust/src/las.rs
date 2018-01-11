@@ -79,10 +79,10 @@ extern "C" {
         lwork: *const c_int,
         iwork: *mut c_int,
         liwork: *const c_int,
-        doption: *mut c_double,
-        ioption: *mut c_int,
+        doption: *const c_double,
+        ioption: *const c_int,
         info: *mut c_int,
-        dparm: *mut c_double,
+        dparm: *const c_double,
         iparm: *mut c_int
     );
 }
@@ -109,10 +109,10 @@ pub unsafe fn dlansvd_irl(
     lwork: i32,
     iwork: &mut[i32],
     liwork: i32,
-    doption: &mut [f64],
-    ioption: &mut [i32],
+    doption: &[f64],
+    ioption: &[i32],
     info: &mut i32,
-    dparm: &mut [f64],
+    dparm: &[f64],
     iparm: &mut [i32]
 ) {
     dlansvd_irl_(
@@ -137,10 +137,10 @@ pub unsafe fn dlansvd_irl(
         &lwork,
         iwork.as_mut_ptr(),
         &liwork,
-        doption.as_mut_ptr(),
-        ioption.as_mut_ptr(),
+        doption.as_ptr(),
+        ioption.as_ptr(),
         info,
-        dparm.as_mut_ptr(),
+        dparm.as_ptr(),
         iparm.as_mut_ptr()
     );
 }
