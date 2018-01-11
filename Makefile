@@ -24,7 +24,7 @@ export RUSTFLAGS
 	release_java, release_rust, release,
 	test_java, test_rust, test,
 	bench_java, bench_rust, bench,
-	jni
+	jni, propack_lib
 
 all: release
 
@@ -47,7 +47,7 @@ build_java:
 build_rust:
 	cd $(RUST_DIR) && cargo build --verbose
 
-build: build_java jni build_rust
+build: build_java jni propack_lib build_rust
 	$(ROOT_DIR)/bin/make_lib.sh
 
 # == release ==
@@ -57,7 +57,7 @@ release_java: build_java
 release_rust:
 	cd $(RUST_DIR) && cargo build --release
 
-release: release_java jni release_rust
+release: release_java jni propack_lib release_rust
 	$(ROOT_DIR)/bin/make_lib.sh --release
 
 # == test ==
@@ -75,6 +75,12 @@ test: test_java test_rust
 jni:
 	# generate files for jni
 	$(ROOT_DIR)/bin/javah -cp $(JAVA_DIR)/target/scala-2.11/classes -d $(CPP_DIR) $(JNI_CLASSES)
+
+# == propack ==
+
+propack_lib:
+	# generate propack lib
+	cd $(ROOT_DIR)/propack && make
 
 # == bench ==
 

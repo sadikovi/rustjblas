@@ -11,7 +11,7 @@ prepare:
 	gfortran -c -fPIC $*.F -o target/$*.o
 
 lib: prepare $(DOBJ)
-	cd target && ar rc libdpropack.a $(DOBJ) && cd ..
+	cd target && ar rc libpropack.a $(DOBJ) && cd ..
 
 clean:
 	rm -rf target

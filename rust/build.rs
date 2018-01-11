@@ -24,4 +24,6 @@ fn main() {
         },
     }
     println!("cargo:rustc-link-lib=dylib=openblas");
+    // include propack library for dlansvd functions
+    println!("cargo:rustc-link-lib=dylib=propack");
 }

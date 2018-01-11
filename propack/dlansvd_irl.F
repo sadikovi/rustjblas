@@ -89,7 +89,7 @@ c
 c     INFO: INTEGER.
 c         INFO = 0  : The K largest or smallest (depending on the
 c                     value of WHICH) singular triplets were computed
-c                     succesfully.
+c                     successfully.
 c         INFO = J>0, J<K: An invariant subspace of dimension J was found.
 c         INFO = -1 : K singular triplets did not converge within KMAX
 c                     iterations.
