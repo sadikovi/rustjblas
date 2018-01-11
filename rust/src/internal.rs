@@ -802,7 +802,7 @@ impl DoubleMatrix {
         let p = dim - neig;
         // maximum number of restarts (it looks like dlansvd_irl forces this number of iterations)
         // current value works well enough
-        let maxiter = 5i32;
+        let maxiter = 3i32; // original value was 10
         // desired relative accuracy of computed singular values
         let tolin = 1e-8;
 
