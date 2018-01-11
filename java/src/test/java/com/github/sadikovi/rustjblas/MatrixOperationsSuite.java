@@ -735,4 +735,41 @@ public class MatrixOperationsSuite {
     testSVDtopK(11, 20, 5);
     testSVDtopK(11, 20, 11);
   }
+
+  private void testLanczosTopK(int rows, int cols, int k) {
+    org.jblas.DoubleMatrix m = org.jblas.DoubleMatrix.rand(rows, cols);
+    DoubleMatrix n = DoubleMatrix.fromArray(m.rows, m.columns, m.toArray());
+    org.jblas.DoubleMatrix[] res1 = jblasSVD(m, k);
+    DoubleMatrix[] res2 = n.lansvd(k);
+    // check that original matrix is not modified
+    assertMatrix(m, n);
+    // check svd output (we check absolute values and norm2)
+    assertMatrix(org.jblas.MatrixFunctions.abs(res1[0]), res2[0].abs());
+    assertEquals(res1[0].norm2(), res2[0].norm2(), EPS);
+    assertMatrix(org.jblas.MatrixFunctions.abs(res1[1]), res2[1].abs());
+    assertEquals(res1[1].norm2(), res2[1].norm2(), EPS);
+    assertMatrix(org.jblas.MatrixFunctions.abs(res1[2]), res2[2].abs());
+    assertEquals(res1[2].norm2(), res2[2].norm2(), EPS);
+  }
+
+  @Test
+  public void testLanczosTopKSquare() {
+    testLanczosTopK(20, 20, 1);
+    testLanczosTopK(20, 20, 10);
+    testLanczosTopK(20, 20, 20);
+  }
+
+  @Test
+  public void testLanczosTopKRows() {
+    testLanczosTopK(20, 11, 1);
+    testLanczosTopK(20, 11, 5);
+    testLanczosTopK(20, 11, 11);
+  }
+
+  @Test
+  public void testLanczosTopKCols() {
+    testLanczosTopK(11, 20, 1);
+    testLanczosTopK(11, 20, 5);
+    testLanczosTopK(11, 20, 11);
+  }
 }

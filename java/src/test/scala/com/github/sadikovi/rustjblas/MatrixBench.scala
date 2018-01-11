@@ -98,14 +98,16 @@ object MatrixBench {
     svdBench.addCase(s"Full SVD (rustjblas), n = $SVD_SIZE") { iter => m3.fullSVD() }
     svdBench.addCase(s"SVD k=5 (rustjblas), n = $SVD_SIZE") { iter => m3.svd(5) }
     svdBench.addCase(s"SVD k=20 (rustjblas), n = $SVD_SIZE") { iter => m3.svd(20) }
+    svdBench.addCase(s"Lanczos k=5 (rustjblas), n = $SVD_SIZE") { iter => m3.lansvd(5) }
+    svdBench.addCase(s"Lanczos k=20 (rustjblas), n = $SVD_SIZE") { iter => m3.lansvd(20) }
     svdBench.addCase(s"Singular values (jblas), n = $SVD_SIZE") { iter => Singular.SVDValues(a3) }
     svdBench.addCase(s"Singular values (rustjblas), n = $SVD_SIZE") { iter => m3.singularValues() }
 
-    alBench.run
-    trBench.run
-    seBench.run
-    ewBench.run
-    mmBench.run
+    // alBench.run
+    // trBench.run
+    // seBench.run
+    // ewBench.run
+    // mmBench.run
     svdBench.run
   }
 }
