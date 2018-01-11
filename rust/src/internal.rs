@@ -680,6 +680,8 @@ impl DoubleMatrix {
     }
 
     // Experimental svd for top k singular values.
+    // Currenty computes both left and right singular vectors, this behaviour can be changed later,
+    // to allow choice of left or right or none to speed up computation.
     //
     // Based on DGESVDX that uses an eigenvalue problem for obtaining the SVD, which
     // allows for the computation of a subset of singular values and vectors.
@@ -777,6 +779,15 @@ impl DoubleMatrix {
         SVD { u: Some(u), s: s, v: Some(v) }
     }
 
+    // Experimental svd for top k singular values.
+    // Currently computes both left and right singular vectors, this behaviour can be changed to
+    // allow faster computation. Also would be good to expose some options, like tolerance and max
+    // number of iterations.
+    //
+    // Based on DLANSVD_IRL that computes the leading singular triplets of a large and sparse matrix
+    // A by implicitly restarted Lanczos bidiagonalization with partial reorthogonalization.
+    // Note that current method uses A as dense matrix, which is influenced by using dense_matmul,
+    // based on BLAS dgemv.
     pub fn lansvd(&mut self, k: usize) -> SVD {
         let (rows, cols) = self.shape();
         let lanmax = cmp::min(rows, cols);
