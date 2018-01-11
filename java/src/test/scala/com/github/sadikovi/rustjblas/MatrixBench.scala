@@ -103,11 +103,11 @@ object MatrixBench {
     svdBench.addCase(s"Singular values (jblas), n = $SVD_SIZE") { iter => Singular.SVDValues(a3) }
     svdBench.addCase(s"Singular values (rustjblas), n = $SVD_SIZE") { iter => m3.singularValues() }
 
-    // alBench.run
-    // trBench.run
-    // seBench.run
-    // ewBench.run
-    // mmBench.run
+    alBench.run
+    trBench.run
+    seBench.run
+    ewBench.run
+    mmBench.run
     svdBench.run
   }
 }

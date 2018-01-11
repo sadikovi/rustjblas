@@ -800,10 +800,11 @@ impl DoubleMatrix {
         let dim = kmax;
         // number of shift per restart
         let p = dim - neig;
-        // maximum number of restarts
-        let maxiter = 10i32;
+        // maximum number of restarts (it looks like dlansvd_irl forces this number of iterations)
+        // current value works well enough
+        let maxiter = 5i32;
         // desired relative accuracy of computed singular values
-        let tolin = 1e-12;
+        let tolin = 1e-8;
 
         // left singular vectors
         let (urows, ucols) = (rows, kmax + 2);
