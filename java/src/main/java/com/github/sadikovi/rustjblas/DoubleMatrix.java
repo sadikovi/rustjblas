@@ -553,8 +553,8 @@ public class DoubleMatrix {
    * allow faster computation. Trades accuracy for faster performance, but should be reasonably
    * accurate within 1e-8.
    *
-   * Shows great performance for k < 50. For k larger than that performance degrades, so it may be
-   * worth considering `svd()` method instead.
+   * Shows great performance for k < 50. For k larger than that performance starts degrading, so it
+   * may be worth considering `svd()` method instead.
    *
    * Based on DLANSVD_IRL that computes the leading singular triplets of a large and sparse matrix
    * A by implicitly restarted Lanczos bidiagonalization with partial reorthogonalization.
