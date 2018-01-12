@@ -24,7 +24,7 @@ extern crate lapack;
 extern crate openblas_src;
 extern crate rand;
 
-pub mod las;
+pub mod lanczos;
 pub mod internal;
 
 use std::ffi::CString;
