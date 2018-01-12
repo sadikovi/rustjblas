@@ -795,7 +795,7 @@ impl DoubleMatrix {
 
         // number of desired singular triplets.
         let neig = cmp::min(k, lanmax);
-        let kmax = cmp::min(cmp::min(5 * neig, rows + 1), cols + 1);
+        let kmax = cmp::min(7 * neig, lanmax + 1);
         // dimension of Krylov subspace
         let dim = kmax;
         // number of shift per restart
@@ -807,14 +807,14 @@ impl DoubleMatrix {
         let tolin = 1e-8;
 
         // left singular vectors
-        let (urows, ucols) = (rows, kmax + 2);
+        let (urows, ucols) = (rows, kmax + 1);
         let mut u = vec![0f64; urows * ucols];
 
         let mut sigma = vec![0f64; kmax];
         let mut bnd = vec![0f64; kmax];
 
         // right singular vectors
-        let (vrows, vcols) = (kmax + 1, cols);
+        let (vrows, vcols) = (kmax, cols);
         let mut v = vec![0f64; vrows * vcols];
 
         // size of work
