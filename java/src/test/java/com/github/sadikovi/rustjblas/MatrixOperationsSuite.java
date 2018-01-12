@@ -22,6 +22,8 @@
 
 package com.github.sadikovi.rustjblas;
 
+import java.util.ArrayList;
+
 import org.junit.Test;
 import static org.junit.Assert.assertArrayEquals;
 import static org.junit.Assert.assertEquals;
@@ -736,6 +738,46 @@ public class MatrixOperationsSuite {
     testSVDtopK(11, 20, 11);
   }
 
+  // Test Lanczos SVD.
+  // Sometimes test may fail because of value mismatch, this is okay, because the method itself is
+  // an approximation method; when this happens, we simply rerun the test, but this should not
+  // happen very frequently; if after retries test still fails, we throw exception.
+  private void testLanczosTopKWithRetries(int rows, int cols, int k, int retries) {
+    try {
+      testLanczosTopK(rows, cols, k);
+    } catch (AssertionError err) {
+      String msg = err.getMessage();
+      if (msg != null && msg.contains("Matrices are different, value mismatch")) {
+        System.out.println("WARN: Lanczos test fails with value mismatch, retrying " + retries +
+          " times");
+        ArrayList<String> messages = new ArrayList<String>();
+        messages.add(msg);
+
+        // retry test fixed number of times
+        boolean done = false;
+        while (retries > 0 && !done) {
+          System.out.println("Retry the test, attempts " + retries);
+          try {
+            testLanczosTopK(rows, cols, k);
+            done = true;
+          } catch (AssertionError aerr) {
+            messages.add(aerr.getMessage());
+          }
+          --retries;
+        }
+
+        // when no successful run is found, fail with listing all error messages, we found
+        if (!done) {
+          throw new AssertionError("Failed test with retries, all errors: " + messages);
+        } else {
+          System.out.println("Finished successfully, errors encountered: " + messages);
+        }
+      } else {
+        throw err;
+      }
+    }
+  }
+
   private void testLanczosTopK(int rows, int cols, int k) {
     org.jblas.DoubleMatrix m = org.jblas.DoubleMatrix.rand(rows, cols);
     DoubleMatrix n = DoubleMatrix.fromArray(m.rows, m.columns, m.toArray());
@@ -754,22 +796,22 @@ public class MatrixOperationsSuite {
 
   @Test
   public void testLanczosTopKSquare() {
-    testLanczosTopK(20, 20, 1);
-    testLanczosTopK(20, 20, 10);
-    testLanczosTopK(20, 20, 20);
+    testLanczosTopKWithRetries(20, 20, 1, 1);
+    testLanczosTopKWithRetries(20, 20, 10, 1);
+    testLanczosTopKWithRetries(20, 20, 20, 1);
   }
 
   @Test
   public void testLanczosTopKRows() {
-    testLanczosTopK(20, 11, 1);
-    testLanczosTopK(20, 11, 5);
-    testLanczosTopK(20, 11, 11);
+    testLanczosTopKWithRetries(20, 11, 1, 1);
+    testLanczosTopKWithRetries(20, 11, 5, 1);
+    testLanczosTopKWithRetries(20, 11, 11, 1);
   }
 
   @Test
   public void testLanczosTopKCols() {
-    testLanczosTopK(11, 20, 1);
-    testLanczosTopK(11, 20, 5);
-    testLanczosTopK(11, 20, 11);
+    testLanczosTopKWithRetries(11, 20, 1, 1);
+    testLanczosTopKWithRetries(11, 20, 5, 1);
+    testLanczosTopKWithRetries(11, 20, 11, 1);
   }
 }
