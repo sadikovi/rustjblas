@@ -84,7 +84,7 @@ extern "C" {
         ioption: *const c_int,
         info: *mut c_int,
         dparm: *const c_double,
-        iparm: *mut c_int
+        iparm: *const c_int
     );
 
     // DLANSVD_IRL: Compute the leading singular triplets of a large and sparse matrix A by
@@ -115,7 +115,7 @@ extern "C" {
         ioption: *const c_int,
         info: *mut c_int,
         dparm: *const c_double,
-        iparm: *mut c_int
+        iparm: *const c_int
     );
 }
 
@@ -142,7 +142,7 @@ pub unsafe fn dlansvd(
     ioption: &[i32],
     info: &mut i32,
     dparm: &[f64],
-    iparm: &mut [i32]
+    iparm: &[i32]
 ) {
     dlansvd_(
         &(jobu as c_char),
@@ -167,7 +167,7 @@ pub unsafe fn dlansvd(
         ioption.as_ptr(),
         info,
         dparm.as_ptr(),
-        iparm.as_mut_ptr()
+        iparm.as_ptr()
     )
 }
 
@@ -197,7 +197,7 @@ pub unsafe fn dlansvd_irl(
     ioption: &[i32],
     info: &mut i32,
     dparm: &[f64],
-    iparm: &mut [i32]
+    iparm: &[i32]
 ) {
     dlansvd_irl_(
         &(which as c_char),
@@ -225,6 +225,6 @@ pub unsafe fn dlansvd_irl(
         ioption.as_ptr(),
         info,
         dparm.as_ptr(),
-        iparm.as_mut_ptr()
+        iparm.as_ptr()
     );
 }

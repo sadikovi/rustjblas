@@ -24,7 +24,7 @@ use std::fmt::{Display, Error, Formatter};
 use blas::{dasum, daxpy, dcopy, dgemm, dnrm2, dscal};
 use lapack::{dgesdd, dgesvdx};
 use rand::{Rng, weak_rng};
-use las::dlansvd_irl;
+use lanczos::dlansvd_irl;
 
 // Macro to assert matrices shapes
 macro_rules! assert_shape {
@@ -853,7 +853,7 @@ impl DoubleMatrix {
         // dparm is *const f64, we do not change original matrix
         let dparm = self.data();
         // array used for passing data to the APROD function, not used for dense matrices
-        let mut iparm = vec![];
+        let iparm = vec![];
 
         unsafe {
             dlansvd_irl(
@@ -881,7 +881,7 @@ impl DoubleMatrix {
                 &ioption,
                 &mut info,
                 dparm,
-                &mut iparm
+                &iparm
             );
         }
 
