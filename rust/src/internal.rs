@@ -309,6 +309,23 @@ impl DoubleMatrix {
     }
 
     #[inline]
+    pub fn square_mut(&mut self) {
+        let mut i = 0;
+        let len = self.data.len();
+        while i < len & !3 {
+            self.data[i] *= self.data[i];
+            self.data[i+1] *= self.data[i+1];
+            self.data[i+2] *= self.data[i+2];
+            self.data[i+3] *= self.data[i+3];
+            i += 4;
+        }
+        while i < len {
+            self.data[i] *= self.data[i];
+            i += 1;
+        }
+    }
+
+    #[inline]
     pub fn div_scalar(&self, value: f64) -> DoubleMatrix {
         self.mul_scalar(1f64 / value)
     }
@@ -342,6 +359,18 @@ impl DoubleMatrix {
     pub fn sub_matrix(&self, other: &DoubleMatrix) -> DoubleMatrix {
         let mut clone = self.clone();
         clone.sub_matrix_mut(other);
+        clone
+    }
+
+    #[inline]
+    pub fn sub_row_vector(&self, row_vector: &DoubleMatrix) -> DoubleMatrix {
+        assert!(row_vector.rows() == 1, "Vector {:?} is not a row vector", row_vector.shape());
+        let mut clone = self.clone();
+        for r in 0..self.rows {
+            for c in 0..self.cols {
+                clone.put(r, c, self.get(r, c) - row_vector.get(0, c));
+            }
+        }
         clone
     }
 
