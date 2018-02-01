@@ -503,6 +503,7 @@ impl DoubleMatrix {
         let mut dy = &mut self.data[start..end];
         dcopy![dx, dy];
     }
+
     // Get column for index col from this matrix as column vector
     pub fn get_column(&self, col: usize) -> DoubleMatrix {
         assert!(col < self.cols(), "Invalid column index {} ({} columns).", col, self.cols());
