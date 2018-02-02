@@ -573,6 +573,58 @@ public class DoubleMatrix {
     return res;
   }
 
+  // == procrustes methods ==
+
+  private static class GpaResult {
+    long mean_shape_ptr = INVALID_PTR;
+    long[] normal_shapes_ptrs = null;
+    double distance = 0.0;
+  }
+
+  public static class GPA {
+    private DoubleMatrix meanShape = null;
+    private DoubleMatrix[] normalShapes = null;
+    private double distance = 0.0;
+
+    GPA(GpaResult result) {
+      if (result.mean_shape_ptr != INVALID_PTR) {
+        this.meanShape = new DoubleMatrix(result.mean_shape_ptr);
+      }
+      if (result.normal_shapes_ptrs != null) {
+        this.normalShapes = new DoubleMatrix[result.normal_shapes_ptrs.length];
+        for (int i = 0; i < result.normal_shapes_ptrs.length; i++) {
+          long ptr = result.normal_shapes_ptrs[i];
+          this.normalShapes[i] = (ptr == INVALID_PTR) ? null : new DoubleMatrix(ptr);
+        }
+      }
+      this.distance = distance;
+    }
+
+    public DoubleMatrix getMeanShape() {
+      return this.meanShape;
+    }
+
+    public DoubleMatrix[] getNormalShapes() {
+      return this.normalShapes;
+    }
+
+    public double getDistance() {
+      return this.distance;
+    }
+  }
+
+  public GPA estimateGPA(DoubleMatrix[] shapes) {
+    int i = 0;
+    long[] ptrs = new long[shapes.length];
+    for (DoubleMatrix shape : shapes) {
+      shape.assert_pointer();
+      ptrs[i++] = shape.ptr();
+    }
+    GpaResult res = new GpaResult();
+    matrix_estimate_gpa(ptrs, res);
+    return new GPA(res);
+  }
+
   // == native methods ==
 
   private static native long alloc_from_array(int rows, int cols, double[] arr);
@@ -639,4 +691,6 @@ public class DoubleMatrix {
   private native long matrix_singular_values();
   private native void matrix_svd_k(SvdResult ptrs, int k);
   private native void matrix_lansvd_k(SvdResult ptrs, int k);
+
+  private native void matrix_estimate_gpa(long[] ptrs, GpaResult res);
 }

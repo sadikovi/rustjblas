@@ -699,4 +699,15 @@ extern "C" {
     SvdResult res = matrix_lansvd_k(get_matrix_pointer(env, obj), k);
     set_svd_result(env, res, ptrs);
   }
+
+  /*
+   * Class:     com_github_sadikovi_rustjblas_DoubleMatrix
+   * Method:    matrix_estimate_gpa
+   * Signature: ([JLcom/github/sadikovi/rustjblas/DoubleMatrix/GpaResult;)V
+   */
+  JNIEXPORT void JNICALL Java_com_github_sadikovi_rustjblas_DoubleMatrix_matrix_1estimate_1gpa(
+      JNIEnv *env, jobject obj, jlongArray ptrs, jobject res) {
+    // GpaResult gpa = matrix_estimate_gpa();
+    // set_gpa_result(env, gpa, res);
+  }
 }

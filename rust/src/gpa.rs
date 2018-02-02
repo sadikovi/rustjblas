@@ -18,12 +18,14 @@
 // OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
 // SOFTWARE.
 
+//! Module that implements Generalized Procrustes Analysis
+
 use internal::DoubleMatrix;
 
 pub struct GPA {
     mean_shape: DoubleMatrix,
     normal_shapes: Vec<DoubleMatrix>,
-    ssd: f64
+    ssd: f64 // Procrustes distance
 }
 
 impl GPA {
@@ -126,7 +128,6 @@ fn validate_shapes(matrices: &[DoubleMatrix]) -> (usize, usize) {
     }
     shape
 }
-
 
 #[cfg(test)]
 mod tests {

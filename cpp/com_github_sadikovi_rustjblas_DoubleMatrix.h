@@ -425,6 +425,14 @@ JNIEXPORT void JNICALL Java_com_github_sadikovi_rustjblas_DoubleMatrix_matrix_1s
 JNIEXPORT void JNICALL Java_com_github_sadikovi_rustjblas_DoubleMatrix_matrix_1lansvd_1k
   (JNIEnv *, jobject, jobject, jint);
 
+/*
+ * Class:     com_github_sadikovi_rustjblas_DoubleMatrix
+ * Method:    matrix_estimate_gpa
+ * Signature: ([JLcom/github/sadikovi/rustjblas/DoubleMatrix/GpaResult;)V
+ */
+JNIEXPORT void JNICALL Java_com_github_sadikovi_rustjblas_DoubleMatrix_matrix_1estimate_1gpa
+  (JNIEnv *, jobject, jlongArray, jobject);
+
 #ifdef __cplusplus
 }
 #endif
