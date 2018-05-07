@@ -153,11 +153,11 @@ extern "C" {
   /*
    * Class:     com_github_sadikovi_rustjblas_DoubleMatrix
    * Method:    matrix_pretty_string
-   * Signature: (Z)Ljava/lang/String;
+   * Signature: (I)Ljava/lang/String;
    */
   JNIEXPORT jstring JNICALL Java_com_github_sadikovi_rustjblas_DoubleMatrix_matrix_1pretty_1string(
-      JNIEnv *env, jobject obj) {
-    const char *cstr = matrix_pretty_string(get_matrix_pointer(env, obj));
+      JNIEnv *env, jobject obj, jint truncate) {
+    const char *cstr = matrix_pretty_string(get_matrix_pointer(env, obj), truncate);
     jstring result = env->NewStringUTF(cstr);
     return result;
   }

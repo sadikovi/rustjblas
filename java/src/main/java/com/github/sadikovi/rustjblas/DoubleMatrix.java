@@ -141,16 +141,34 @@ public class DoubleMatrix {
     }
   }
 
-  /** Return pretty string for a matrix */
-  public String prettyString() {
+  /**
+   * Return pretty string for a matrix
+   * When `truncate` is `true`, values are shown up to a certain precision to fit the screen,
+   * otherwise, when `truncate` is `false`, full values are shown.
+   */
+  public String prettyString(boolean truncate) {
     assert_pointer();
-    return matrix_pretty_string();
+    // 1 - truncated values, 0 - full values
+    return matrix_pretty_string(truncate ? 1 : 0);
   }
 
-  /** Display current matrix in stdout */
-  public void show() {
+  /** Return pretty string for a matrix with truncated values */
+  public String prettyString() {
+    return prettyString(true);
+  }
+
+  /**
+   * Display current matrix in stdout.
+   * If `truncate` is `false`, full precision values are shown, otherwise values are truncated. 
+   */
+  public void show(boolean truncate) {
     assert_pointer();
-    System.out.println(prettyString());
+    System.out.println(prettyString(truncate));
+  }
+
+  /** Display current matrix with truncated values in stdout */
+  public void show() {
+    show(true);
   }
 
   /** Get current pointer value (read-only) */
@@ -584,7 +602,7 @@ public class DoubleMatrix {
   private native int matrix_rows();
   private native int matrix_cols();
   private native double[] matrix_data_array();
-  private native String matrix_pretty_string();
+  private native String matrix_pretty_string(int truncate);
   private native void matrix_dealloc();
 
   private native long matrix_add_scalar(double scalar);

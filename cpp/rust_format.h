@@ -77,7 +77,7 @@ PtrResult alloc_identity(int, int);
 int matrix_rows(void*);
 int matrix_cols(void*);
 DoubleArray matrix_data_array(void*);
-const char* matrix_pretty_string(void*);
+const char* matrix_pretty_string(void*, bool);
 void matrix_dealloc(void*);
 
 PtrResult matrix_add_scalar(void*, double);

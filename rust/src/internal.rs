@@ -919,7 +919,6 @@ impl Clone for DoubleMatrix {
 }
 
 impl Display for DoubleMatrix {
-    // Copied from nalgebra
     fn fmt(&self, f: &mut Formatter) -> Result<(), Error> {
         fn val_width(val: f64, f: &mut Formatter) -> usize {
             match f.precision() {
@@ -934,38 +933,35 @@ impl Display for DoubleMatrix {
             return write!(f, "[ ]");
         }
 
-        let mut max_length = 0;
-        let mut lengths = vec![0; rows * cols];
+        let mut max_length_with_space = 0;
+        let mut col_lengths = vec![0; cols];
 
-        for i in 0..rows {
-            for j in 0..cols {
+        for j in 0..cols {
+            for i in 0..rows {
                 let idx = self.m2v(i, j);
-                lengths[idx] = val_width(self.data[idx], f);
-                max_length = cmp::max(max_length, lengths[idx]);
+                col_lengths[j] = cmp::max(col_lengths[j], val_width(self.data[idx], f));
             }
+            max_length_with_space += col_lengths[j] + 1;
         }
 
-        let max_length_with_space = max_length + 1;
-
-        try!(writeln!(f, ""));
-        try!(writeln!(f, "  . {:>width$} .", "", width = max_length_with_space * cols - 1));
+        writeln!(f, "")?;
+        writeln!(f, "  . {:>width$} .", "", width = max_length_with_space - 1)?;
 
         for i in 0..rows {
-            try!(write!(f, "  |"));
+            write!(f, "  |")?;
             for j in 0..cols {
                 let idx = self.m2v(i, j);
-                let number_length = lengths[idx] + 1;
-                let pad = max_length_with_space - number_length;
-                try!(write!(f, " {:>thepad$}", "", thepad = pad));
+                let pad = col_lengths[j] - val_width(self.data[idx], f);
+                write!(f, " {:>thepad$}", "", thepad = pad)?;
                 match f.precision() {
-                    Some(precision) => try!(write!(f, "{:.1$}", self.data[idx], precision)),
-                    None => try!(write!(f, "{}", self.data[idx]))
+                    Some(precision) => write!(f, "{:.1$}", self.data[idx], precision)?,
+                    None => write!(f, "{}", self.data[idx])?
                 }
             }
-            try!(writeln!(f, " |"));
+            writeln!(f, " |")?;
         }
 
-        try!(writeln!(f, "  . {:>width$} .", "", width = max_length_with_space * cols - 1));
+        writeln!(f, "  . {:>width$} .", "", width = max_length_with_space - 1)?;
         writeln!(f, "")
     }
 }
@@ -1668,5 +1664,70 @@ mod tests {
         assert_matrix_eps(&svd.u.unwrap(), &u_exp, 1e-6);
         assert_matrix_eps(&svd.s, &s_exp, 1e-6);
         assert_matrix_eps(&svd.v.unwrap(), &v_exp, 1e-6);
+    }
+
+    #[test]
+    fn test_matrix_display() {
+        let a = DoubleMatrix::from_row_slice(4, 3, &[
+            0.010036686563409836, 0.7810703456302204, 111.0, 0.002,
+            0.4373140464988601, 123.12, 0.123456, 0.0003,
+            0.3285631807472238, 23982.1, 0.01, 0.00004
+        ]);
+
+        assert_eq!(
+            format!("{:.1$}", a, 3),
+"
+  .                         .
+  |     0.010 0.781 111.000 |
+  |     0.002 0.437 123.120 |
+  |     0.123 0.000   0.329 |
+  | 23982.100 0.010   0.000 |
+  .                         .
+
+"
+        );
+        assert_eq!(
+            format!("{}", a),
+"
+  .                                                            .
+  | 0.010036686563409836 0.7810703456302204                111 |
+  |                0.002 0.4373140464988601             123.12 |
+  |             0.123456             0.0003 0.3285631807472238 |
+  |              23982.1               0.01            0.00004 |
+  .                                                            .
+
+"
+        );
+
+        let a = DoubleMatrix::new(4, 3, vec![
+            -0.010036686563409836, -0.7810703456302204, 111.0, 0.002,
+            0.4373140464988601, 123.12, -0.123456, -0.0003,
+            0.3285631807472238, -23982.1, 0.01, 0.00001298234982344
+        ]);
+
+        assert_eq!(
+            format!("{:.1$}", a, 3),
+"
+  .                            .
+  |  -0.010   0.437      0.329 |
+  |  -0.781 123.120 -23982.100 |
+  | 111.000  -0.123      0.010 |
+  |   0.002  -0.000      0.000 |
+  .                            .
+
+"
+        );
+        assert_eq!(
+            format!("{}", a),
+"
+  .                                                              .
+  | -0.010036686563409836 0.4373140464988601  0.3285631807472238 |
+  |   -0.7810703456302204             123.12            -23982.1 |
+  |                   111          -0.123456                0.01 |
+  |                 0.002            -0.0003 0.00001298234982344 |
+  .                                                              .
+
+"
+        );
     }
 }

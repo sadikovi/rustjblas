@@ -39,6 +39,13 @@ public class MatrixPropsSuite {
     String expected =
       "  | 1 3 5 |\n" +
       "  | 2 4 6 |\n";
+    assertTrue(matrix.prettyString(false).contains(expected.trim()));
+
+    data = new double[]{1.123456, 2.123456, 3.123456, 4.123456, 5.123456, 6.123456};
+    matrix = DoubleMatrix.fromArray(2, 3, data);
+    expected =
+      "  | 1.123 3.123 5.123 |\n" +
+      "  | 2.123 4.123 6.123 |\n";
     assertTrue(matrix.prettyString().contains(expected.trim()));
   }
 

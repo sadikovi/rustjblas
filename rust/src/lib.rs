@@ -189,8 +189,15 @@ pub extern "C" fn matrix_data_array(ptr: *const DoubleMatrix) -> DoubleArray {
 }
 
 #[no_mangle]
-pub extern "C" fn matrix_pretty_string(ptr: *const DoubleMatrix) -> *const c_char {
-    let matrix_str = unsafe { (*ptr).to_string() };
+pub extern "C" fn matrix_pretty_string(
+    ptr: *const DoubleMatrix,
+    truncate: int32_t
+) -> *const c_char
+{
+    // If truncated, show up to a certain precision
+    let matrix_str = unsafe {
+      if truncate == 1 { format!("{:.1$}", *ptr, 3) } else { format!("{}", *ptr) }
+    };
     let cstr = CString::new(matrix_str).unwrap();
     let ptr = cstr.as_ptr();
     mem::forget(cstr);

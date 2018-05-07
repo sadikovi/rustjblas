@@ -76,10 +76,10 @@ JNIEXPORT jdoubleArray JNICALL Java_com_github_sadikovi_rustjblas_DoubleMatrix_m
 /*
  * Class:     com_github_sadikovi_rustjblas_DoubleMatrix
  * Method:    matrix_pretty_string
- * Signature: ()Ljava/lang/String;
+ * Signature: (I)Ljava/lang/String;
  */
 JNIEXPORT jstring JNICALL Java_com_github_sadikovi_rustjblas_DoubleMatrix_matrix_1pretty_1string
-  (JNIEnv *, jobject);
+  (JNIEnv *, jobject, jint);
 
 /*
  * Class:     com_github_sadikovi_rustjblas_DoubleMatrix
