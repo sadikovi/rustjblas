@@ -196,7 +196,7 @@ pub extern "C" fn matrix_pretty_string(
 {
     // If truncated, show up to a certain precision
     let matrix_str = unsafe {
-      if truncate == 1 { format!("{:.1$}", *ptr, 3) } else { format!("{}", *ptr) }
+        if truncate == 1 { format!("{:.1$}", *ptr, 3) } else { format!("{}", *ptr) }
     };
     let cstr = CString::new(matrix_str).unwrap();
     let ptr = cstr.as_ptr();
@@ -476,7 +476,11 @@ pub extern "C" fn matrix_put_column(
 }
 
 #[no_mangle]
-pub extern "C" fn matrix_get_column(ptr: *const DoubleMatrix, col: int32_t) -> PtrResult {
+pub extern "C" fn matrix_get_column(
+    ptr: *const DoubleMatrix,
+    col: int32_t
+) -> PtrResult
+{
     try_catch_ptr(|| {
         let this = unsafe { &(*ptr) };
         this.get_column(col as usize)
@@ -561,7 +565,10 @@ pub extern "C" fn matrix_full_svd(ptr: *const DoubleMatrix) -> SvdResult {
 
 
 #[no_mangle]
-pub extern "C" fn matrix_singular_values(ptr: *const DoubleMatrix) -> *const DoubleMatrix {
+pub extern "C" fn matrix_singular_values(
+    ptr: *const DoubleMatrix
+) -> *const DoubleMatrix
+{
     let this = unsafe { &(*ptr) };
     let matrix = Box::new(this.singular_values());
     Box::into_raw(matrix)
